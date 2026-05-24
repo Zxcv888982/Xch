@@ -11,197 +11,176 @@
       background:#f0f2f5;height:100vh;height:100dvh;
       display:flex;flex-direction:column;overflow:hidden;
       -webkit-tap-highlight-color:transparent;
+      user-select:none;-webkit-user-select:none;
     }
-    /* 加载中 */
+    body *{will-change:transform}
+    /* 加载 */
     .loading-screen{
       display:flex;align-items:center;justify-content:center;
-      height:100%;flex-direction:column;gap:16px;
-      background:#f0f2f5;font-size:1rem;color:#999;
+      height:100%;flex-direction:column;gap:16px;background:#f0f2f5;
     }
     .loading-screen .spinner{
-      width:40px;height:40px;border:3px solid #e0e0e0;
+      width:36px;height:36px;border:3px solid #e0e0e0;
       border-top-color:#1677ff;border-radius:50%;
-      animation:spin 0.8s linear infinite;
+      animation:spin 0.6s linear infinite;
     }
     @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-screen span{font-size:0.9rem;color:#999}
     /* 主界面 */
     .main-app{display:none;flex-direction:column;height:100%}
     .main-app.show{display:flex}
     /* 导航 */
     .navbar{
-      background:#fff;padding:10px 14px;
-      display:flex;align-items:center;gap:10px;
-      border-bottom:1px solid #e8e8e8;flex-shrink:0;
+      background:#fff;padding:8px 12px;
+      display:flex;align-items:center;gap:8px;
+      border-bottom:0.5px solid #e8e8e8;flex-shrink:0;
+      height:48px;
     }
     .navbar .title{font-size:1rem;font-weight:600;color:#1a1a1a;flex:1}
-    .navbar .online-badge{font-size:0.7rem;color:#999;background:#f5f5f5;padding:3px 8px;border-radius:10px}
-    .nav-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;cursor:pointer;flex-shrink:0}
-    .nav-avatar-placeholder{width:32px;height:32px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;flex-shrink:0}
-    /* 消息区 */
-    .msg-list{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px;background:#f0f2f5;-webkit-overflow-scrolling:touch}
-    .msg-row{display:flex;flex-direction:column;max-width:80%;animation:fadeIn 0.15s ease}
-    .msg-row.self{align-self:flex-end;align-items:flex-end}
-    .msg-row.other{align-self:flex-start;align-items:flex-start}
-    .msg-row.favorited::before{content:'⭐';position:absolute;top:-4px;right:-2px;font-size:0.5rem}
-    .msg-header{display:flex;align-items:center;gap:6px;margin-bottom:2px;cursor:pointer}
-    .msg-row.self .msg-header{flex-direction:row-reverse}
-    .msg-name{font-size:0.7rem;color:#999}
-    .msg-h-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0}
-    .msg-h-avatar-placeholder{width:20px;height:20px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;flex-shrink:0}
+    .navbar .badge{font-size:0.7rem;color:#999;background:#f5f5f5;padding:3px 8px;border-radius:10px}
+    .nav-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;cursor:pointer;flex-shrink:0}
+    .nav-avatar-ph{width:30px;height:30px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:0.9rem;cursor:pointer;flex-shrink:0}
+    .btn-logout{
+      background:#ff4d4f;color:#fff;border:none;
+      padding:4px 10px;border-radius:12px;font-size:0.7rem;
+      cursor:pointer;white-space:nowrap;
+    }
+    /* 消息列表 */
+    .msg-list{flex:1;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px;background:#f0f2f5;-webkit-overflow-scrolling:touch}
+    .msg-list .empty{text-align:center;color:#b0b0b0;font-size:0.8rem;margin-top:40px}
+    /* 消息行 */
+    .msg{display:flex;align-items:flex-end;gap:6px;animation:msgIn 0.08s ease}
+    .msg.self{flex-direction:row-reverse}
+    .msg-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;cursor:pointer}
+    .msg-avatar-ph{width:30px;height:30px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0;cursor:pointer}
+    .msg-content{max-width:70%;display:flex;flex-direction:column}
+    .msg-name{font-size:0.65rem;color:#999;margin-bottom:1px}
+    .msg.self .msg-name{text-align:right}
     .msg-bubble{
-      padding:9px 13px;border-radius:16px;font-size:0.9rem;line-height:1.45;
+      padding:7px 11px;border-radius:14px;font-size:0.88rem;line-height:1.4;
       word-break:break-word;background:#fff;color:#1a1a1a;
-      box-shadow:0 1px 2px rgba(0,0,0,0.04);display:inline-block;max-width:100%;cursor:pointer;
-      position:relative;
+      box-shadow:0 0.5px 1px rgba(0,0,0,0.03);position:relative;cursor:pointer;
     }
-    .msg-row.self .msg-bubble{background:#1677ff;color:#fff;border-bottom-right-radius:4px}
-    .msg-row.other .msg-bubble{border-bottom-left-radius:4px}
-    .msg-bubble .mention{color:#ff8c00;font-weight:600}
-    .msg-row.self .msg-bubble .mention{color:#ffd666}
-    .msg-bubble img{max-width:200px;max-height:280px;border-radius:8px;display:block;cursor:pointer;object-fit:cover}
-    .msg-bubble video{max-width:200px;max-height:280px;border-radius:8px;display:block;background:#000}
-    .msg-bubble audio{max-width:180px;height:32px}
-    .msg-bubble .media-loading{
+    .msg.self .msg-bubble{background:#1677ff;color:#fff;border-bottom-right-radius:3px}
+    .msg.other .msg-bubble{border-bottom-left-radius:3px}
+    .msg-bubble .at{color:#ff8c00;font-weight:600}
+    .msg.self .msg-bubble .at{color:#ffd666}
+    .msg-bubble img{max-width:180px;max-height:260px;border-radius:6px;display:block;cursor:pointer;object-fit:cover}
+    .msg-bubble video{max-width:180px;max-height:260px;border-radius:6px;display:block;background:#000}
+    .msg-bubble audio{max-width:160px;height:30px;outline:none}
+    .msg-bubble .loading-box{
       display:flex;align-items:center;justify-content:center;
-      width:180px;height:100px;background:#f5f5f5;border-radius:8px;
-      font-size:0.75rem;color:#999;flex-direction:column;gap:6px;
+      width:160px;height:90px;background:#f5f5f5;border-radius:6px;
+      flex-direction:column;gap:4px;font-size:0.7rem;color:#999;
     }
-    .media-loading .progress-bar{width:80px;height:4px;background:#e0e0e0;border-radius:2px;overflow:hidden}
-    .media-loading .progress-bar div{height:100%;background:#1677ff;transition:width 0.3s}
-    .msg-recalled{font-style:italic;opacity:0.5}
-    .msg-time{font-size:0.6rem;color:#b0b0b0;margin-top:2px;display:flex;align-items:center;gap:4px}
-    .msg-row.self .msg-time{justify-content:flex-end}
-    .msg-size{color:#b0b0b0}
-    .system-msg{text-align:center;font-size:0.7rem;color:#b0b0b0;padding:4px;align-self:center}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .loading-box .bar{width:60px;height:3px;background:#e0e0e0;border-radius:2px;overflow:hidden}
+    .loading-box .bar i{display:block;height:100%;background:#1677ff;transition:width 0.2s}
+    .msg-bubble .recalled{font-style:italic;opacity:0.5}
+    .msg-time{font-size:0.55rem;color:#b0b0b0;margin-top:1px}
+    .msg.self .msg-time{text-align:right}
+    .msg-time .size{color:#b0b0b0}
+    .msg.favorited .msg-bubble::after{content:'⭐';position:absolute;top:-6px;right:-2px;font-size:0.5rem}
+    .system{text-align:center;font-size:0.65rem;color:#b0b0b0;padding:2px 0}
+    @keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
     /* 输入栏 */
     .input-bar{
-      background:#fff;padding:8px 10px;display:flex;align-items:center;gap:6px;
-      border-top:1px solid #e8e8e8;flex-shrink:0;
-      padding-bottom:max(8px,env(safe-area-inset-bottom));
+      background:#fff;padding:6px 8px;display:flex;align-items:center;gap:5px;
+      border-top:0.5px solid #e8e8e8;flex-shrink:0;height:48px;
+      padding-bottom:max(6px,env(safe-area-inset-bottom));
     }
     .input-bar input{
-      flex:1;border:none;background:#f5f5f5;border-radius:20px;
-      padding:9px 14px;font-size:0.9rem;outline:none;color:#1a1a1a;min-width:0;
+      flex:1;border:none;background:#f5f5f5;border-radius:16px;
+      padding:7px 12px;font-size:0.88rem;outline:none;color:#1a1a1a;
+      height:34px;min-width:0;
     }
     .input-bar input::placeholder{color:#b0b0b0}
     .icon-btn{
-      width:34px;height:34px;border-radius:50%;border:none;font-size:1.1rem;
+      width:32px;height:32px;border-radius:50%;border:none;font-size:1rem;
       cursor:pointer;display:flex;align-items:center;justify-content:center;
-      flex-shrink:0;background:#f5f5f5;
+      flex-shrink:0;background:#f5f5f5;transition:transform 0.1s;
     }
-    .icon-btn:active{background:#e8e8e8}
-    .btn-send{background:#1677ff;color:#fff;width:auto;padding:0 16px;border-radius:18px;font-size:0.85rem;font-weight:600}
+    .icon-btn:active{transform:scale(0.9);background:#e8e8e8}
+    .btn-send{
+      background:#1677ff;color:#fff;width:auto;padding:0 14px;
+      border-radius:16px;font-size:0.82rem;font-weight:600;height:32px;
+    }
     .btn-send:active{background:#0958d9}
     .btn-mic.recording{background:#ff4d4f;color:#fff}
-    /* 录音提示 */
+    /* 提示 */
     .record-tip{
-      display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
-      background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:12px;
-      font-size:0.85rem;z-index:300;text-align:center;
+      display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);
+      background:rgba(0,0,0,0.8);color:#fff;padding:10px 20px;border-radius:10px;
+      font-size:0.8rem;z-index:300;text-align:center;pointer-events:none;
     }
     .record-tip.show{display:block}
     .record-tip.cancel{background:rgba(255,77,79,0.9)}
-    /* 长按菜单 */
-    .context-menu{
-      display:none;position:fixed;background:#fff;border-radius:12px;
-      box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:400;padding:4px 0;min-width:120px;
+    /* 菜单 */
+    .menu{
+      display:none;position:fixed;background:#fff;border-radius:10px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.12);z-index:400;padding:2px 0;min-width:110px;
     }
-    .context-menu.show{display:block}
-    .context-menu .item{padding:10px 16px;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:8px}
-    .context-menu .item:active{background:#f5f5f5}
-    .context-menu .item.danger{color:#ff4d4f}
+    .menu.show{display:block}
+    .menu .item{padding:9px 14px;font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+    .menu .item:active{background:#f5f5f5}
+    .menu .item.danger{color:#ff4d4f}
     /* @ 面板 */
-    .mention-panel{
-      display:none;position:absolute;bottom:55px;left:10px;right:10px;
-      background:#fff;border-radius:12px;box-shadow:0 -2px 20px rgba(0,0,0,0.1);
-      max-height:180px;overflow-y:auto;z-index:100;
+    .at-panel{
+      display:none;position:absolute;bottom:50px;left:8px;right:8px;
+      background:#fff;border-radius:10px;box-shadow:0 -1px 16px rgba(0,0,0,0.08);
+      max-height:160px;overflow-y:auto;z-index:100;
     }
-    .mention-panel.show{display:block}
-    .mention-item{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:0.9rem}
-    .mention-item:active{background:#f5f5f5}
-    /* 页面切换 */
-    .page{display:none;flex-direction:column;height:100%}
-    .page.active{display:flex}
-    /* 用户主页 */
-    .profile-page{background:#f0f2f5}
-    .profile-header{
-      background:linear-gradient(135deg,#4a6cf7,#6b3ff5);
-      padding:24px 16px 20px;text-align:center;color:#fff;
-    }
-    .profile-header .p-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.5);margin-bottom:8px}
-    .profile-header .p-avatar-placeholder{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:8px}
-    .profile-header .p-name{font-size:1.2rem;font-weight:600}
-    .profile-header .p-sign{font-size:0.8rem;opacity:0.85;margin-top:2px}
-    .profile-section{background:#fff;margin:10px 12px;border-radius:14px;padding:14px}
-    .profile-section h4{font-size:0.85rem;color:#333;margin-bottom:8px}
-    .intimacy-row{display:flex;flex-wrap:wrap;gap:8px}
-    .intimacy-item{text-align:center;width:58px;cursor:pointer}
-    .intimacy-item .i-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;margin:0 auto}
-    .intimacy-item .i-avatar-placeholder{width:36px;height:36px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:1rem;margin:0 auto}
-    .intimacy-item .i-name{font-size:0.6rem;color:#666;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .intimacy-item .i-count{font-size:0.55rem;color:#ff8c00}
+    .at-panel.show{display:block}
+    .at-item{padding:9px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px}
+    .at-item:active{background:#f5f5f5}
     /* 底部导航 */
-    .bottom-nav{background:#fff;display:flex;border-top:1px solid #e8e8e8;flex-shrink:0}
-    .bottom-nav .nav-item{flex:1;text-align:center;padding:8px 0;font-size:0.65rem;color:#999;cursor:pointer;transition:color 0.2s}
+    .bottom-nav{background:#fff;display:flex;border-top:0.5px solid #e8e8e8;flex-shrink:0;height:44px}
+    .bottom-nav .nav-item{flex:1;text-align:center;padding:6px 0;font-size:0.6rem;color:#999;cursor:pointer}
     .bottom-nav .nav-item.active{color:#1677ff}
-    .bottom-nav .nav-item span{font-size:1.2rem;display:block;margin-bottom:1px}
+    .bottom-nav .nav-item span{font-size:1.1rem;display:block}
+    /* 图片查看 */
+    .viewer{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.96);z-index:500;justify-content:center;align-items:center}
+    .viewer.show{display:flex}
+    .viewer img,.viewer video{max-width:95%;max-height:85%;border-radius:6px}
+    .viewer .close{position:absolute;top:14px;left:14px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;border:none;font-size:1rem;cursor:pointer}
     /* 模态 */
-    .modal{
-      display:none;position:fixed;top:0;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,0.5);z-index:200;justify-content:center;align-items:center;
-    }
+    .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;justify-content:center;align-items:center}
     .modal.show{display:flex}
-    .modal-content{background:#fff;border-radius:16px;padding:18px;width:90%;max-width:320px;text-align:center}
-    .modal-content h3{margin-bottom:12px;font-size:0.95rem}
-    .emoji-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
-    .emoji-item{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:#f5f5f5;cursor:pointer;border:2px solid transparent}
+    .modal-content{background:#fff;border-radius:14px;padding:16px;width:90%;max-width:300px;text-align:center}
+    .modal-content h3{margin-bottom:10px;font-size:0.9rem}
+    .emoji-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px}
+    .emoji-item{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:#f5f5f5;cursor:pointer;border:2px solid transparent}
     .emoji-item.selected{border-color:#1677ff;background:#e6f0ff}
-    .btn-sm{padding:8px 16px;border-radius:14px;border:none;font-size:0.85rem;cursor:pointer;margin:2px}
-    .btn-sm-primary{background:#1677ff;color:#fff}
-    .btn-sm-outline{background:#fff;color:#1677ff;border:1px solid #1677ff}
-    /* 图片查看器 */
-    .image-viewer{
-      display:none;position:fixed;top:0;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,0.95);z-index:500;justify-content:center;align-items:center;
-    }
-    .image-viewer.show{display:flex}
-    .image-viewer img,.image-viewer video{max-width:95%;max-height:85%;border-radius:8px}
-    .image-viewer .close{position:absolute;top:16px;left:16px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;border:none;font-size:1.2rem;cursor:pointer}
+    .btn-xs{padding:6px 14px;border-radius:12px;border:none;font-size:0.8rem;cursor:pointer;margin:2px}
+    .btn-xs-primary{background:#1677ff;color:#fff}
+    .btn-xs-outline{background:#fff;color:#1677ff;border:1px solid #1677ff}
   </style>
 </head>
 <body>
 
-<!-- 加载中 -->
 <div class="loading-screen" id="loadingScreen">
   <div class="spinner"></div>
-  <div>加载中...</div>
+  <span>加载中...</span>
 </div>
 
-<!-- 主应用 -->
 <div class="main-app" id="mainApp">
-  <!-- 导航 -->
-  <div class="navbar" id="mainNavbar">
+  <div class="navbar">
     <div class="title">💬 聊天室</div>
-    <div class="online-badge" id="onlineBadge">在线 0</div>
+    <div class="badge" id="onlineBadge">在线 0</div>
+    <button class="btn-logout" id="btnLogout">退出</button>
     <img class="nav-avatar" id="myAvatarImg" src="" style="display:none">
-    <div class="nav-avatar-placeholder" id="myAvatarPH">😀</div>
+    <div class="nav-avatar-ph" id="myAvatarPH">😀</div>
   </div>
 
-  <!-- 消息列表 -->
-  <div class="msg-list" id="messageList"></div>
+  <div class="msg-list" id="messageList"><div class="empty">暂无消息</div></div>
 
-  <!-- @ 面板 -->
-  <div class="mention-panel" id="mentionPanel"></div>
+  <div class="at-panel" id="atPanel"></div>
 
-  <!-- 长按菜单 -->
-  <div class="context-menu" id="contextMenu">
+  <div class="menu" id="contextMenu">
     <div class="item" data-action="copy">📋 复制</div>
     <div class="item" data-action="favorite">⭐ 收藏</div>
     <div class="item danger" data-action="recall">🗑 撤回</div>
   </div>
 
-  <!-- 输入栏 -->
   <div class="input-bar">
     <button class="icon-btn" id="btnImage">🖼</button>
     <button class="icon-btn" id="btnVideo">🎬</button>
@@ -209,58 +188,34 @@
     <input type="text" id="msgInput" placeholder="输入消息，@ 好友..." autocomplete="off">
     <button class="icon-btn btn-send" id="btnSend">发送</button>
   </div>
-
-  <!-- 录音提示 -->
   <div class="record-tip" id="recordTip">手指上滑取消发送</div>
 
-  <!-- 底部导航 -->
   <div class="bottom-nav">
     <div class="nav-item active" data-tab="chat"><span>💬</span>消息</div>
     <div class="nav-item" data-tab="favorites"><span>⭐</span>收藏</div>
   </div>
 </div>
 
-<!-- 收藏页 -->
 <div class="main-app" id="favoritesApp">
   <div class="navbar">
     <div class="title">⭐ 收藏</div>
-    <button class="icon-btn" id="btnBackToChat" style="width:auto;padding:0 12px;border-radius:14px;font-size:0.85rem">← 返回</button>
+    <button class="btn-logout" id="btnBackToChat" style="background:#1677ff">← 返回</button>
   </div>
   <div class="msg-list" id="favoritesList" style="flex:1"></div>
 </div>
 
-<!-- 用户主页 -->
-<div class="main-app" id="profileApp">
-  <div class="navbar" style="background:transparent;border:none;position:absolute;top:0;left:0;right:0;z-index:10">
-    <button class="icon-btn" id="btnBackFromProfile" style="background:rgba(255,255,255,0.3);color:#fff;width:auto;padding:0 12px;border-radius:14px;font-size:0.85rem">← 返回</button>
-  </div>
-  <div class="profile-header" id="profileHeader"></div>
-  <div style="flex:1;overflow-y:auto">
-    <div class="profile-section">
-      <h4>💬 最近发言</h4>
-      <div id="recentMsgs"></div>
-    </div>
-    <div class="profile-section">
-      <h4>💕 亲密关系</h4>
-      <div class="intimacy-row" id="intimacyRow"></div>
-    </div>
-  </div>
-</div>
-
-<!-- 图片查看器 -->
-<div class="image-viewer" id="imageViewer">
+<div class="viewer" id="viewer">
   <button class="close" id="btnCloseViewer">✕</button>
   <img id="viewerImg" src="" style="display:none">
   <video id="viewerVideo" controls style="display:none"></video>
 </div>
 
-<!-- 头像弹窗 -->
 <div class="modal" id="avatarModal">
   <div class="modal-content">
     <h3>选择头像</h3>
     <div class="emoji-grid" id="emojiGrid"></div>
-    <button class="btn-sm btn-sm-outline" id="btnPickPhoto">📷 从相册选择</button>
-    <button class="btn-sm btn-sm-primary" id="btnCloseAvatar">完成</button>
+    <button class="btn-xs btn-xs-outline" id="btnPickPhoto">📷 从相册选择</button>
+    <button class="btn-xs btn-xs-primary" id="btnCloseAvatar">完成</button>
   </div>
 </div>
 
@@ -271,313 +226,262 @@
 <script>
 (function(){
   const $=id=>document.getElementById(id);
-  let socket=null,clientId=null;
-  let currentUser={username:null,nickname:'',avatar:'😀',avatarType:'emoji',signature:''};
-  let onlineUsers=[],favIds=[],receivedMsgIds=new Set();
-  let mediaRecorder=null,audioChunks=[],isRecording=false,startY=0;
-  let contextMsgId=null,contextIsSelf=false,longPressTimer=null;
-  let currentPage='chat';
+  let socket=null,clientId=null,user={username:null,nickname:'',avatar:'😀',avatarType:'emoji',signature:''};
+  let online=[],favIds=[],received=new Set(),mediaRecorder=null,audioChunks=[],recording=false,startY=0;
+  let menuMsgId=null,menuIsSelf=false,longPress=null,lastSend=0,tab='chat';
 
   const emojis=['😀','😎','🤖','👽','🐱','🦊','🐼','🐨','🦁','🐸','🐵','🦄','🐶','🐰','🦋','🌸'];
 
-  // ==================== 初始化 ====================
-  async function init(){
+  // 初始化
+  (async function init(){
     const token=localStorage.getItem('chat_token');
-    if(!token){ window.location.href='/login.html'; return; }
-
+    if(!token){goLogin();return}
     try{
-      const res=await fetch('/api/auto-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
-      const data=await res.json();
-      if(!data.success){ localStorage.clear(); window.location.href='/login.html'; return; }
-      currentUser={username:data.user.username,nickname:data.user.nickname,avatar:data.user.avatar,avatarType:data.user.avatarType||'emoji',signature:data.user.signature||''};
-      localStorage.setItem('chat_user',JSON.stringify(currentUser));
-    }catch(e){ window.location.href='/login.html'; return; }
-
+      const r=await fetch('/api/auto-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+      const d=await r.json();
+      if(!d.success){goLogin();return}
+      user={username:d.user.username,nickname:d.user.nickname,avatar:d.user.avatar,avatarType:d.user.avatarType||'emoji',signature:d.user.signature||''};
+      localStorage.setItem('chat_user',JSON.stringify(user));
+    }catch(e){goLogin();return}
     $('loadingScreen').style.display='none';
     $('mainApp').classList.add('show');
-    updateMyAvatar();
-    connectWS();
+    updateAvatar();
+    connect();
     loadHistory();
     loadFavIds();
     bindEvents();
+  })();
+
+  function goLogin(){localStorage.clear();window.location.href='/login.html'}
+  function updateAvatar(){
+    const i=$('myAvatarImg'),p=$('myAvatarPH');
+    if(user.avatarType==='image'&&user.avatar){i.src=user.avatar;i.style.display='block';p.style.display='none'}
+    else{p.textContent=user.avatar||'😀';i.style.display='none';p.style.display='flex'}
   }
 
-  // ==================== UI ====================
-  function updateMyAvatar(){
-    const img=$('myAvatarImg'),ph=$('myAvatarPH');
-    if(currentUser.avatarType==='image'&&currentUser.avatar){
-      img.src=currentUser.avatar;img.style.display='block';ph.style.display='none';
-    }else{
-      ph.textContent=currentUser.avatar||'😀';img.style.display='none';ph.style.display='flex';
-    }
-  }
-
-  function showPage(p){
-    currentPage=p;
-    $('mainApp').style.display=p==='chat'?'flex':'none';
-    $('favoritesApp').style.display=p==='favorites'?'flex':'none';
-    $('profileApp').style.display=p==='profile'?'flex':'none';
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.tab===p));
-    if(p==='favorites')loadFavorites();
-  }
-
-  // ==================== WebSocket ====================
-  function connectWS(){
+  // WebSocket
+  function connect(){
     if(socket){socket.onclose=null;socket.onmessage=null;socket.close()}
     socket=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}`);
-    socket.onopen=()=>{if(currentUser.username)socket.send(JSON.stringify({type:'login',username:currentUser.username}))};
-    socket.onmessage=e=>{try{handleWS(JSON.parse(e.data))}catch(ex){}};
-    socket.onclose=()=>setTimeout(connectWS,2000);
+    socket.onopen=()=>{if(user.username)socket.send(JSON.stringify({type:'login',username:user.username}))};
+    socket.onmessage=e=>{try{onMsg(JSON.parse(e.data))}catch(ex){}};
+    socket.onclose=()=>setTimeout(connect,1000);
   }
 
-  function handleWS(data){
-    switch(data.type){
-      case'welcome':clientId=data.clientId;break;
-      case'login_success':clientId=data.clientId||clientId;currentUser.nickname=data.nickname;currentUser.avatar=data.avatar;currentUser.avatarType=data.avatarType||'emoji';currentUser.signature=data.signature||'';updateMyAvatar();break;
-      case'profile_updated':currentUser.nickname=data.nickname||currentUser.nickname;currentUser.avatar=data.avatar||currentUser.avatar;currentUser.avatarType=data.avatarType||currentUser.avatarType;if(data.signature!==undefined)currentUser.signature=data.signature;updateMyAvatar();break;
-      case'message':if(data.msgId&&receivedMsgIds.has(data.msgId))return;if(data.msgId)receivedMsgIds.add(data.msgId);addMsg(data,data.clientId===clientId);break;
-      case'message-recalled':{const el=document.querySelector(`[data-id="${data.msgId}"]`);if(el){const b=el.querySelector('.msg-bubble');b.textContent='[已撤回]';b.classList.add('msg-recalled');b.querySelectorAll('img,video,audio,.media-loading').forEach(c=>c.remove())}}break;
-      case'system':addSys(data.text);break;
-      case'onlineUsers':onlineUsers=data.users||[];$('onlineBadge').textContent=`在线 ${data.count}`;break;
+  function onMsg(d){
+    switch(d.type){
+      case'welcome':clientId=d.clientId;break;
+      case'login_success':clientId=d.clientId||clientId;user.nickname=d.nickname;user.avatar=d.avatar;user.avatarType=d.avatarType||'emoji';user.signature=d.signature||'';updateAvatar();break;
+      case'profile_updated':if(d.nickname)user.nickname=d.nickname;if(d.avatar)user.avatar=d.avatar;if(d.avatarType)user.avatarType=d.avatarType;if(d.signature!==undefined)user.signature=d.signature;updateAvatar();break;
+      case'message':if(d.msgId&&received.has(d.msgId))return;if(d.msgId)received.add(d.msgId);addMsg(d,d.clientId===clientId);break;
+      case'message-recalled':{const el=document.querySelector(`[data-mid="${d.msgId}"]`);if(el){const b=el.querySelector('.msg-bubble');b.textContent='[已撤回]';b.classList.add('recalled');b.querySelectorAll('img,video,audio,.loading-box').forEach(c=>c.remove())}}break;
+      case'system':sysMsg(d.text);break;
+      case'onlineUsers':online=d.users||[];$('onlineBadge').textContent=`在线 ${d.count}`;break;
     }
   }
 
-  // ==================== 消息 ====================
-  function addMsg(data,isSelf,container='messageList'){
-    const row=document.createElement('div');
-    row.className=`msg-row ${isSelf?'self':'other'}`;row.dataset.id=data.msgId||'';
-    if(favIds.includes(data.msgId))row.classList.add('favorited');
-    // header
-    const hdr=document.createElement('div');hdr.className='msg-header';
-    hdr.addEventListener('click',()=>openProfile(data.senderUsername));
-    const nm=document.createElement('span');nm.className='msg-name';nm.textContent=isSelf?'我':(data.sender||'匿名');
+  // 消息
+  function addMsg(d,isSelf,container='messageList'){
+    const row=document.createElement('div');row.className=`msg ${isSelf?'self':'other'}`;row.dataset.mid=d.msgId||'';
+    if(favIds.includes(d.msgId))row.classList.add('favorited');
+    // 头像
     const av=document.createElement('div');
-    if(data.avatarType==='image'&&data.avatar)av.innerHTML=`<img class="msg-h-avatar" src="${data.avatar}">`;
-    else av.innerHTML=`<div class="msg-h-avatar-placeholder">${data.avatar||'😀'}</div>`;
-    if(isSelf){hdr.appendChild(av);hdr.appendChild(nm)}else{hdr.appendChild(nm);hdr.appendChild(av)}
-    // bubble
-    const bub=document.createElement('div');bub.className='msg-bubble';
-    if(data.recalled){bub.textContent='[已撤回]';bub.classList.add('msg-recalled')}
-    else if(data.videoUrl)createMedia(bub,'video',data.videoUrl,data.fileSize);
-    else if(data.imageUrl)createMedia(bub,'image',data.imageUrl,data.fileSize);
-    else if(data.audioUrl){const a=document.createElement('audio');a.controls=true;a.preload='none';a.src=data.audioUrl;bub.appendChild(a)}
-    else bub.innerHTML=highlightMentions(data.text||'',data.mentions||[]);
-    bub.addEventListener('touchstart',e=>{if(e.touches.length===1)startLP(e,data,isSelf)});
-    bub.addEventListener('touchend',clearLP);bub.addEventListener('touchmove',clearLP);
-    bub.addEventListener('contextmenu',e=>{e.preventDefault();showMenu(e,data,isSelf)});
-    // time
+    if(d.avatarType==='image'&&d.avatar)av.innerHTML=`<img class="msg-avatar" src="${d.avatar}">`;
+    else av.innerHTML=`<div class="msg-avatar-ph">${d.avatar||'😀'}</div>`;
+    av.addEventListener('click',()=>openProfile(d.senderUsername));
+    // 内容
+    const ct=document.createElement('div');ct.className='msg-content';
+    const nm=document.createElement('div');nm.className='msg-name';nm.textContent=isSelf?'我':(d.sender||'匿名');
+    ct.appendChild(nm);
+    const bb=document.createElement('div');bb.className='msg-bubble';
+    if(d.recalled){bb.textContent='[已撤回]';bb.classList.add('recalled')}
+    else if(d.videoUrl)lazyMedia(bb,'video',d.videoUrl,d.fileSize);
+    else if(d.imageUrl)lazyMedia(bb,'image',d.imageUrl,d.fileSize);
+    else if(d.audioUrl){const a=document.createElement('audio');a.controls=true;a.preload='none';a.src=d.audioUrl;bb.appendChild(a)}
+    else bb.innerHTML=hiAt(d.text||'',d.mentions||[]);
+    bb.addEventListener('touchstart',e=>{if(e.touches.length===1){clearLP();longPress=setTimeout(()=>showMenu(e,d,isSelf),400)}});
+    bb.addEventListener('touchend',clearLP);bb.addEventListener('touchmove',clearLP);
+    bb.addEventListener('contextmenu',e=>{e.preventDefault();showMenu(e,d,isSelf)});
+    ct.appendChild(bb);
     const tm=document.createElement('div');tm.className='msg-time';
-    tm.innerHTML=`${data.timestamp?new Date(data.timestamp).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}):''}${data.fileSize?`<span class="msg-size">${data.fileSize>=1024?(data.fileSize/1024).toFixed(1)+'MB':data.fileSize+'KB'}</span>`:''}`;
-    row.appendChild(hdr);row.appendChild(bub);row.appendChild(tm);
+    const sz=d.fileSize?(d.fileSize>=1024?`<span class="size">${(d.fileSize/1024).toFixed(1)}MB</span>`:`<span class="size">${d.fileSize}KB</span>`):'';
+    tm.innerHTML=`${d.timestamp?new Date(d.timestamp).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}):''} ${sz}`;
+    ct.appendChild(tm);
+    if(isSelf){row.appendChild(ct);row.appendChild(av)}else{row.appendChild(av);row.appendChild(ct)}
     $(container).appendChild(row);
     if(container==='messageList')scrollBottom();
   }
 
-  function createMedia(bub,type,src,size){
-    const load=document.createElement('div');load.className='media-loading';
-    load.innerHTML=`<span>${size?size+'KB':''}</span><div class="progress-bar"><div style="width:0%"></div></div>`;
-    bub.appendChild(load);
+  function lazyMedia(bb,type,src,size){
+    const box=document.createElement('div');box.className='loading-box';
+    box.innerHTML=`<span>${size?size+'KB':''}</span><div class="bar"><i style="width:0%"></i></div>`;
+    bb.appendChild(box);
     const el=type==='image'?document.createElement('img'):document.createElement('video');
     if(type==='video'){el.controls=true;el.preload='metadata'}
-    el.src=src;el.style.display='none';bub.appendChild(el);
-    let p=0;const t=setInterval(()=>{p+=10;if(p>=90)clearInterval(t);load.querySelector('.progress-bar div').style.width=p+'%'},80);
-    el.onloadedmetadata=()=>{clearInterval(t);load.querySelector('.progress-bar div').style.width='100%';setTimeout(()=>{load.remove();el.style.display='block';if(type==='image')el.addEventListener('click',()=>openViewer(src,null))},100)};
-    el.onerror=()=>{clearInterval(t);load.innerHTML='加载失败'};
-    el.oncanplay=()=>{clearInterval(t);load.remove();el.style.display='block'};
+    el.src=src;el.style.display='none';bb.appendChild(el);
+    let p=0;const t=setInterval(()=>{p+=12;if(p>=95)clearInterval(t);box.querySelector('i').style.width=p+'%'},60);
+    const done=()=>{clearInterval(t);box.remove();el.style.display='block';if(type==='image')el.addEventListener('click',()=>openViewer(src,null))};
+    el.onloadedmetadata=done;el.oncanplay=done;el.onload=done;
+    el.onerror=()=>{clearInterval(t);box.innerHTML='加载失败'};
   }
 
-  function highlightMentions(text,mentions){
-    let h=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    (mentions||[]).forEach(m=>{h=h.replace(new RegExp(`@${m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}`,'g'),`<span class="mention">@${m}</span>`)});
-    return h;
-  }
-
-  function addSys(text){const d=document.createElement('div');d.className='system-msg';d.textContent=text;$('messageList').appendChild(d);scrollBottom()}
+  function hiAt(t,m){let h=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');(m||[]).forEach(n=>{h=h.replace(new RegExp(`@${n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}`,'g'),`<span class="at">@${n}</span>`)});return h}
+  function sysMsg(t){const d=document.createElement('div');d.className='system';d.textContent=t;$('messageList').appendChild(d);scrollBottom()}
   function scrollBottom(){const l=$('messageList');requestAnimationFrame(()=>{l.scrollTop=l.scrollHeight})}
 
-  // ==================== 长按菜单 ====================
-  function startLP(e,data,isSelf){clearLP();longPressTimer=setTimeout(()=>showMenu(e,data,isSelf),500)}
-  function clearLP(){if(longPressTimer){clearTimeout(longPressTimer);longPressTimer=null}}
-  function showMenu(e,data,isSelf){
-    const m=$('contextMenu');contextMsgId=data.msgId;contextIsSelf=isSelf;
-    m.querySelector('[data-action="recall"]').style.display=isSelf&&!data.recalled&&(Date.now()-data.timestamp<120000)?'flex':'none';
-    m.querySelector('[data-action="copy"]').style.display=data.text&&!data.recalled?'flex':'none';
+  // 长按菜单
+  function clearLP(){if(longPress){clearTimeout(longPress);longPress=null}}
+  function showMenu(e,d,isSelf){
+    const m=$('contextMenu');menuMsgId=d.msgId;menuIsSelf=isSelf;
+    m.querySelector('[data-action="recall"]').style.display=isSelf&&!d.recalled&&(Date.now()-d.timestamp<120000)?'flex':'none';
+    m.querySelector('[data-action="copy"]').style.display=d.text&&!d.recalled?'flex':'none';
     const x=(e.touches?e.touches[0].clientX:e.clientX)||100;
     const y=(e.touches?e.touches[0].clientY:e.clientY)||200;
-    m.style.left=Math.min(x,innerWidth-130)+'px';m.style.top=Math.min(y,innerHeight-110)+'px';m.classList.add('show');
+    m.style.left=Math.min(x,innerWidth-120)+'px';m.style.top=Math.min(y,innerHeight-100)+'px';m.classList.add('show');
   }
 
-  // ==================== 功能 ====================
-  function copyMsg(id){const el=document.querySelector(`[data-id="${id}"]`);if(el){const t=el.querySelector('.msg-bubble')?.textContent;if(t)navigator.clipboard?.writeText(t).then(()=>addSys('已复制')).catch(()=>{})}}
-  function toggleFav(id){fetch('/api/toggle-favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:currentUser.username,msgId:id})}).then(r=>r.json()).then(d=>{if(d.success){favIds=d.favIds;document.querySelectorAll(`[data-id="${id}"]`).forEach(e=>e.classList.toggle('favorited',d.isFavorited));addSys(d.isFavorited?'已收藏':'已取消')}})}
-  function recallMsg(id){if(!confirm('撤回？'))return;fetch('/api/recall-message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({msgId:id,username:currentUser.username})}).then(r=>r.json()).then(d=>{if(!d.success)alert(d.message)})}
-  function openViewer(img,video){const v=$('imageViewer');v.classList.add('show');if(video){$('viewerVideo').src=video;$('viewerVideo').style.display='block';$('viewerImg').style.display='none'}else{$('viewerImg').src=img;$('viewerImg').style.display='block';$('viewerVideo').style.display='none'}}
+  function copyMsg(){const el=document.querySelector(`[data-mid="${menuMsgId}"]`);if(el){const t=el.querySelector('.msg-bubble')?.textContent;if(t)navigator.clipboard?.writeText(t).then(()=>sysMsg('已复制')).catch(()=>{})}}
+  function toggleFav(){fetch('/api/toggle-favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user.username,msgId:menuMsgId})}).then(r=>r.json()).then(d=>{if(d.success){favIds=d.favIds;document.querySelectorAll(`[data-mid="${menuMsgId}"]`).forEach(e=>e.classList.toggle('favorited',d.isFavorited));sysMsg(d.isFavorited?'已收藏':'已取消')}})}
+  function recallMsg(){if(!confirm('撤回？'))return;fetch('/api/recall-message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({msgId:menuMsgId,username:user.username})}).then(r=>r.json()).then(d=>{if(!d.success)alert(d.message)})}
+  function openViewer(img,video){const v=$('viewer');v.classList.add('show');if(video){$('viewerVideo').src=video;$('viewerVideo').style.display='block';$('viewerImg').style.display='none'}else{$('viewerImg').src=img;$('viewerImg').style.display='block';$('viewerVideo').style.display='none'}}
 
-  // ==================== 用户主页 ====================
-  function openProfile(username){
-    if(!username||username===currentUser.username)return;
-    fetch(`/api/user-profile?username=${username}`).then(r=>r.json()).then(d=>{
-      if(!d.success)return;
-      const p=d.profile;
-      $('profileHeader').innerHTML=`
-        ${p.avatarType==='image'?`<img class="p-avatar" src="${p.avatar}">`:`<div class="p-avatar-placeholder">${p.avatar||'😀'}</div>`}
-        <div class="p-name">${p.nickname}${p.isOnline?' 🟢':''}</div>
-        <div class="p-sign">${p.signature||'这个人很懒...'}</div>`;
-      const rm=$('recentMsgs');rm.innerHTML='';
-      if(d.recentMsgs?.length)d.recentMsgs.forEach(m=>{const div=document.createElement('div');div.style.cssText='padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:0.8rem;color:#666;display:flex;justify-content:space-between';div.innerHTML=`<span>${m.text||'[媒体]'}</span><span style="font-size:0.65rem;color:#999">${new Date(m.timestamp).toLocaleDateString()}</span>`;rm.appendChild(div)});
-      else rm.innerHTML='<div style="color:#999;font-size:0.8rem">暂无发言</div>';
-      const ir=$('intimacyRow');ir.innerHTML='';
-      if(d.intimacyList?.length)d.intimacyList.forEach(i=>{const div=document.createElement('div');div.className='intimacy-item';div.innerHTML=`${i.avatarType==='image'?`<img class="i-avatar" src="${i.avatar}">`:`<div class="i-avatar-placeholder">${i.avatar||'😀'}</div>`}<div class="i-name">${i.nickname}</div><div class="i-count">💕${i.count}</div>`;div.addEventListener('click',()=>openProfile(i.username));ir.appendChild(div)});
-      else ir.innerHTML='<div style="color:#999;font-size:0.8rem">暂无</div>';
-      showPage('profile');
-    });
-  }
-
-  // ==================== 加载历史 ====================
+  // 历史
   function loadHistory(){
     fetch('/api/messages').then(r=>r.json()).then(d=>{
       $('messageList').innerHTML='';
       if(d.success&&d.messages?.length){
         const f=document.createDocumentFragment();
-        d.messages.forEach(m=>{if(m.msgId)receivedMsgIds.add(m.msgId);const isSelf=(m.senderUsername&&m.senderUsername===currentUser.username)||(m.clientId&&m.clientId===clientId);f.appendChild(createRow(m,isSelf))});
+        d.messages.forEach(m=>{if(m.msgId)received.add(m.msgId);const s=(m.senderUsername&&m.senderUsername===user.username)||(m.clientId&&m.clientId===clientId);f.appendChild(createRow(m,s))});
         $('messageList').appendChild(f);
-      }else $('messageList').innerHTML='<div class="system-msg">暂无消息</div>';
+      }else $('messageList').innerHTML='<div class="empty">暂无消息</div>';
       scrollBottom();
     });
   }
 
-  function createRow(data,isSelf){
-    const row=document.createElement('div');row.className=`msg-row ${isSelf?'self':'other'}`;row.dataset.id=data.msgId||'';if(favIds.includes(data.msgId))row.classList.add('favorited');
-    const hdr=document.createElement('div');hdr.className='msg-header';hdr.addEventListener('click',()=>openProfile(data.senderUsername));
-    const nm=document.createElement('span');nm.className='msg-name';nm.textContent=isSelf?'我':(data.sender||'匿名');
-    const av=document.createElement('div');if(data.avatarType==='image'&&data.avatar)av.innerHTML=`<img class="msg-h-avatar" src="${data.avatar}">`;else av.innerHTML=`<div class="msg-h-avatar-placeholder">${data.avatar||'😀'}</div>`;
-    if(isSelf){hdr.appendChild(av);hdr.appendChild(nm)}else{hdr.appendChild(nm);hdr.appendChild(av)}
-    const bub=document.createElement('div');bub.className='msg-bubble';
-    if(data.recalled){bub.textContent='[已撤回]';bub.classList.add('msg-recalled')}
-    else if(data.videoUrl)createMedia(bub,'video',data.videoUrl,data.fileSize);
-    else if(data.imageUrl)createMedia(bub,'image',data.imageUrl,data.fileSize);
-    else if(data.audioUrl){const a=document.createElement('audio');a.controls=true;a.preload='none';a.src=data.audioUrl;bub.appendChild(a)}
-    else bub.innerHTML=highlightMentions(data.text||'',data.mentions||[]);
-    bub.addEventListener('touchstart',e=>{if(e.touches.length===1)startLP(e,data,isSelf)});
-    bub.addEventListener('touchend',clearLP);bub.addEventListener('touchmove',clearLP);
-    const tm=document.createElement('div');tm.className='msg-time';tm.innerHTML=`${data.timestamp?new Date(data.timestamp).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}):''}${data.fileSize?`<span class="msg-size">${data.fileSize>=1024?(data.fileSize/1024).toFixed(1)+'MB':data.fileSize+'KB'}</span>`:''}`;
-    row.appendChild(hdr);row.appendChild(bub);row.appendChild(tm);
+  function createRow(d,isSelf){
+    const row=document.createElement('div');row.className=`msg ${isSelf?'self':'other'}`;row.dataset.mid=d.msgId||'';if(favIds.includes(d.msgId))row.classList.add('favorited');
+    const av=document.createElement('div');if(d.avatarType==='image'&&d.avatar)av.innerHTML=`<img class="msg-avatar" src="${d.avatar}">`;else av.innerHTML=`<div class="msg-avatar-ph">${d.avatar||'😀'}</div>`;av.addEventListener('click',()=>openProfile(d.senderUsername));
+    const ct=document.createElement('div');ct.className='msg-content';
+    const nm=document.createElement('div');nm.className='msg-name';nm.textContent=isSelf?'我':(d.sender||'匿名');ct.appendChild(nm);
+    const bb=document.createElement('div');bb.className='msg-bubble';
+    if(d.recalled){bb.textContent='[已撤回]';bb.classList.add('recalled')}
+    else if(d.videoUrl)lazyMedia(bb,'video',d.videoUrl,d.fileSize);
+    else if(d.imageUrl)lazyMedia(bb,'image',d.imageUrl,d.fileSize);
+    else if(d.audioUrl){const a=document.createElement('audio');a.controls=true;a.preload='none';a.src=d.audioUrl;bb.appendChild(a)}
+    else bb.innerHTML=hiAt(d.text||'',d.mentions||[]);
+    bb.addEventListener('touchstart',e=>{if(e.touches.length===1){clearLP();longPress=setTimeout(()=>showMenu(e,d,isSelf),400)}});
+    bb.addEventListener('touchend',clearLP);bb.addEventListener('touchmove',clearLP);
+    const tm=document.createElement('div');tm.className='msg-time';const sz=d.fileSize?(d.fileSize>=1024?`<span class="size">${(d.fileSize/1024).toFixed(1)}MB</span>`:`<span class="size">${d.fileSize}KB</span>`):'';tm.innerHTML=`${d.timestamp?new Date(d.timestamp).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}):''} ${sz}`;
+    ct.appendChild(bb);ct.appendChild(tm);
+    if(isSelf){row.appendChild(ct);row.appendChild(av)}else{row.appendChild(av);row.appendChild(ct)}
     return row;
   }
 
   function loadFavorites(){
-    fetch(`/api/favorites?username=${currentUser.username}`).then(r=>r.json()).then(d=>{
+    fetch(`/api/favorites?username=${user.username}`).then(r=>r.json()).then(d=>{
       $('favoritesList').innerHTML='';
-      if(d.success&&d.favorites?.length)d.favorites.forEach(m=>{const isSelf=(m.senderUsername&&m.senderUsername===currentUser.username);$('favoritesList').appendChild(createRow(m,isSelf))});
-      else $('favoritesList').innerHTML='<div class="system-msg">暂无收藏</div>';
+      if(d.success&&d.favorites?.length)d.favorites.forEach(m=>{const s=(m.senderUsername&&m.senderUsername===user.username);$('favoritesList').appendChild(createRow(m,s))});
+      else $('favoritesList').innerHTML='<div class="empty">暂无收藏</div>';
     });
   }
+  function loadFavIds(){fetch(`/api/favorites?username=${user.username}`).then(r=>r.json()).then(d=>{if(d.success)favIds=d.favIds||[]})}
 
-  function loadFavIds(){fetch(`/api/favorites?username=${currentUser.username}`).then(r=>r.json()).then(d=>{if(d.success)favIds=d.favIds||[]})}
-
-  // ==================== 发送 ====================
+  // 发送（防抖300ms）
   function sendText(){
-    const text=$('msgInput').value.trim();if(!text||socket?.readyState!==WebSocket.OPEN)return;
-    const mentions=[...text.matchAll(/@([\u4e00-\u9fa5\w]+)/g)].map(m=>m[1]).filter((v,i,a)=>a.indexOf(v)===i);
-    socket.send(JSON.stringify({type:'message',text,mentions}));
+    const now=Date.now();if(now-lastSend<300)return;lastSend=now;
+    const t=$('msgInput').value.trim();if(!t||socket?.readyState!==WebSocket.OPEN)return;
+    const mentions=[...t.matchAll(/@([\u4e00-\u9fa5\w]+)/g)].map(m=>m[1]).filter((v,i,a)=>a.indexOf(v)===i);
+    socket.send(JSON.stringify({type:'message',text:t,mentions}));
     $('msgInput').value='';$('msgInput').focus();
   }
 
   function handleImage(e){
-    const file=e.target.files[0];if(!file)return;
-    const reader=new FileReader();reader.onloadend=()=>{
-      const id='local_'+Date.now();
-      addMsg({msgId:id,imageUrl:reader.result,sender:currentUser.nickname,senderUsername:currentUser.username,avatar:currentUser.avatar,avatarType:currentUser.avatarType,timestamp:Date.now(),fileSize:Math.round(file.size/1024)},true);
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onloadend=()=>{
+      const id='L'+Date.now();
+      addMsg({msgId:id,imageUrl:r.result,sender:user.nickname,senderUsername:user.username,avatar:user.avatar,avatarType:user.avatarType,timestamp:Date.now(),fileSize:Math.round(f.size/1024)},true);
       scrollBottom();
-      const b64=reader.result.split(',')[1];
-      if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'image',image:b64,msgId:id}));
-    };reader.readAsDataURL(file);$('imageInput').value='';
+      socket?.send(JSON.stringify({type:'image',image:r.result.split(',')[1],msgId:id}));
+    };r.readAsDataURL(f);$('imageInput').value='';
   }
 
   function handleVideo(e){
-    const file=e.target.files[0];if(!file||file.size>50*1024*1024)return alert('视频≤50MB');
-    const reader=new FileReader();reader.onloadend=()=>{
-      const id='local_'+Date.now();
-      addMsg({msgId:id,videoUrl:reader.result,sender:currentUser.nickname,senderUsername:currentUser.username,avatar:currentUser.avatar,avatarType:currentUser.avatarType,timestamp:Date.now(),fileSize:Math.round(file.size/(1024*1024)*10)/10},true);
+    const f=e.target.files[0];if(!f||f.size>50*1024*1024){alert('≤50MB');return}
+    const r=new FileReader();r.onloadend=()=>{
+      const id='L'+Date.now();
+      addMsg({msgId:id,videoUrl:r.result,sender:user.nickname,senderUsername:user.username,avatar:user.avatar,avatarType:user.avatarType,timestamp:Date.now(),fileSize:Math.round(f.size/(1024*1024)*10)/10},true);
       scrollBottom();
-      if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'video',video:reader.result,msgId:id}));
-    };reader.readAsDataURL(file);$('videoInput').value='';
+      socket?.send(JSON.stringify({type:'video',video:r.result,msgId:id}));
+    };r.readAsDataURL(f);$('videoInput').value='';
   }
 
   async function startRec(){
     if(mediaRecorder?.state==='recording')return;
     try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(stream);audioChunks=[];
+      const s=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(s);audioChunks=[];
       mediaRecorder.ondataavailable=e=>{if(e.data.size)audioChunks.push(e.data)};
-      mediaRecorder.onstop=()=>{if(!audioChunks.length)return;const blob=new Blob(audioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onloadend=()=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'audio',audio:reader.result.split(',')[1]}))};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop())};
-      mediaRecorder.start();isRecording=true;$('btnMic').classList.add('recording');$('recordTip').classList.add('show');
-    }catch(e){alert('麦克风权限')}
+      mediaRecorder.onstop=()=>{if(!audioChunks.length)return;const b=new Blob(audioChunks,{type:'audio/webm'});const r=new FileReader();r.onloadend=()=>{socket?.send(JSON.stringify({type:'audio',audio:r.result.split(',')[1]}))};r.readAsDataURL(b);s.getTracks().forEach(t=>t.stop())};
+      mediaRecorder.start();recording=true;$('btnMic').classList.add('recording');$('recordTip').classList.add('show');
+    }catch(e){alert('需要麦克风权限')}
   }
-  function stopRec(){if(mediaRecorder&&isRecording&&mediaRecorder.state==='recording')mediaRecorder.stop();isRecording=false;$('btnMic').classList.remove('recording');$('recordTip').classList.remove('show','cancel')}
-  function cancelRec(){if(mediaRecorder&&isRecording&&mediaRecorder.state==='recording'){audioChunks=[];mediaRecorder.onstop=()=>{};mediaRecorder.stop()}isRecording=false;$('btnMic').classList.remove('recording');$('recordTip').classList.remove('show','cancel')}
+  function stopRec(){if(mediaRecorder&&recording&&mediaRecorder.state==='recording')mediaRecorder.stop();recording=false;$('btnMic').classList.remove('recording');$('recordTip').classList.remove('show','cancel')}
+  function cancelRec(){if(mediaRecorder&&recording&&mediaRecorder.state==='recording'){audioChunks=[];mediaRecorder.onstop=()=>{};mediaRecorder.stop()}recording=false;$('btnMic').classList.remove('recording');$('recordTip').classList.remove('show','cancel')}
 
-  // ==================== @ 功能 ====================
-  $('msgInput').addEventListener('input',()=>{
-    const val=$('msgInput').value,pos=$('msgInput').selectionStart;
-    const match=val.substring(0,pos).match(/@([\u4e00-\u9fa5\w]*)$/);
-    if(match){
-      const q=match[1].toLowerCase();
-      const filtered=onlineUsers.filter(u=>u.username!==currentUser.username&&(u.nickname.toLowerCase().includes(q)||u.username.toLowerCase().includes(q)));
-      if(filtered.length){showMention(filtered);return}
-    }
-    $('mentionPanel').classList.remove('show');
-  });
-  function showMention(users){
-    const p=$('mentionPanel');p.innerHTML='';
-    users.slice(0,6).forEach(u=>{const d=document.createElement('div');d.className='mention-item';d.textContent=u.nickname;d.addEventListener('click',()=>{const inp=$('msgInput'),v=inp.value,pos=inp.selectionStart,at=v.lastIndexOf('@',pos);inp.value=v.substring(0,at)+'@'+u.nickname+' '+v.substring(pos);inp.focus();inp.setSelectionRange(at+u.nickname.length+2,at+u.nickname.length+2);p.classList.remove('show')});p.appendChild(d)});
+  // @
+  function showAt(users){
+    const p=$('atPanel');p.innerHTML='';
+    users.slice(0,6).forEach(u=>{const d=document.createElement('div');d.className='at-item';d.textContent=u.nickname;d.addEventListener('click',()=>{const inp=$('msgInput'),v=inp.value,pos=inp.selectionStart,at=v.lastIndexOf('@',pos);inp.value=v.substring(0,at)+'@'+u.nickname+' '+v.substring(pos);inp.focus();inp.setSelectionRange(at+u.nickname.length+2,at+u.nickname.length+2);p.classList.remove('show')});p.appendChild(d)});
     p.classList.add('show');
   }
 
-  // ==================== 头像 ====================
-  function openAvatar(){renderEmojis();$('avatarModal').classList.add('show')}
-  function renderEmojis(){
-    const g=$('emojiGrid');g.innerHTML='';
-    emojis.forEach(e=>{const d=document.createElement('div');d.className='emoji-item';d.textContent=e;if(currentUser.avatarType==='emoji'&&currentUser.avatar===e)d.classList.add('selected');d.addEventListener('click',()=>{currentUser.avatar=e;currentUser.avatarType='emoji';updateMyAvatar();saveProfile();renderEmojis()});g.appendChild(d)});
-  }
-  function saveProfile(){
-    if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'update-profile',nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType,signature:currentUser.signature}));
-    fetch('/api/update-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:currentUser.username,avatar:currentUser.avatar,avatarType:currentUser.avatarType,signature:currentUser.signature})}).catch(()=>{});
-  }
-  function handleAvatarPick(e){
-    const file=e.target.files[0];if(!file)return;
-    const reader=new FileReader();reader.onload=ev=>{
-      const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);currentUser.avatar=c.toDataURL('image/jpeg',0.7);currentUser.avatarType='image';updateMyAvatar();saveProfile();renderEmojis()};img.src=ev.target.result;
-    };reader.readAsDataURL(file);$('avatarInput').value='';
+  // 用户主页
+  function openProfile(un){
+    if(!un||un===user.username)return;
+    fetch(`/api/user-profile?username=${un}`).then(r=>r.json()).then(d=>{
+      if(!d.success)return;
+      alert(`${d.profile.nickname}\n@${d.profile.username}\n${d.profile.signature||''}\n${d.profile.isOnline?'在线':'离线'}`);
+    });
   }
 
-  // ==================== 事件绑定 ====================
+  function switchTab(t){
+    tab=t;
+    $('mainApp').style.display=t==='chat'?'flex':'none';
+    $('favoritesApp').style.display=t==='favorites'?'flex':'none';
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.tab===t));
+    if(t==='favorites')loadFavorites();
+  }
+
   function bindEvents(){
+    $('btnLogout').addEventListener('click',()=>{if(confirm('退出登录？'))goLogin()});
+    $('btnBackToChat').addEventListener('click',()=>switchTab('chat'));
     $('btnSend').addEventListener('click',sendText);
     $('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendText()}});
+    $('msgInput').addEventListener('input',()=>{
+      const v=$('msgInput').value,p=$('msgInput').selectionStart;
+      const m=v.substring(0,p).match(/@([\u4e00-\u9fa5\w]*)$/);
+      if(m){const q=m[1].toLowerCase();const f=online.filter(u=>u.username!==user.username&&(u.nickname.toLowerCase().includes(q)||u.username.toLowerCase().includes(q)));if(f.length)showAt(f);else $('atPanel').classList.remove('show')}
+      else $('atPanel').classList.remove('show');
+    });
     $('btnImage').addEventListener('click',()=>$('imageInput').click());
     $('imageInput').addEventListener('change',handleImage);
     $('btnVideo').addEventListener('click',()=>$('videoInput').click());
     $('videoInput').addEventListener('change',handleVideo);
-    $('btnCloseViewer').addEventListener('click',()=>$('imageViewer').classList.remove('show'));
-    $('btnBackToChat').addEventListener('click',()=>showPage('chat'));
-    $('btnBackFromProfile').addEventListener('click',()=>showPage('chat'));
-    document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>showPage(n.dataset.tab)));
+    $('btnCloseViewer').addEventListener('click',()=>$('viewer').classList.remove('show'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>switchTab(n.dataset.tab)));
     document.addEventListener('click',()=>$('contextMenu').classList.remove('show'));
     $('contextMenu').addEventListener('click',e=>{
       e.stopPropagation();
       const a=e.target.closest('.item')?.dataset.action;
-      if(!a||!contextMsgId)return;
-      if(a==='copy')copyMsg(contextMsgId);else if(a==='favorite')toggleFav(contextMsgId);else if(a==='recall')recallMsg(contextMsgId);
+      if(!a||!menuMsgId)return;
+      if(a==='copy')copyMsg();else if(a==='favorite')toggleFav();else if(a==='recall')recallMsg();
       $('contextMenu').classList.remove('show');
     });
-    // 录音
     const mic=$('btnMic'),tip=$('recordTip');
     mic.addEventListener('touchstart',e=>{e.preventDefault();startY=e.touches[0].clientY;startRec()});
-    mic.addEventListener('touchmove',e=>{if(!isRecording)return;if(startY-e.touches[0].clientY>60){tip.classList.add('cancel');tip.textContent='松开发送'}else{tip.classList.remove('cancel');tip.textContent='手指上滑取消'}});
-    mic.addEventListener('touchend',e=>{if(!isRecording)return;tip.classList.remove('show','cancel');if(startY-(e.changedTouches[0]?.clientY||startY)>60)cancelRec();else stopRec()});
+    mic.addEventListener('touchmove',e=>{if(!recording)return;if(startY-e.touches[0].clientY>60){tip.classList.add('cancel');tip.textContent='松开发送'}else{tip.classList.remove('cancel');tip.textContent='手指上滑取消'}});
+    mic.addEventListener('touchend',e=>{if(!recording)return;tip.classList.remove('show','cancel');if(startY-(e.changedTouches[0]?.clientY||startY)>60)cancelRec();else stopRec()});
     mic.addEventListener('mousedown',e=>{startY=e.clientY;startRec()});
-    window.addEventListener('mouseup',()=>{if(isRecording){tip.classList.remove('show','cancel');stopRec()}});
-    // 头像
+    window.addEventListener('mouseup',()=>{if(recording){tip.classList.remove('show','cancel');stopRec()}});
     $('myAvatarPH').addEventListener('click',openAvatar);
     $('myAvatarImg').addEventListener('click',openAvatar);
     $('btnCloseAvatar').addEventListener('click',()=>$('avatarModal').classList.remove('show'));
@@ -585,7 +489,21 @@
     $('avatarInput').addEventListener('change',handleAvatarPick);
   }
 
-  init();
+  function openAvatar(){renderEmojis();$('avatarModal').classList.add('show')}
+  function renderEmojis(){
+    const g=$('emojiGrid');g.innerHTML='';
+    emojis.forEach(e=>{const d=document.createElement('div');d.className='emoji-item';d.textContent=e;if(user.avatarType==='emoji'&&user.avatar===e)d.classList.add('selected');d.addEventListener('click',()=>{user.avatar=e;user.avatarType='emoji';updateAvatar();saveProfile();renderEmojis()});g.appendChild(d)});
+  }
+  function saveProfile(){
+    fetch('/api/update-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user.username,avatar:user.avatar,avatarType:user.avatarType})}).catch(()=>{});
+    socket?.send(JSON.stringify({type:'update-profile',avatar:user.avatar,avatarType:user.avatarType}));
+  }
+  function handleAvatarPick(e){
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onload=ev=>{
+      const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);user.avatar=c.toDataURL('image/jpeg',0.7);user.avatarType='image';updateAvatar();saveProfile();renderEmojis()};img.src=ev.target.result;
+    };r.readAsDataURL(f);$('avatarInput').value='';
+  }
 })();
 </script>
 </body>
