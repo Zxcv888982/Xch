@@ -12,10 +12,7 @@ const MESSAGES_FILE = './messages.json';
 let users = {};
 let messages = [];
 
-try {
-  if (fs.existsSync(USERS_FILE)) users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
-} catch(e) { users = {}; }
-
+try { if (fs.existsSync(USERS_FILE)) users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8')); } catch(e) {}
 try {
   if (fs.existsSync(MESSAGES_FILE)) {
     messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
@@ -24,10 +21,7 @@ try {
   }
 } catch(e) { messages = []; }
 
-function saveUsers() {
-  try { fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2)); } catch(e) {}
-}
-
+function saveUsers() { try { fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2)); } catch(e) {} }
 function saveMessages() {
   try {
     if (messages.length > 500) messages = messages.slice(-500);
@@ -38,18 +32,11 @@ function saveMessages() {
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
-
   const setJsonHeaders = () => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Access-Control-Allow-Origin', '*');
   };
-
-  if (req.method === 'OPTIONS') {
-    setJsonHeaders();
-    res.writeHead(200);
-    res.end();
-    return;
-  }
+  if (req.method === 'OPTIONS') { setJsonHeaders(); res.writeHead(200); return res.end(); }
 
   if (pathname === '/api/register' && req.method === 'POST') {
     let body = '';
@@ -126,9 +113,7 @@ const server = http.createServer((req, res) => {
   if (pathname === '/api/online-users' && req.method === 'GET') {
     setJsonHeaders();
     const list = [];
-    onlineClients.forEach(c => {
-      if (c.username) list.push({ username: c.username, nickname: c.nickname, avatar: c.avatar, avatarType: c.avatarType });
-    });
+    onlineClients.forEach(c => { if (c.username) list.push({ username: c.username, nickname: c.nickname, avatar: c.avatar, avatarType: c.avatarType }); });
     res.writeHead(200);
     res.end(JSON.stringify({ success: true, users: list }));
     return;
@@ -141,32 +126,34 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 静态文件
   let filePath = '.' + pathname;
   if (filePath === './') filePath = './index.html';
   const extname = String(path.extname(filePath)).toLowerCase();
   const mimeTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.gif': 'image/gif', '.svg': 'image/svg+xml' };
   const contentType = mimeTypes[extname] || 'application/octet-stream';
-
   fs.readFile(filePath, (error, content) => {
-    if (error) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end(fs.readFileSync('./index.html', 'utf-8'));
-    } else {
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content, 'utf-8');
-    }
+    if (error) { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(fs.readFileSync('./index.html', 'utf-8')); }
+    else { res.writeHead(200, { 'Content-Type': contentType }); res.end(content, 'utf-8'); }
   });
 });
 
 const wss = new WebSocket.Server({ server });
 const onlineClients = new Map();
 
-function getClientId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+function getClientId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
+function getMsgId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 4); }
+
+function broadcastAll(data, excludeClientId) {
+  const msg = JSON.stringify(data);
+  wss.clients.forEach(c => {
+    if (c.readyState === WebSocket.OPEN) {
+      const info = [...onlineClients.entries()].find(([,v]) => v.ws === c);
+      if (!info || info[0] !== excludeClientId) c.send(msg);
+    }
+  });
 }
 
-function broadcastAll(data) {
+function broadcastAllInclude(data) {
   const msg = JSON.stringify(data);
   wss.clients.forEach(c => { if (c.readyState === WebSocket.OPEN) c.send(msg); });
 }
@@ -175,7 +162,7 @@ wss.on('connection', (ws) => {
   const id = getClientId();
   onlineClients.set(id, { ws, username: null, nickname: '游客', avatar: '😀', avatarType: 'emoji' });
   ws.send(JSON.stringify({ type: 'welcome', clientId: id }));
-  broadcastAll({ type: 'userCount', count: wss.clients.size });
+  broadcastAllInclude({ type: 'userCount', count: wss.clients.size });
 
   ws.on('message', (raw) => {
     let data;
@@ -192,33 +179,33 @@ wss.on('connection', (ws) => {
           client.avatar = u.avatar;
           client.avatarType = u.avatarType || 'emoji';
           ws.send(JSON.stringify({ type: 'login_success', username: data.username, nickname: u.nickname, avatar: u.avatar, avatarType: u.avatarType || 'emoji', clientId: id }));
-          broadcastAll({ type: 'system', text: `👋 ${u.nickname} 上线了` });
-          broadcastAll({ type: 'userCount', count: wss.clients.size });
+          broadcastAll({ type: 'system', text: `👋 ${u.nickname} 上线了` }, id);
+          broadcastAllInclude({ type: 'userCount', count: wss.clients.size });
         }
         break;
 
       case 'message':
         if (!data.text?.trim()) return;
-        const txtMsg = { type: 'message', text: data.text.trim(), sender: client.nickname, senderUsername: client.username, avatar: client.avatar, avatarType: client.avatarType, timestamp: Date.now(), clientId: id };
+        const txtMsg = { type: 'message', msgId: getMsgId(), text: data.text.trim(), sender: client.nickname, senderUsername: client.username, avatar: client.avatar, avatarType: client.avatarType, timestamp: Date.now(), clientId: id };
         messages.push(txtMsg);
-        broadcastAll(txtMsg);
-        if (messages.length % 10 === 0) saveMessages();
+        broadcastAllInclude(txtMsg);
+        if (messages.length % 5 === 0) saveMessages();
         break;
 
       case 'image':
         if (!data.image) return;
-        const imgMsg = { type: 'message', imageUrl: 'data:image/png;base64,' + data.image, sender: client.nickname, senderUsername: client.username, avatar: client.avatar, avatarType: client.avatarType, timestamp: Date.now(), clientId: id };
+        const imgMsg = { type: 'message', msgId: getMsgId(), imageUrl: 'data:image/png;base64,' + data.image, sender: client.nickname, senderUsername: client.username, avatar: client.avatar, avatarType: client.avatarType, timestamp: Date.now(), clientId: id };
         messages.push(imgMsg);
-        broadcastAll(imgMsg);
-        if (messages.length % 10 === 0) saveMessages();
+        broadcastAllInclude(imgMsg);
+        if (messages.length % 5 === 0) saveMessages();
         break;
 
       case 'audio':
         if (!data.audio) return;
-        const audMsg = { type: 'message', audioUrl: 'data:audio/webm;base64,' + data.audio, sender: client.nickname, senderUsername: client.username, avatar: client.avatar, avatarType: client.avatarType, timestamp: Date.now(), clientId: id };
+        const audMsg = { type: 'message', msgId: getMsgId(), audioUrl: 'data:audio/webm;base64,' + data.audio, sender: client.nickname, senderUsername: client.username, avatar: client.avatar, avatarType: client.avatarType, timestamp: Date.now(), clientId: id };
         messages.push(audMsg);
-        broadcastAll(audMsg);
-        if (messages.length % 10 === 0) saveMessages();
+        broadcastAllInclude(audMsg);
+        if (messages.length % 5 === 0) saveMessages();
         break;
 
       case 'update-profile':
@@ -235,20 +222,13 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     const c = onlineClients.get(id);
-    if (c?.username) broadcastAll({ type: 'system', text: `👋 ${c.nickname} 离开了聊天室` });
+    if (c?.username) broadcastAll({ type: 'system', text: `👋 ${c.nickname} 离开了聊天室` }, id);
     onlineClients.delete(id);
-    broadcastAll({ type: 'userCount', count: wss.clients.size });
+    broadcastAllInclude({ type: 'userCount', count: wss.clients.size });
     saveMessages();
   });
-
-  ws.on('error', () => {
-    onlineClients.delete(id);
-    broadcastAll({ type: 'userCount', count: wss.clients.size });
-  });
+  ws.on('error', () => { onlineClients.delete(id); broadcastAllInclude({ type: 'userCount', count: wss.clients.size }); });
 });
 
-setInterval(() => saveMessages(), 30000);
-
-server.listen(PORT, () => {
-  console.log(`🌐 聊天室: http://localhost:${PORT}`);
-});
+setInterval(() => saveMessages(), 15000);
+server.listen(PORT, () => console.log(`🌐 聊天室: http://localhost:${PORT}`));
