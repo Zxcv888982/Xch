@@ -1,0 +1,706 @@
+这是为您生成的一个可直接运行的聊天室HTML文件。它使用Node.js搭建了后端服务，并包含一个简洁的前端聊天界面。
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>迷你聊天室 | 前后端一体演示</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #1a1e2b 0%, #2a2f3f 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', sans-serif;
+      padding: 16px;
+      margin: 0;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 600px;
+      height: 85vh;
+      max-height: 800px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 36px;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .chat-header {
+      padding: 18px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chat-header h2 {
+      color: #f0e9e1;
+      font-weight: 500;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-header h2::before {
+      content: "💬";
+      font-size: 1.4rem;
+    }
+
+    .status-badge {
+      background: #4caf92;
+      color: #0a0f14;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #7ee0b8;
+      box-shadow: 0 0 12px rgba(126, 224, 184, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      background: #0f3b2c;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px #b9ffda;
+    }
+
+    .messages-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 85%;
+      animation: fadeInUp 0.2s ease-out;
+    }
+
+    .message.self {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .message.other {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .message .bubble {
+      padding: 12px 16px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #f0f0f0;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      word-break: break-word;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .message.self .bubble {
+      background: linear-gradient(135deg, #4b7bec, #3b6fd4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-bottom-right-radius: 6px;
+    }
+
+    .message.other .bubble {
+      background: rgba(40, 45, 60, 0.75);
+      border-bottom-left-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .message .meta {
+      font-size: 0.7rem;
+      color: #b9c2d4;
+      margin: 4px 8px 0;
+      display: flex;
+      gap: 8px;
+    }
+
+    .message.self .meta {
+      justify-content: flex-end;
+    }
+
+    .system-message {
+      text-align: center;
+      color: #adb9cf;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      border-radius: 20px;
+      align-self: center;
+      margin: 4px 0;
+      backdrop-filter: blur(4px);
+    }
+
+    .input-area {
+      display: flex;
+      padding: 14px 16px;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      align-items: center;
+    }
+
+    .input-area input {
+      flex: 1;
+      background: rgba(20, 22, 30, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      color: #f0f0f0;
+      outline: none;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s;
+    }
+
+    .input-area input:focus {
+      border-color: #5f9ef0;
+      box-shadow: 0 0 12px rgba(91, 138, 240, 0.5);
+      background: rgba(30, 33, 42, 0.8);
+    }
+
+    .input-area input::placeholder {
+      color: #8b93a8;
+    }
+
+    .send-btn {
+      background: #3b6fd4;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 24px;
+      font-weight: 600;
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, #4f7df3, #3862c4);
+      box-shadow: 0 6px 16px rgba(59, 111, 212, 0.4);
+      transition: 0.2s;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .send-btn:hover {
+      background: linear-gradient(135deg, #608aff, #3f6cd8);
+      box-shadow: 0 8px 20px rgba(79, 125, 243, 0.6);
+      transform: scale(1.02);
+    }
+
+    .send-btn:active {
+      transform: scale(0.96);
+    }
+
+    .nickname-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px 4px;
+      background: rgba(0,0,0,0.2);
+      flex-wrap: wrap;
+    }
+
+    .nickname-row label {
+      color: #ccd6e8;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nickname-input {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 8px 14px;
+      color: white;
+      font-size: 0.85rem;
+      width: 140px;
+      outline: none;
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 450px) {
+      .chat-header h2 {
+        font-size: 1.2rem;
+      }
+      .input-area {
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="chat-container">
+  <div class="chat-header">
+    <h2>云端聊天室</h2>
+    <div class="status-badge" id="connectionStatus">连接中...</div>
+  </div>
+
+  <!-- 昵称设置行 -->
+  <div class="nickname-row">
+    <label>👤 昵称</label>
+    <input type="text" id="nicknameInput" class="nickname-input" placeholder="输入昵称" maxlength="15" value="游客">
+    <span style="color:#aab4cc; font-size:0.7rem; margin-left:auto;" id="userCount">在线:0</span>
+  </div>
+
+  <div class="messages-box" id="messagesContainer">
+    <!-- 动态消息 -->
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="messageInput" placeholder="输入消息..." autocomplete="off" />
+    <button class="send-btn" id="sendButton">↵ 发送</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- 前端逻辑 ----------
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const nicknameInput = document.getElementById('nicknameInput');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const userCountSpan = document.getElementById('userCount');
+
+    // 当前客户端信息
+    let myNickname = '游客';
+    let socket = null;
+    let clientId = null; // 服务器分配的唯一id
+
+    // 从localStorage读取昵称
+    try {
+      const saved = localStorage.getItem('chat_nickname');
+      if (saved && saved.trim().length > 0) {
+        myNickname = saved.trim().substring(0, 15);
+        nicknameInput.value = myNickname;
+      }
+    } catch (e) {}
+
+    // 更新昵称
+    nicknameInput.addEventListener('change', function() {
+      let newName = nicknameInput.value.trim();
+      if (newName === '') {
+        newName = '游客';
+        nicknameInput.value = newName;
+      }
+      if (newName.length > 15) {
+        newName = newName.substring(0,15);
+        nicknameInput.value = newName;
+      }
+      myNickname = newName;
+      localStorage.setItem('chat_nickname', myNickname);
+      // 通知服务器昵称变更 (通过自定义消息)
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: 'nickname',
+          nickname: myNickname
+        }));
+      }
+    });
+
+    // 添加消息到界面
+    function addMessageToChat({ type, text, sender, timestamp, isSelf, clientId: msgClientId }) {
+      const msgDiv = document.createElement('div');
+      
+      if (type === 'system') {
+        msgDiv.className = 'system-message';
+        msgDiv.textContent = text;
+        messagesContainer.appendChild(msgDiv);
+        scrollToBottom();
+        return;
+      }
+
+      // 普通消息
+      msgDiv.className = `message ${isSelf ? 'self' : 'other'}`;
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      
+      const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString('zh-CN', { hour12: false }) : '';
+      meta.textContent = `${sender || '未知'} · ${timeStr}`;
+      
+      msgDiv.appendChild(bubble);
+      msgDiv.appendChild(meta);
+      messagesContainer.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 连接WebSocket服务器 (自动检测主机)
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host; // 包含端口
+      const wsUrl = `${protocol}//${host}`;
+      
+      updateStatus('connecting', '连接中...');
+      
+      socket = new WebSocket(wsUrl);
+
+      socket.addEventListener('open', () => {
+        updateStatus('connected', '已连接');
+        // 发送加入信息（包含昵称）
+        socket.send(JSON.stringify({
+          type: 'join',
+          nickname: myNickname
+        }));
+      });
+
+      socket.addEventListener('message', (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleServerMessage(data);
+        } catch (err) {
+          console.warn('收到非JSON消息:', event.data);
+        }
+      });
+
+      socket.addEventListener('close', (event) => {
+        updateStatus('disconnected', '断开连接');
+        // 简单重连机制
+        setTimeout(() => {
+          if (!socket || socket.readyState === WebSocket.CLOSED) {
+            connectWebSocket();
+          }
+        }, 3000);
+      });
+
+      socket.addEventListener('error', (err) => {
+        console.error('WebSocket错误', err);
+        updateStatus('disconnected', '连接错误');
+      });
+    }
+
+    function updateStatus(state, text) {
+      connectionStatus.textContent = text || state;
+      if (state === 'connected') {
+        connectionStatus.style.background = '#7ee0b8';
+        connectionStatus.style.color = '#0a1f14';
+      } else if (state === 'disconnected' || state === 'connecting') {
+        connectionStatus.style.background = '#f0b27a';
+        connectionStatus.style.color = '#2d1e0c';
+      } else {
+        connectionStatus.style.background = '#b0bec5';
+      }
+    }
+
+    function handleServerMessage(data) {
+      const { type, text, sender, timestamp, clientId: msgClientId, count, nickname: serverNickname } = data;
+      
+      switch (type) {
+        case 'welcome':
+          // 服务器告知当前客户端id
+          if (data.clientId) {
+            clientId = data.clientId;
+          }
+          if (data.text) {
+            addMessageToChat({ type: 'system', text: data.text });
+          }
+          break;
+        case 'message':
+          // 判断是否是自己发送的 (通过clientId比较)
+          const isSelf = (clientId && msgClientId === clientId);
+          addMessageToChat({
+            type: 'message',
+            text: text,
+            sender: sender || '匿名',
+            timestamp: timestamp,
+            isSelf: isSelf,
+            clientId: msgClientId
+          });
+          break;
+        case 'system':
+          addMessageToChat({ type: 'system', text: text });
+          break;
+        case 'userCount':
+          if (count !== undefined) {
+            userCountSpan.textContent = `在线:${count}`;
+          }
+          break;
+        case 'nickname_changed':
+          // 可忽略或显示系统提示
+          if (data.text) {
+            addMessageToChat({ type: 'system', text: data.text });
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    // 发送消息
+    function sendChatMessage() {
+      const text = messageInput.value.trim();
+      if (text === '') return;
+      
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        addMessageToChat({ type: 'system', text: '⚠️ 未连接到服务器，无法发送' });
+        return;
+      }
+
+      // 确保昵称最新
+      const currentNick = nicknameInput.value.trim() || '游客';
+      if (currentNick !== myNickname) {
+        myNickname = currentNick;
+        localStorage.setItem('chat_nickname', myNickname);
+        // 同时更新昵称到服务器
+        socket.send(JSON.stringify({ type: 'nickname', nickname: myNickname }));
+      }
+
+      socket.send(JSON.stringify({
+        type: 'message',
+        text: text,
+        nickname: myNickname
+      }));
+      
+      messageInput.value = '';
+    }
+
+    sendButton.addEventListener('click', sendChatMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
+
+    // 启动连接
+    connectWebSocket();
+
+    // 清理旧消息 (保留欢迎)
+    window.addEventListener('load', () => {
+      if (messagesContainer.children.length === 0) {
+        addMessageToChat({ type: 'system', text: '✨ 欢迎来到聊天室！请设置昵称。' });
+      }
+    });
+
+  })();
+</script>
+
+<!--
+  ============================================
+  重要说明：此HTML文件需要配合Node.js后端运行。
+  请将以下代码保存为 server.js 并与本HTML放在同目录，
+  然后运行 node server.js 启动服务器。
+  ============================================
+-->
+<!--
+  server.js 内容如下 (复制到单独文件)：
+  
+  const WebSocket = require('ws');
+  const http = require('http');
+  const fs = require('fs');
+  const path = require('path');
+
+  const PORT = process.env.PORT || 3000;
+
+  // 创建HTTP服务器，用于提供HTML页面
+  const server = http.createServer((req, res) => {
+    let filePath = '.' + req.url;
+    if (filePath === './') {
+      filePath = './index.html';
+    }
+
+    const extname = String(path.extname(filePath)).toLowerCase();
+    const mimeTypes = {
+      '.html': 'text/html',
+      '.js': 'text/javascript',
+      '.css': 'text/css',
+    };
+
+    const contentType = mimeTypes[extname] || 'application/octet-stream';
+
+    fs.readFile(filePath, (error, content) => {
+      if (error) {
+        if(error.code === 'ENOENT') {
+          res.writeHead(404);
+          res.end('404 Not Found');
+        } else {
+          res.writeHead(500);
+          res.end('Server Error');
+        }
+      } else {
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content, 'utf-8');
+      }
+    });
+  });
+
+  // 绑定WebSocket到HTTP服务器
+  const wss = new WebSocket.Server({ server });
+
+  let clients = new Map(); // 存储客户端信息: clientId -> { ws, nickname }
+
+  function getClientId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+  }
+
+  function broadcast(data, excludeWs = null) {
+    const message = JSON.stringify(data);
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN && client !== excludeWs) {
+        client.send(message);
+      }
+    });
+  }
+
+  function broadcastAll(data) {
+    const message = JSON.stringify(data);
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  }
+
+  function updateUserCount() {
+    broadcastAll({ type: 'userCount', count: wss.clients.size });
+  }
+
+  wss.on('connection', (ws) => {
+    const id = getClientId();
+    const clientInfo = { ws, nickname: '游客' };
+    clients.set(id, clientInfo);
+
+    // 发送欢迎信息和clientId
+    ws.send(JSON.stringify({
+      type: 'welcome',
+      text: '🎉 你已加入聊天室',
+      clientId: id
+    }));
+
+    // 通知其他人新用户加入
+    broadcast({
+      type: 'system',
+      text: '一位新朋友进入了房间'
+    }, ws);
+
+    updateUserCount();
+
+    ws.on('message', (rawData) => {
+      let data;
+      try {
+        data = JSON.parse(rawData);
+      } catch (e) {
+        return;
+      }
+
+      const clientEntry = clients.get(id);
+      if (!clientEntry) return;
+
+      switch (data.type) {
+        case 'message':
+          const messageText = data.text?.trim();
+          if (!messageText) return;
+          
+          const senderNick = clientEntry.nickname || '匿名';
+          const broadcastMsg = {
+            type: 'message',
+            text: messageText,
+            sender: senderNick,
+            timestamp: Date.now(),
+            clientId: id
+          };
+          // 广播给所有客户端（包括自己）
+          broadcastAll(broadcastMsg);
+          break;
+
+        case 'nickname':
+          const newNick = (data.nickname || '游客').trim().substring(0, 15) || '游客';
+          const oldNick = clientEntry.nickname;
+          clientEntry.nickname = newNick;
+          
+          // 通知昵称变更
+          if (oldNick !== newNick) {
+            broadcastAll({
+              type: 'system',
+              text: `"${oldNick}" 改名为 "${newNick}"`
+            });
+          }
+          break;
+
+        case 'join':
+          if (data.nickname) {
+            clientEntry.nickname = data.nickname.trim().substring(0,15) || '游客';
+          }
+          break;
+          
+        default:
+          break;
+      }
+    });
+
+    ws.on('close', () => {
+      const leavingNick = clients.get(id)?.nickname || '某人';
+      clients.delete(id);
+      broadcast({
+        type: 'system',
+        text: `"${leavingNick}" 离开了聊天室`
+      });
+      updateUserCount();
+    });
+
+    ws.on('error', () => {
+      clients.delete(id);
+      updateUserCount();
+    });
+  });
+
+  server.listen(PORT, () => {
+    console.log(`🌐 聊天室服务器启动: http://localhost:${PORT}`);
+    console.log(`📡 WebSocket 已就绪`);
+  });
+-->
+</body>
+  </html
