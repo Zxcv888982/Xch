@@ -70,13 +70,8 @@
       margin-bottom: 8px;
       transition: 0.15s;
     }
-    .btn-primary {
-      background: #1677ff;
-      color: #fff;
-    }
-    .btn-primary:active {
-      background: #0958d9;
-    }
+    .btn-primary { background: #1677ff; color: #fff; }
+    .btn-primary:active { background: #0958d9; }
     .login-card .toggle-text {
       text-align: center;
       font-size: 0.85rem;
@@ -150,18 +145,12 @@
       background: #f5f6f7;
       -webkit-overflow-scrolling: touch;
     }
-    .message-list .loading-more {
-      text-align: center;
-      color: #b0b0b0;
-      font-size: 0.8rem;
-      padding: 8px;
-    }
 
     .msg-row {
       display: flex;
       gap: 8px;
       max-width: 100%;
-      animation: msgIn 0.2s ease;
+      animation: msgIn 0.15s ease;
     }
     .msg-row.self { flex-direction: row-reverse; }
     .msg-avatar {
@@ -198,7 +187,6 @@
       font-size: 0.95rem;
       line-height: 1.45;
       word-break: break-word;
-      position: relative;
       background: #fff;
       color: #1a1a1a;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
@@ -232,7 +220,7 @@
     }
 
     @keyframes msgIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -369,9 +357,7 @@
     <div class="online-count" id="onlineCount">在线 0</div>
   </div>
 
-  <div class="message-list" id="messageList">
-    <div class="loading-more" id="loadingHistory">加载历史消息中...</div>
-  </div>
+  <div class="message-list" id="messageList"></div>
 
   <div class="input-bar">
     <button class="tool-btn btn-img" id="btnImage">🖼️</button>
@@ -387,7 +373,7 @@
     <h3>选择头像</h3>
     <div class="emoji-grid" id="emojiGrid"></div>
     <button class="modal-btn btn-outline" id="btnPickPhoto">📷 从相册选择</button>
-    <button class="modal-btn btn btn-primary" id="btnCloseModal">完成</button>
+    <button class="modal-btn btn-primary" id="btnCloseModal">完成</button>
   </div>
 </div>
 
@@ -396,31 +382,31 @@
 
 <script>
 (function() {
-  // DOM
-  const loginPage = document.getElementById('loginPage');
-  const chatPage = document.getElementById('chatPage');
-  const loginUsername = document.getElementById('loginUsername');
-  const loginPassword = document.getElementById('loginPassword');
-  const loginNickname = document.getElementById('loginNickname');
-  const btnLoginSubmit = document.getElementById('btnLoginSubmit');
-  const toggleMode = document.getElementById('toggleMode');
-  const myAvatarImg = document.getElementById('myAvatarImg');
-  const myAvatarPlaceholder = document.getElementById('myAvatarPlaceholder');
-  const onlineCount = document.getElementById('onlineCount');
-  const messageList = document.getElementById('messageList');
-  const loadingHistory = document.getElementById('loadingHistory');
-  const msgInput = document.getElementById('msgInput');
-  const btnSend = document.getElementById('btnSend');
-  const btnImage = document.getElementById('btnImage');
-  const btnMic = document.getElementById('btnMic');
-  const imageFileInput = document.getElementById('imageFileInput');
-  const avatarFileInput = document.getElementById('avatarFileInput');
-  const avatarModal = document.getElementById('avatarModal');
-  const emojiGrid = document.getElementById('emojiGrid');
-  const btnPickPhoto = document.getElementById('btnPickPhoto');
-  const btnCloseModal = document.getElementById('btnCloseModal');
+  // ==================== DOM 引用 ====================
+  const $ = (id) => document.getElementById(id);
+  const loginPage = $('loginPage');
+  const chatPage = $('chatPage');
+  const loginUsername = $('loginUsername');
+  const loginPassword = $('loginPassword');
+  const loginNickname = $('loginNickname');
+  const btnLoginSubmit = $('btnLoginSubmit');
+  const toggleMode = $('toggleMode');
+  const myAvatarImg = $('myAvatarImg');
+  const myAvatarPlaceholder = $('myAvatarPlaceholder');
+  const onlineCount = $('onlineCount');
+  const messageList = $('messageList');
+  const msgInput = $('msgInput');
+  const btnSend = $('btnSend');
+  const btnImage = $('btnImage');
+  const btnMic = $('btnMic');
+  const imageFileInput = $('imageFileInput');
+  const avatarFileInput = $('avatarFileInput');
+  const avatarModal = $('avatarModal');
+  const emojiGrid = $('emojiGrid');
+  const btnPickPhoto = $('btnPickPhoto');
+  const btnCloseModal = $('btnCloseModal');
 
-  // 状态
+  // ==================== 状态 ====================
   let socket = null;
   let clientId = null;
   let currentUser = { username: null, nickname: '', avatar: '😀', avatarType: 'emoji' };
@@ -428,15 +414,13 @@
   let mediaRecorder = null;
   let audioChunks = [];
   let isRecording = false;
-  let historyLoaded = false;
+  let eventBound = false; // 防止重复绑定事件
 
   const emojiList = ['😀','😎','🤖','👽','🐱','🦊','🐼','🐨','🦁','🐸','🐵','🦄','🐶','🐰','🦋','🌸'];
 
   // ==================== 初始化 ====================
   function init() {
-    setupLoginEvents();
-    setupChatEvents();
-    // 尝试自动登录
+    bindLoginEvents();
     autoLogin();
   }
 
@@ -444,12 +428,10 @@
   function autoLogin() {
     const token = localStorage.getItem('chat_token');
     if (!token) {
-      // 没有 token，显示登录页
       loginPage.classList.remove('hidden');
       return;
     }
 
-    // 有 token，尝试自动登录
     fetch('/api/auto-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -466,7 +448,6 @@
         };
         enterChat();
       } else {
-        // token 失效，清除并显示登录页
         localStorage.removeItem('chat_token');
         loginPage.classList.remove('hidden');
       }
@@ -476,8 +457,8 @@
     });
   }
 
-  // ==================== 登录/注册事件 ====================
-  function setupLoginEvents() {
+  // ==================== 登录事件（只绑定一次） ====================
+  function bindLoginEvents() {
     btnLoginSubmit.addEventListener('click', handleLogin);
     loginPassword.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleLogin();
@@ -516,7 +497,6 @@
     .then(res => {
       if (res.success) {
         if (isLoginMode) {
-          // 保存 token
           localStorage.setItem('chat_token', res.token);
           currentUser = {
             username: res.user.username,
@@ -547,6 +527,13 @@
     chatPage.classList.remove('hidden');
     updateMyAvatar();
     renderEmojiGrid();
+
+    // 绑定聊天事件（只绑定一次）
+    if (!eventBound) {
+      bindChatEvents();
+      eventBound = true;
+    }
+
     connectWebSocket();
     loadHistoryMessages();
   }
@@ -592,7 +579,6 @@
         avatarType: currentUser.avatarType
       }));
     }
-    // 同时通过 HTTP 保存
     if (currentUser.username) {
       fetch('/api/update-profile', {
         method: 'POST',
@@ -621,23 +607,29 @@
               appendMessage(msg, msg.clientId === clientId);
             });
           }
-          historyLoaded = true;
           scrollToBottom();
         }
       })
       .catch(() => {
-        loadingHistory.textContent = '加载历史消息失败';
+        messageList.innerHTML = '<div class="system-msg">加载历史消息失败</div>';
       });
   }
 
   // ==================== WebSocket ====================
   function connectWebSocket() {
+    // 关闭旧连接
+    if (socket) {
+      socket.onclose = null;
+      socket.onmessage = null;
+      socket.onopen = null;
+      socket.close();
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}`;
     socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
-      // 发送登录信息
       if (currentUser.username) {
         socket.send(JSON.stringify({
           type: 'login',
@@ -654,7 +646,12 @@
     };
 
     socket.onclose = () => {
-      setTimeout(connectWebSocket, 2000);
+      // 3秒后重连
+      setTimeout(() => {
+        if (socket.readyState === WebSocket.CLOSED) {
+          connectWebSocket();
+        }
+      }, 3000);
     };
   }
 
@@ -676,6 +673,7 @@
         updateMyAvatar();
         break;
       case 'message':
+        // 服务端广播回来的消息，统一添加
         appendMessage(data, data.clientId === clientId);
         break;
       case 'system':
@@ -691,6 +689,7 @@
     const row = document.createElement('div');
     row.className = `msg-row ${isSelf ? 'self' : 'other'}`;
 
+    // 头像
     const avatarEl = document.createElement('div');
     if (data.avatarType === 'image' && data.avatar) {
       avatarEl.innerHTML = `<img class="msg-avatar" src="${data.avatar}" />`;
@@ -698,6 +697,7 @@
       avatarEl.innerHTML = `<div class="msg-avatar-placeholder">${data.avatar || '😀'}</div>`;
     }
 
+    // 消息体
     const body = document.createElement('div');
     body.className = 'msg-body';
 
@@ -761,8 +761,9 @@
     });
   }
 
-  // ==================== 聊天事件 ====================
-  function setupChatEvents() {
+  // ==================== 聊天事件（只绑定一次） ====================
+  function bindChatEvents() {
+    // 发送文字
     btnSend.addEventListener('click', sendText);
     msgInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -773,25 +774,7 @@
 
     // 图片
     btnImage.addEventListener('click', () => imageFileInput.click());
-    imageFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result.split(',')[1];
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({
-            type: 'image',
-            image: base64,
-            nickname: currentUser.nickname,
-            avatar: currentUser.avatar,
-            avatarType: currentUser.avatarType
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
-      imageFileInput.value = '';
-    });
+    imageFileInput.addEventListener('change', handleImageSelect);
 
     // 语音
     btnMic.addEventListener('mousedown', startRecording);
@@ -812,35 +795,7 @@
     });
 
     btnPickPhoto.addEventListener('click', () => avatarFileInput.click());
-    avatarFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxSize = 200;
-          let w = img.width, h = img.height;
-          if (w > h) {
-            if (w > maxSize) { h *= maxSize / w; w = maxSize; }
-          } else {
-            if (h > maxSize) { w *= maxSize / h; h = maxSize; }
-          }
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          currentUser.avatar = canvas.toDataURL('image/jpeg', 0.7);
-          currentUser.avatarType = 'image';
-          updateMyAvatar();
-          saveProfileToServer();
-          renderEmojiGrid();
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-      avatarFileInput.value = '';
-    });
+    avatarFileInput.addEventListener('change', handleAvatarSelect);
   }
 
   function openAvatarModal() {
@@ -848,6 +803,7 @@
     avatarModal.classList.add('active');
   }
 
+  // ==================== 发送消息（只发到服务端，不本地添加） ====================
   function sendText() {
     const text = msgInput.value.trim();
     if (!text) return;
@@ -866,7 +822,59 @@
     msgInput.focus();
   }
 
+  function handleImageSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result.split(',')[1];
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: 'image',
+          image: base64,
+          nickname: currentUser.nickname,
+          avatar: currentUser.avatar,
+          avatarType: currentUser.avatarType
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+    imageFileInput.value = '';
+  }
+
+  function handleAvatarSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSize = 200;
+        let w = img.width, h = img.height;
+        if (w > h) {
+          if (w > maxSize) { h *= maxSize / w; w = maxSize; }
+        } else {
+          if (h > maxSize) { w *= maxSize / h; h = maxSize; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        currentUser.avatar = canvas.toDataURL('image/jpeg', 0.7);
+        currentUser.avatarType = 'image';
+        updateMyAvatar();
+        saveProfileToServer();
+        renderEmojiGrid();
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+    avatarFileInput.value = '';
+  }
+
+  // ==================== 语音录制 ====================
   async function startRecording() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(stream);
