@@ -3,34 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>公共聊天室</title>
+  <title>聊天室</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f5f6f7;
       height: 100vh;
       height: 100dvh;
-      display: flex;
-      flex-direction: column;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
     }
 
+    /* 页面容器 */
+    .page { display: none; flex-direction: column; height: 100%; }
+    .page.active { display: flex; }
+
     /* 登录页 */
     .login-page {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      height: 100%;
+      align-items: center;
       padding: 24px;
       background: #f5f6f7;
     }
-    .login-page.hidden { display: none; }
     .login-card {
       background: #fff;
       border-radius: 20px;
@@ -39,12 +37,7 @@
       max-width: 360px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
-    .login-card h2 {
-      text-align: center;
-      margin-bottom: 24px;
-      font-size: 1.4rem;
-      color: #1a1a1a;
-    }
+    .login-card h2 { text-align: center; margin-bottom: 24px; font-size: 1.4rem; color: #1a1a1a; }
     .login-card input {
       width: 100%;
       padding: 12px 16px;
@@ -55,11 +48,8 @@
       outline: none;
       background: #f9f9f9;
     }
-    .login-card input:focus {
-      border-color: #1677ff;
-      background: #fff;
-    }
-    .login-card .btn {
+    .login-card input:focus { border-color: #1677ff; background: #fff; }
+    .btn {
       width: 100%;
       padding: 12px;
       border: none;
@@ -68,189 +58,138 @@
       font-weight: 600;
       cursor: pointer;
       margin-bottom: 8px;
-      transition: 0.15s;
     }
     .btn-primary { background: #1677ff; color: #fff; }
     .btn-primary:active { background: #0958d9; }
-    .login-card .toggle-text {
-      text-align: center;
-      font-size: 0.85rem;
-      color: #999;
-    }
-    .login-card .toggle-text span {
-      color: #1677ff;
-      cursor: pointer;
-    }
+    .toggle-text { text-align: center; font-size: 0.85rem; color: #999; }
+    .toggle-text span { color: #1677ff; cursor: pointer; }
 
-    /* 聊天页 */
-    .chat-page {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-    .chat-page.hidden { display: none; }
-
+    /* 导航栏 */
     .navbar {
       background: #fff;
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       border-bottom: 1px solid #e5e5e5;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       flex-shrink: 0;
     }
-    .navbar .title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1a1a1a;
-      flex: 1;
-    }
+    .navbar .title { font-size: 1.05rem; font-weight: 600; color: #1a1a1a; flex: 1; }
     .navbar .online-count {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #999;
       background: #f0f0f0;
-      padding: 4px 10px;
-      border-radius: 12px;
+      padding: 3px 8px;
+      border-radius: 10px;
     }
-    .avatar-img {
-      width: 38px;
-      height: 38px;
+    .nav-avatar {
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
       border: 2px solid #e0e0e0;
       flex-shrink: 0;
     }
-    .avatar-placeholder {
-      width: 38px;
-      height: 38px;
+    .nav-avatar-placeholder {
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       background: #e8e8e8;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       cursor: pointer;
       flex-shrink: 0;
     }
 
+    /* 消息列表 */
     .message-list {
       flex: 1;
       overflow-y: auto;
-      padding: 12px 14px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       background: #f5f6f7;
       -webkit-overflow-scrolling: touch;
     }
 
-    .msg-row {
-      display: flex;
-      gap: 8px;
-      max-width: 100%;
-      animation: msgIn 0.15s ease;
-    }
+    .msg-row { display: flex; gap: 6px; max-width: 100%; animation: msgIn 0.12s ease; }
     .msg-row.self { flex-direction: row-reverse; }
     .msg-avatar {
-      width: 36px;
-      height: 36px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       object-fit: cover;
       flex-shrink: 0;
       margin-top: 2px;
     }
     .msg-avatar-placeholder {
-      width: 36px;
-      height: 36px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: #e0e0e0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 0.85rem;
       flex-shrink: 0;
       margin-top: 2px;
     }
-    .msg-body { display: flex; flex-direction: column; max-width: 70%; }
-    .msg-sender {
-      font-size: 0.7rem;
-      color: #999;
-      margin-bottom: 2px;
-      padding: 0 4px;
-    }
+    .msg-body { display: flex; flex-direction: column; max-width: 72%; }
+    .msg-sender { font-size: 0.65rem; color: #999; margin-bottom: 1px; padding: 0 2px; }
     .msg-row.self .msg-sender { text-align: right; }
     .msg-bubble {
-      padding: 10px 14px;
-      border-radius: 18px;
-      font-size: 0.95rem;
-      line-height: 1.45;
+      padding: 8px 12px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.4;
       word-break: break-word;
       background: #fff;
       color: #1a1a1a;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 1px rgba(0,0,0,0.04);
     }
-    .msg-row.self .msg-bubble {
-      background: #1677ff;
-      color: #fff;
-      border-bottom-right-radius: 6px;
-    }
-    .msg-row.other .msg-bubble { border-bottom-left-radius: 6px; }
-    .msg-bubble img {
-      max-width: 200px;
-      border-radius: 10px;
-      display: block;
-      cursor: pointer;
-    }
-    .msg-bubble audio { max-width: 180px; height: 36px; }
-    .msg-time {
-      font-size: 0.65rem;
-      color: #b0b0b0;
-      margin-top: 2px;
-      padding: 0 4px;
-    }
+    .msg-row.self .msg-bubble { background: #1677ff; color: #fff; border-bottom-right-radius: 4px; }
+    .msg-row.other .msg-bubble { border-bottom-left-radius: 4px; }
+    .msg-bubble img { max-width: 180px; border-radius: 8px; display: block; cursor: pointer; }
+    .msg-bubble audio { max-width: 160px; height: 32px; }
+    .msg-time { font-size: 0.6rem; color: #b0b0b0; margin-top: 1px; padding: 0 2px; }
     .msg-row.self .msg-time { text-align: right; }
-    .system-msg {
-      text-align: center;
-      font-size: 0.75rem;
-      color: #b0b0b0;
-      padding: 6px;
-      align-self: center;
-    }
+    .system-msg { text-align: center; font-size: 0.7rem; color: #b0b0b0; padding: 4px; align-self: center; }
 
-    @keyframes msgIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* 输入栏 */
     .input-bar {
       background: #fff;
-      padding: 10px 12px;
+      padding: 8px 10px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       border-top: 1px solid #e5e5e5;
       flex-shrink: 0;
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
     }
     .input-bar input {
       flex: 1;
       border: none;
       background: #f0f0f0;
-      border-radius: 22px;
-      padding: 10px 16px;
-      font-size: 0.95rem;
+      border-radius: 18px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
       outline: none;
       color: #1a1a1a;
+      min-width: 0;
     }
     .input-bar input::placeholder { color: #b0b0b0; }
-    .tool-btn {
-      width: 40px;
-      height: 40px;
+    .icon-btn {
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       border: none;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -258,29 +197,114 @@
       flex-shrink: 0;
       transition: 0.15s;
     }
-    .tool-btn:active { transform: scale(0.9); }
-    .btn-img { background: #f0f0f0; color: #666; }
-    .btn-mic { background: #f0f0f0; color: #666; }
+    .icon-btn:active { transform: scale(0.9); }
+    .btn-img { background: #f0f0f0; }
+    .btn-send { background: #1677ff; color: #fff; width: auto; padding: 0 14px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; }
+
+    /* 语音按钮 - QQ风格 */
+    .btn-mic {
+      background: #f0f0f0;
+      position: relative;
+    }
     .btn-mic.recording {
       background: #ff4d4f;
       color: #fff;
-      animation: pulse 1s infinite;
     }
-    .btn-send {
+    /* 录音提示 */
+    .record-tip {
+      display: none;
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      z-index: 300;
+      text-align: center;
+    }
+    .record-tip.active { display: block; }
+    .record-tip.cancel { background: rgba(255,77,79,0.9); }
+
+    /* 主页 */
+    .home-page { background: #f5f6f7; }
+    .home-header {
+      background: #fff;
+      padding: 14px;
+      text-align: center;
+      border-bottom: 1px solid #e5e5e5;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .home-content { flex: 1; overflow-y: auto; padding: 12px; }
+    .section-title {
+      font-size: 0.8rem;
+      color: #999;
+      padding: 8px 4px;
+    }
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+    .user-item:active { background: #f0f0f0; }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-avatar-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e8e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .user-info { flex: 1; }
+    .user-name { font-size: 0.95rem; font-weight: 500; }
+    .user-status { font-size: 0.75rem; color: #4caf50; }
+    .enter-chat-btn {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
       background: #1677ff;
       color: #fff;
+      border: none;
+      border-radius: 14px;
       font-size: 1rem;
       font-weight: 600;
-      width: auto;
-      padding: 0 18px;
-      border-radius: 22px;
+      cursor: pointer;
     }
-    @keyframes pulse {
-      0%,100% { box-shadow: 0 0 0 0 rgba(255,77,79,0.5); }
-      50% { box-shadow: 0 0 0 10px rgba(255,77,79,0); }
+    .bottom-nav {
+      background: #fff;
+      display: flex;
+      border-top: 1px solid #e5e5e5;
+      flex-shrink: 0;
     }
+    .bottom-nav .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.75rem;
+      color: #999;
+      cursor: pointer;
+    }
+    .bottom-nav .nav-item.active { color: #1677ff; }
+    .bottom-nav .nav-item .nav-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
 
-    /* 头像弹窗 */
+    /* 弹窗 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -293,78 +317,87 @@
     .modal-overlay.active { display: flex; }
     .modal-panel {
       background: #fff;
-      border-radius: 20px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 18px;
       width: 90%;
-      max-width: 340px;
+      max-width: 320px;
       text-align: center;
     }
-    .modal-panel h3 { margin-bottom: 14px; font-size: 1rem; color: #333; }
-    .emoji-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 14px;
-    }
+    .modal-panel h3 { margin-bottom: 12px; font-size: 0.95rem; }
+    .emoji-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 12px; }
     .emoji-item {
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       background: #f5f5f5;
       cursor: pointer;
       border: 2px solid transparent;
     }
     .emoji-item.selected { border-color: #1677ff; background: #e6f0ff; }
     .modal-btn {
-      padding: 10px 20px;
-      border-radius: 20px;
+      padding: 8px 18px;
+      border-radius: 16px;
       border: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      margin: 4px;
+      margin: 3px;
     }
     .btn-outline { background: #fff; color: #1677ff; border: 1px solid #1677ff; }
   </style>
 </head>
 <body>
 
-<!-- 登录页面 -->
-<div class="login-page" id="loginPage">
+<!-- 登录页 -->
+<div class="page active" id="loginPage">
   <div class="login-card">
     <h2>🔐 登录聊天室</h2>
     <input type="text" id="loginUsername" placeholder="用户名" autocomplete="username" />
     <input type="password" id="loginPassword" placeholder="密码" autocomplete="current-password" />
     <input type="text" id="loginNickname" placeholder="昵称（注册时需要）" style="display:none;" />
     <button class="btn btn-primary" id="btnLoginSubmit">登 录</button>
-    <div class="toggle-text">
-      没有账号？<span id="toggleMode">立即注册</span>
+    <div class="toggle-text">没有账号？<span id="toggleMode">立即注册</span></div>
+  </div>
+</div>
+
+<!-- 主页 -->
+<div class="page" id="homePage">
+  <div class="home-header">💬 聊天室</div>
+  <div class="home-content">
+    <div class="section-title">在线用户 (<span id="homeOnlineCount">0</span>)</div>
+    <div id="onlineUserList"></div>
+    <button class="enter-chat-btn" id="btnEnterChat">进入公共聊天室</button>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active" data-page="home">
+      <span class="nav-icon">💬</span>聊天
+    </div>
+    <div class="nav-item" data-page="chat">
+      <span class="nav-icon">👥</span>消息
     </div>
   </div>
 </div>
 
-<!-- 聊天页面 -->
-<div class="chat-page hidden" id="chatPage">
+<!-- 聊天页 -->
+<div class="page" id="chatPage">
   <div class="navbar">
-    <img class="avatar-img" id="myAvatarImg" src="" alt="头像" style="display:none;" />
-    <div class="avatar-placeholder" id="myAvatarPlaceholder">😀</div>
+    <img class="nav-avatar" id="myAvatarImg" src="" alt="头像" style="display:none;" />
+    <div class="nav-avatar-placeholder" id="myAvatarPlaceholder">😀</div>
     <div class="title">💬 公共聊天室</div>
     <div class="online-count" id="onlineCount">在线 0</div>
   </div>
-
   <div class="message-list" id="messageList"></div>
-
   <div class="input-bar">
-    <button class="tool-btn btn-img" id="btnImage">🖼️</button>
-    <button class="tool-btn btn-mic" id="btnMic">🎤</button>
+    <button class="icon-btn btn-img" id="btnImage">🖼️</button>
+    <button class="icon-btn btn-mic" id="btnMic">🎤</button>
     <input type="text" id="msgInput" placeholder="输入消息..." autocomplete="off" />
-    <button class="tool-btn btn-send" id="btnSend">发送</button>
+    <button class="icon-btn btn-send" id="btnSend">发送</button>
   </div>
+  <div class="record-tip" id="recordTip">手指上滑取消发送</div>
 </div>
 
 <!-- 头像弹窗 -->
@@ -382,31 +415,9 @@
 
 <script>
 (function() {
-  // ==================== DOM 引用 ====================
   const $ = (id) => document.getElementById(id);
-  const loginPage = $('loginPage');
-  const chatPage = $('chatPage');
-  const loginUsername = $('loginUsername');
-  const loginPassword = $('loginPassword');
-  const loginNickname = $('loginNickname');
-  const btnLoginSubmit = $('btnLoginSubmit');
-  const toggleMode = $('toggleMode');
-  const myAvatarImg = $('myAvatarImg');
-  const myAvatarPlaceholder = $('myAvatarPlaceholder');
-  const onlineCount = $('onlineCount');
-  const messageList = $('messageList');
-  const msgInput = $('msgInput');
-  const btnSend = $('btnSend');
-  const btnImage = $('btnImage');
-  const btnMic = $('btnMic');
-  const imageFileInput = $('imageFileInput');
-  const avatarFileInput = $('avatarFileInput');
-  const avatarModal = $('avatarModal');
-  const emojiGrid = $('emojiGrid');
-  const btnPickPhoto = $('btnPickPhoto');
-  const btnCloseModal = $('btnCloseModal');
 
-  // ==================== 状态 ====================
+  // 状态
   let socket = null;
   let clientId = null;
   let currentUser = { username: null, nickname: '', avatar: '😀', avatarType: 'emoji' };
@@ -414,28 +425,36 @@
   let mediaRecorder = null;
   let audioChunks = [];
   let isRecording = false;
-  let eventBound = false; // 防止重复绑定事件
+  let recordStartY = 0;
+  let eventsBound = false;
 
   const emojiList = ['😀','😎','🤖','👽','🐱','🦊','🐼','🐨','🦁','🐸','🐵','🦄','🐶','🐰','🦋','🌸'];
+
+  // ==================== 页面切换 ====================
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    $(pageId).classList.add('active');
+    // 底部导航高亮
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.page === (pageId === 'homePage' ? 'home' : 'chat'));
+    });
+  }
 
   // ==================== 初始化 ====================
   function init() {
     bindLoginEvents();
+    bindGlobalEvents();
     autoLogin();
   }
 
-  // ==================== 自动登录 ====================
   function autoLogin() {
     const token = localStorage.getItem('chat_token');
-    if (!token) {
-      loginPage.classList.remove('hidden');
-      return;
-    }
+    if (!token) { showPage('loginPage'); return; }
 
     fetch('/api/auto-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: token })
+      body: JSON.stringify({ token })
     })
     .then(r => r.json())
     .then(res => {
@@ -446,47 +465,44 @@
           avatar: res.user.avatar,
           avatarType: res.user.avatarType || 'emoji'
         };
-        enterChat();
+        enterApp();
       } else {
         localStorage.removeItem('chat_token');
-        loginPage.classList.remove('hidden');
+        showPage('loginPage');
       }
     })
-    .catch(() => {
-      loginPage.classList.remove('hidden');
-    });
+    .catch(() => showPage('loginPage'));
   }
 
-  // ==================== 登录事件（只绑定一次） ====================
+  function enterApp() {
+    showPage('homePage');
+    updateMyAvatar();
+    connectWebSocket();
+    loadOnlineUsers();
+  }
+
+  // ==================== 登录事件 ====================
   function bindLoginEvents() {
-    btnLoginSubmit.addEventListener('click', handleLogin);
-    loginPassword.addEventListener('keydown', (e) => {
+    $('btnLoginSubmit').addEventListener('click', handleLogin);
+    $('loginPassword').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleLogin();
     });
-
-    toggleMode.addEventListener('click', () => {
+    $('toggleMode').addEventListener('click', () => {
       isLoginMode = !isLoginMode;
-      btnLoginSubmit.textContent = isLoginMode ? '登 录' : '注 册';
-      toggleMode.textContent = isLoginMode ? '立即注册' : '已有账号？去登录';
-      loginNickname.style.display = isLoginMode ? 'none' : 'block';
+      $('btnLoginSubmit').textContent = isLoginMode ? '登 录' : '注 册';
+      $('toggleMode').textContent = isLoginMode ? '立即注册' : '已有账号？去登录';
+      $('loginNickname').style.display = isLoginMode ? 'none' : 'block';
     });
   }
 
   function handleLogin() {
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value.trim();
-
-    if (!username || !password) {
-      alert('请填写用户名和密码');
-      return;
-    }
+    const username = $('loginUsername').value.trim();
+    const password = $('loginPassword').value.trim();
+    if (!username || !password) return alert('请填写完整');
 
     const endpoint = isLoginMode ? '/api/login' : '/api/register';
     const body = { username, password };
-
-    if (!isLoginMode) {
-      body.nickname = loginNickname.value.trim() || username;
-    }
+    if (!isLoginMode) body.nickname = $('loginNickname').value.trim() || username;
 
     fetch(endpoint, {
       method: 'POST',
@@ -504,74 +520,166 @@
             avatar: res.user.avatar,
             avatarType: res.user.avatarType || 'emoji'
           };
-          enterChat();
+          enterApp();
         } else {
           alert('注册成功！请登录');
           isLoginMode = true;
-          btnLoginSubmit.textContent = '登 录';
-          toggleMode.textContent = '立即注册';
-          loginNickname.style.display = 'none';
+          $('btnLoginSubmit').textContent = '登 录';
+          $('toggleMode').textContent = '立即注册';
+          $('loginNickname').style.display = 'none';
         }
       } else {
         alert(res.message || '操作失败');
       }
     })
-    .catch(() => {
-      alert('网络错误，请稍后重试');
+    .catch(() => alert('网络错误'));
+  }
+
+  // ==================== 全局事件（只绑定一次） ====================
+  function bindGlobalEvents() {
+    if (eventsBound) return;
+    eventsBound = true;
+
+    // 进入聊天室
+    $('btnEnterChat').addEventListener('click', () => {
+      showPage('chatPage');
+      loadHistoryMessages();
     });
+
+    // 底部导航
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (item.dataset.page === 'home') {
+          showPage('homePage');
+          loadOnlineUsers();
+        } else {
+          showPage('chatPage');
+          loadHistoryMessages();
+        }
+      });
+    });
+
+    // 发送文字
+    $('btnSend').addEventListener('click', sendText);
+    $('msgInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendText();
+      }
+    });
+
+    // 图片
+    $('btnImage').addEventListener('click', () => $('imageFileInput').click());
+    $('imageFileInput').addEventListener('change', handleImage);
+
+    // 语音 - QQ风格
+    const micBtn = $('btnMic');
+    const recordTip = $('recordTip');
+
+    micBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      recordStartY = e.touches[0].clientY;
+      startRecording();
+    });
+
+    micBtn.addEventListener('touchmove', (e) => {
+      if (!isRecording) return;
+      const deltaY = recordStartY - e.touches[0].clientY;
+      if (deltaY > 60) {
+        recordTip.classList.add('cancel');
+        recordTip.textContent = '松开取消发送';
+      } else {
+        recordTip.classList.remove('cancel');
+        recordTip.textContent = '手指上滑取消发送';
+      }
+    });
+
+    micBtn.addEventListener('touchend', (e) => {
+      if (!isRecording) return;
+      const deltaY = recordStartY - (e.changedTouches[0]?.clientY || recordStartY);
+      recordTip.classList.remove('active', 'cancel');
+      if (deltaY > 60) {
+        cancelRecording();
+      } else {
+        stopRecording();
+      }
+    });
+
+    // 桌面端语音支持
+    micBtn.addEventListener('mousedown', (e) => {
+      recordStartY = e.clientY;
+      startRecording();
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!isRecording || mediaRecorder?.state !== 'recording') return;
+      const deltaY = recordStartY - e.clientY;
+      if (deltaY > 60) {
+        recordTip.classList.add('active', 'cancel');
+        recordTip.textContent = '松开取消发送';
+      } else {
+        recordTip.classList.remove('cancel');
+        recordTip.classList.add('active');
+        recordTip.textContent = '手指上滑取消发送';
+      }
+    });
+    window.addEventListener('mouseup', () => {
+      if (!isRecording || mediaRecorder?.state !== 'recording') return;
+      recordTip.classList.remove('active', 'cancel');
+      stopRecording();
+    });
+
+    // 头像弹窗
+    $('myAvatarPlaceholder').addEventListener('click', openAvatarModal);
+    $('myAvatarImg').addEventListener('click', openAvatarModal);
+    $('btnCloseModal').addEventListener('click', () => $('avatarModal').classList.remove('active'));
+    $('avatarModal').addEventListener('click', (e) => {
+      if (e.target === $('avatarModal')) $('avatarModal').classList.remove('active');
+    });
+    $('btnPickPhoto').addEventListener('click', () => $('avatarFileInput').click());
+    $('avatarFileInput').addEventListener('change', handleAvatarSelect);
   }
 
-  // ==================== 进入聊天 ====================
-  function enterChat() {
-    loginPage.classList.add('hidden');
-    chatPage.classList.remove('hidden');
-    updateMyAvatar();
-    renderEmojiGrid();
-
-    // 绑定聊天事件（只绑定一次）
-    if (!eventBound) {
-      bindChatEvents();
-      eventBound = true;
-    }
-
-    connectWebSocket();
-    loadHistoryMessages();
-  }
-
+  // ==================== 头像 ====================
   function updateMyAvatar() {
+    const img = $('myAvatarImg');
+    const placeholder = $('myAvatarPlaceholder');
     if (currentUser.avatarType === 'image' && currentUser.avatar) {
-      myAvatarImg.src = currentUser.avatar;
-      myAvatarImg.style.display = 'block';
-      myAvatarPlaceholder.style.display = 'none';
+      img.src = currentUser.avatar;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
     } else {
-      myAvatarPlaceholder.textContent = currentUser.avatar || '😀';
-      myAvatarImg.style.display = 'none';
-      myAvatarPlaceholder.style.display = 'flex';
+      placeholder.textContent = currentUser.avatar || '😀';
+      img.style.display = 'none';
+      placeholder.style.display = 'flex';
     }
   }
 
   function renderEmojiGrid() {
-    emojiGrid.innerHTML = '';
+    const grid = $('emojiGrid');
+    grid.innerHTML = '';
     emojiList.forEach(emoji => {
       const div = document.createElement('div');
       div.className = 'emoji-item';
       div.textContent = emoji;
-      if (currentUser.avatarType === 'emoji' && currentUser.avatar === emoji) {
-        div.classList.add('selected');
-      }
+      if (currentUser.avatarType === 'emoji' && currentUser.avatar === emoji) div.classList.add('selected');
       div.addEventListener('click', () => {
         currentUser.avatar = emoji;
         currentUser.avatarType = 'emoji';
         updateMyAvatar();
-        saveProfileToServer();
+        saveProfile();
         renderEmojiGrid();
       });
-      emojiGrid.appendChild(div);
+      grid.appendChild(div);
     });
   }
 
-  function saveProfileToServer() {
-    if (currentUser.username && socket && socket.readyState === WebSocket.OPEN) {
+  function openAvatarModal() {
+    renderEmojiGrid();
+    $('avatarModal').classList.add('active');
+  }
+
+  function saveProfile() {
+    if (socket?.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
         type: 'update-profile',
         nickname: currentUser.nickname,
@@ -589,35 +697,38 @@
           avatar: currentUser.avatar,
           avatarType: currentUser.avatarType
         })
-      }).catch(() => {});
+      }).catch(()=>{});
     }
   }
 
-  // ==================== 加载历史消息 ====================
-  function loadHistoryMessages() {
-    fetch('/api/messages')
-      .then(r => r.json())
-      .then(res => {
-        if (res.success && res.messages) {
-          messageList.innerHTML = '';
-          if (res.messages.length === 0) {
-            messageList.innerHTML = '<div class="system-msg">暂无历史消息</div>';
-          } else {
-            res.messages.forEach(msg => {
-              appendMessage(msg, msg.clientId === clientId);
-            });
-          }
-          scrollToBottom();
-        }
-      })
-      .catch(() => {
-        messageList.innerHTML = '<div class="system-msg">加载历史消息失败</div>';
-      });
+  function handleAvatarSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSize = 200;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+        else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        currentUser.avatar = canvas.toDataURL('image/jpeg', 0.7);
+        currentUser.avatarType = 'image';
+        updateMyAvatar();
+        saveProfile();
+        renderEmojiGrid();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    $('avatarFileInput').value = '';
   }
 
   // ==================== WebSocket ====================
   function connectWebSocket() {
-    // 关闭旧连接
     if (socket) {
       socket.onclose = null;
       socket.onmessage = null;
@@ -625,16 +736,12 @@
       socket.close();
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
-    socket = new WebSocket(wsUrl);
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    socket = new WebSocket(`${protocol}//${location.host}`);
 
     socket.onopen = () => {
       if (currentUser.username) {
-        socket.send(JSON.stringify({
-          type: 'login',
-          username: currentUser.username
-        }));
+        socket.send(JSON.stringify({ type: 'login', username: currentUser.username }));
       }
     };
 
@@ -646,12 +753,7 @@
     };
 
     socket.onclose = () => {
-      // 3秒后重连
-      setTimeout(() => {
-        if (socket.readyState === WebSocket.CLOSED) {
-          connectWebSocket();
-        }
-      }, 3000);
+      setTimeout(connectWebSocket, 3000);
     };
   }
 
@@ -661,6 +763,7 @@
         clientId = data.clientId;
         break;
       case 'login_success':
+        clientId = data.clientId || clientId;
         currentUser.nickname = data.nickname;
         currentUser.avatar = data.avatar;
         currentUser.avatarType = data.avatarType || 'emoji';
@@ -673,23 +776,23 @@
         updateMyAvatar();
         break;
       case 'message':
-        // 服务端广播回来的消息，统一添加
         appendMessage(data, data.clientId === clientId);
         break;
       case 'system':
         addSystemMsg(data.text);
         break;
       case 'userCount':
-        onlineCount.textContent = `在线 ${data.count}`;
+        $('onlineCount').textContent = `在线 ${data.count}`;
+        $('homeOnlineCount').textContent = data.count;
         break;
     }
   }
 
+  // ==================== 消息处理 ====================
   function appendMessage(data, isSelf) {
     const row = document.createElement('div');
     row.className = `msg-row ${isSelf ? 'self' : 'other'}`;
 
-    // 头像
     const avatarEl = document.createElement('div');
     if (data.avatarType === 'image' && data.avatar) {
       avatarEl.innerHTML = `<img class="msg-avatar" src="${data.avatar}" />`;
@@ -697,7 +800,6 @@
       avatarEl.innerHTML = `<div class="msg-avatar-placeholder">${data.avatar || '😀'}</div>`;
     }
 
-    // 消息体
     const body = document.createElement('div');
     body.className = 'msg-body';
 
@@ -712,8 +814,8 @@
       const img = document.createElement('img');
       img.src = data.imageUrl;
       img.addEventListener('click', () => {
-        const win = window.open('', '_blank');
-        win.document.write(`<img src="${data.imageUrl}" style="max-width:100%;" />`);
+        const w = window.open('', '_blank');
+        w.document.write(`<img src="${data.imageUrl}" style="max-width:100%;" />`);
       });
       bubble.appendChild(img);
     } else if (data.audioUrl) {
@@ -727,23 +829,16 @@
 
     const time = document.createElement('div');
     time.className = 'msg-time';
-    time.textContent = data.timestamp
-      ? new Date(data.timestamp).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' })
-      : '';
+    time.textContent = data.timestamp ? new Date(data.timestamp).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }) : '';
 
     body.appendChild(sender);
     body.appendChild(bubble);
     body.appendChild(time);
 
-    if (isSelf) {
-      row.appendChild(body);
-      row.appendChild(avatarEl);
-    } else {
-      row.appendChild(avatarEl);
-      row.appendChild(body);
-    }
+    if (isSelf) { row.appendChild(body); row.appendChild(avatarEl); }
+    else { row.appendChild(avatarEl); row.appendChild(body); }
 
-    messageList.appendChild(row);
+    $('messageList').appendChild(row);
     scrollToBottom();
   }
 
@@ -751,84 +846,117 @@
     const div = document.createElement('div');
     div.className = 'system-msg';
     div.textContent = text;
-    messageList.appendChild(div);
+    $('messageList').appendChild(div);
     scrollToBottom();
   }
 
   function scrollToBottom() {
-    requestAnimationFrame(() => {
-      messageList.scrollTop = messageList.scrollHeight;
-    });
+    const list = $('messageList');
+    requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
   }
 
-  // ==================== 聊天事件（只绑定一次） ====================
-  function bindChatEvents() {
-    // 发送文字
-    btnSend.addEventListener('click', sendText);
-    msgInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendText();
-      }
-    });
-
-    // 图片
-    btnImage.addEventListener('click', () => imageFileInput.click());
-    imageFileInput.addEventListener('change', handleImageSelect);
-
-    // 语音
-    btnMic.addEventListener('mousedown', startRecording);
-    btnMic.addEventListener('mouseup', stopRecording);
-    btnMic.addEventListener('mouseleave', stopRecording);
-    btnMic.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      startRecording();
-    });
-    btnMic.addEventListener('touchend', stopRecording);
-
-    // 头像弹窗
-    myAvatarPlaceholder.addEventListener('click', openAvatarModal);
-    myAvatarImg.addEventListener('click', openAvatarModal);
-    btnCloseModal.addEventListener('click', () => avatarModal.classList.remove('active'));
-    avatarModal.addEventListener('click', (e) => {
-      if (e.target === avatarModal) avatarModal.classList.remove('active');
-    });
-
-    btnPickPhoto.addEventListener('click', () => avatarFileInput.click());
-    avatarFileInput.addEventListener('change', handleAvatarSelect);
+  function loadHistoryMessages() {
+    fetch('/api/messages')
+      .then(r => r.json())
+      .then(res => {
+        const list = $('messageList');
+        list.innerHTML = '';
+        if (res.success && res.messages) {
+          res.messages.forEach(msg => {
+            // 用 senderUsername 判断是否自己发的
+            const isSelf = msg.senderUsername && msg.senderUsername === currentUser.username;
+            appendMessage(msg, isSelf);
+          });
+        }
+        if (!res.messages || res.messages.length === 0) {
+          list.innerHTML = '<div class="system-msg">暂无消息</div>';
+        }
+        scrollToBottom();
+      })
+      .catch(() => {
+        $('messageList').innerHTML = '<div class="system-msg">加载失败</div>';
+      });
   }
 
-  function openAvatarModal() {
-    renderEmojiGrid();
-    avatarModal.classList.add('active');
+  function loadOnlineUsers() {
+    fetch('/api/online-users')
+      .then(r => r.json())
+      .then(res => {
+        const list = $('onlineUserList');
+        list.innerHTML = '';
+        if (res.success && res.users) {
+          res.users.forEach(u => {
+            const div = document.createElement('div');
+            div.className = 'user-item';
+            div.innerHTML = `
+              <div class="user-avatar-placeholder">${u.avatarType === 'image' ? `<img class="user-avatar" src="${u.avatar}" />` : u.avatar || '😀'}</div>
+              <div class="user-info">
+                <div class="user-name">${u.nickname}</div>
+                <div class="user-status">在线</div>
+              </div>
+            `;
+            list.appendChild(div);
+          });
+        }
+        if (!res.users || res.users.length === 0) {
+          list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">暂无在线用户</div>';
+        }
+      });
   }
 
-  // ==================== 发送消息（只发到服务端，不本地添加） ====================
+  // ==================== 发送消息（本地立即显示） ====================
   function sendText() {
-    const text = msgInput.value.trim();
+    const text = $('msgInput').value.trim();
     if (!text) return;
     if (!socket || socket.readyState !== WebSocket.OPEN) {
-      addSystemMsg('⚠️ 连接中，请稍候...');
+      addSystemMsg('⚠️ 连接中...');
       return;
     }
+    // 本地立即显示
+    const localMsg = {
+      type: 'message',
+      text,
+      sender: currentUser.nickname,
+      senderUsername: currentUser.username,
+      avatar: currentUser.avatar,
+      avatarType: currentUser.avatarType,
+      timestamp: Date.now(),
+      clientId: clientId
+    };
+    appendMessage(localMsg, true);
+    // 发送到服务端
     socket.send(JSON.stringify({
       type: 'message',
-      text: text,
+      text,
       nickname: currentUser.nickname,
       avatar: currentUser.avatar,
       avatarType: currentUser.avatarType
     }));
-    msgInput.value = '';
-    msgInput.focus();
+    $('msgInput').value = '';
+    $('msgInput').focus();
   }
 
-  function handleImageSelect(e) {
+  function handleImage(e) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result.split(',')[1];
-      if (socket && socket.readyState === WebSocket.OPEN) {
+      const imageUrl = 'data:image/png;base64,' + base64;
+      // 本地立即显示
+      const localMsg = {
+        type: 'message',
+        imageUrl,
+        sender: currentUser.nickname,
+        senderUsername: currentUser.username,
+        avatar: currentUser.avatar,
+        avatarType: currentUser.avatarType,
+        timestamp: Date.now(),
+        clientId: clientId
+      };
+      appendMessage(localMsg, true);
+      // 发送
+      if (socket?.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({
           type: 'image',
           image: base64,
@@ -839,57 +967,41 @@
       }
     };
     reader.readAsDataURL(file);
-    imageFileInput.value = '';
-  }
-
-  function handleAvatarSelect(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const maxSize = 200;
-        let w = img.width, h = img.height;
-        if (w > h) {
-          if (w > maxSize) { h *= maxSize / w; w = maxSize; }
-        } else {
-          if (h > maxSize) { w *= maxSize / h; h = maxSize; }
-        }
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        currentUser.avatar = canvas.toDataURL('image/jpeg', 0.7);
-        currentUser.avatarType = 'image';
-        updateMyAvatar();
-        saveProfileToServer();
-        renderEmojiGrid();
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-    avatarFileInput.value = '';
+    $('imageFileInput').value = '';
   }
 
   // ==================== 语音录制 ====================
   async function startRecording() {
-    if (mediaRecorder && mediaRecorder.state === 'recording') return;
+    if (mediaRecorder?.state === 'recording') return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
-      mediaRecorder.ondataavailable = e => {
-        if (e.data.size > 0) audioChunks.push(e.data);
-      };
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.onstop = () => {
+        if (audioChunks.length === 0) return;
         const blob = new Blob(audioChunks, { type: 'audio/webm' });
         const reader = new FileReader();
         reader.onloadend = () => {
-          if (socket && socket.readyState === WebSocket.OPEN) {
+          const base64 = reader.result.split(',')[1];
+          const audioUrl = 'data:audio/webm;base64,' + base64;
+          // 本地立即显示
+          const localMsg = {
+            type: 'message',
+            audioUrl,
+            sender: currentUser.nickname,
+            senderUsername: currentUser.username,
+            avatar: currentUser.avatar,
+            avatarType: currentUser.avatarType,
+            timestamp: Date.now(),
+            clientId: clientId
+          };
+          appendMessage(localMsg, true);
+          // 发送
+          if (socket?.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({
               type: 'audio',
-              audio: reader.result.split(',')[1],
+              audio: base64,
               nickname: currentUser.nickname,
               avatar: currentUser.avatar,
               avatarType: currentUser.avatarType
@@ -901,23 +1013,34 @@
       };
       mediaRecorder.start();
       isRecording = true;
-      btnMic.classList.add('recording');
-      btnMic.textContent = '🔴';
+      $('btnMic').classList.add('recording');
+      $('recordTip').classList.add('active');
+      $('recordTip').textContent = '手指上滑取消发送';
     } catch(err) {
-      alert('无法访问麦克风，请检查权限');
+      alert('无法访问麦克风');
     }
   }
 
   function stopRecording() {
-    if (mediaRecorder && isRecording) {
+    if (mediaRecorder && isRecording && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
-      isRecording = false;
-      btnMic.classList.remove('recording');
-      btnMic.textContent = '🎤';
     }
+    isRecording = false;
+    $('btnMic').classList.remove('recording');
+    $('recordTip').classList.remove('active', 'cancel');
   }
 
-  // 启动
+  function cancelRecording() {
+    if (mediaRecorder && isRecording && mediaRecorder.state === 'recording') {
+      audioChunks = [];
+      mediaRecorder.onstop = () => {};
+      mediaRecorder.stop();
+    }
+    isRecording = false;
+    $('btnMic').classList.remove('recording');
+    $('recordTip').classList.remove('active', 'cancel');
+  }
+
   init();
 })();
 </script>
