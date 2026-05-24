@@ -24,19 +24,19 @@
     .nav-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;cursor:pointer;border:2px solid #e0e0e0;flex-shrink:0}
     .nav-avatar-placeholder{width:34px;height:34px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0}
     .msg-list{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:#f5f6f7;-webkit-overflow-scrolling:touch}
+    .load-more{text-align:center;padding:8px;color:#1677ff;font-size:0.8rem;cursor:pointer}
     .msg-row{display:flex;flex-direction:column;max-width:75%;animation:msgIn 0.1s ease}
     .msg-row.self{align-self:flex-end;align-items:flex-end}
     .msg-row.other{align-self:flex-start;align-items:flex-start}
-    /* 名字行：名字 + 头像 */
     .msg-header{display:flex;align-items:center;gap:6px;margin-bottom:2px}
     .msg-row.self .msg-header{flex-direction:row-reverse}
     .msg-name{font-size:0.7rem;color:#999}
     .msg-header-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0}
     .msg-header-avatar-placeholder{width:22px;height:22px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0}
-    /* 消息气泡 */
     .msg-bubble{padding:8px 12px;border-radius:16px;font-size:0.9rem;line-height:1.4;word-break:break-word;background:#fff;color:#1a1a1a;box-shadow:0 1px 1px rgba(0,0,0,0.04);display:inline-block;max-width:100%}
     .msg-row.self .msg-bubble{background:#1677ff;color:#fff;border-bottom-right-radius:4px}
     .msg-row.other .msg-bubble{border-bottom-left-radius:4px}
+    .msg-bubble .mention{color:#ff8c00;font-weight:600}
     .msg-bubble img{max-width:180px;border-radius:8px;display:block;cursor:pointer}
     .msg-bubble audio{max-width:160px;height:32px}
     .msg-time{font-size:0.6rem;color:#b0b0b0;margin-top:1px;padding:0 2px}
@@ -51,6 +51,13 @@
     .record-tip{display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:12px;font-size:0.85rem;z-index:300;text-align:center}
     .record-tip.active{display:block}
     .record-tip.cancel{background:rgba(255,77,79,0.9)}
+    /* @ 选择器 */
+    .mention-panel{display:none;position:absolute;bottom:60px;left:10px;right:10px;background:#fff;border-radius:12px;box-shadow:0 -2px 20px rgba(0,0,0,0.15);max-height:200px;overflow-y:auto;z-index:100}
+    .mention-panel.active{display:block}
+    .mention-item{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:0.9rem}
+    .mention-item:active{background:#f0f0f0}
+    .mention-item-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover}
+    .mention-item-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:0.9rem}
     .home-content{flex:1;overflow-y:auto;padding:12px}
     .profile-card{background:#fff;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
     .profile-avatar{width:50px;height:50px;border-radius:50%;object-fit:cover}
@@ -127,18 +134,21 @@
   </div>
 </div>
 
-<div class="page" id="chatPage">
+<div class="page" id="chatPage" style="position:relative">
   <div class="navbar">
     <div class="title">💬 公共聊天室</div>
     <div class="online-badge" id="onlineCount">在线 0</div>
     <img class="nav-avatar" id="myAvatarImg" src="" alt="头像" style="display:none">
     <div class="nav-avatar-placeholder" id="myAvatarPlaceholder">😀</div>
   </div>
-  <div class="msg-list" id="messageList"></div>
+  <div class="msg-list" id="messageList">
+    <div class="load-more" id="loadMore" style="display:none">加载更多消息...</div>
+  </div>
+  <div class="mention-panel" id="mentionPanel"></div>
   <div class="input-bar">
     <button class="icon-btn" id="btnImage">🖼️</button>
     <button class="icon-btn btn-mic" id="btnMic">🎤</button>
-    <input type="text" id="msgInput" placeholder="输入消息..." autocomplete="off">
+    <input type="text" id="msgInput" placeholder="输入消息，输入 @ 艾特好友..." autocomplete="off">
     <button class="icon-btn btn-send" id="btnSend">发送</button>
   </div>
   <div class="record-tip" id="recordTip">手指上滑取消发送</div>
@@ -168,7 +178,8 @@
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-let socket=null,clientId=null,currentUser={username:null,nickname:'',avatar:'😀',avatarType:'emoji'},isLoginMode=true,mediaRecorder=null,audioChunks=[],isRecording=false,recordStartY=0,eventsBound=false,receivedMsgIds=new Set();
+let socket=null,clientId=null,currentUser={username:null,nickname:'',avatar:'😀',avatarType:'emoji'},isLoginMode=true,mediaRecorder=null,audioChunks=[],isRecording=false,recordStartY=0,eventsBound=false,receivedMsgIds=new Set(),onlineUsers=[],oldestTimestamp=Date.now(),hasMore=true,loadingMore=false;
+
 const emojiList=['😀','😎','🤖','👽','🐱','🦊','🐼','🐨','🦁','🐸','🐵','🦄','🐶','🐰','🦋','🌸'];
 
 function showPage(id){
@@ -205,9 +216,7 @@ function updateProfileCard(){$('profileName').textContent=currentUser.nickname;$
 function bindLoginEvents(){
   $('btnLoginSubmit').addEventListener('click',handleLogin);
   $('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin()});
-  $('toggleMode').addEventListener('click',()=>{
-    isLoginMode=!isLoginMode;$('btnLoginSubmit').textContent=isLoginMode?'登 录':'注 册';$('toggleMode').textContent=isLoginMode?'立即注册':'已有账号？去登录';$('loginNickname').style.display=isLoginMode?'none':'block'
-  });
+  $('toggleMode').addEventListener('click',()=>{isLoginMode=!isLoginMode;$('btnLoginSubmit').textContent=isLoginMode?'登 录':'注 册';$('toggleMode').textContent=isLoginMode?'立即注册':'已有账号？去登录';$('loginNickname').style.display=isLoginMode?'none':'block'});
 }
 
 function handleLogin(){
@@ -215,24 +224,28 @@ function handleLogin(){
   if(!username||!password)return alert('请填写完整');
   const endpoint=isLoginMode?'/api/login':'/api/register',body={username,password};
   if(!isLoginMode)body.nickname=$('loginNickname').value.trim()||username;
-  fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-    .then(r=>r.json()).then(res=>{
-      if(res.success){if(isLoginMode){localStorage.setItem('chat_token',res.token);currentUser={username:res.user.username,nickname:res.user.nickname,avatar:res.user.avatar,avatarType:res.user.avatarType||'emoji'};localStorage.setItem('chat_user',JSON.stringify(currentUser));enterApp()}else{alert('注册成功！请登录');isLoginMode=true;$('btnLoginSubmit').textContent='登 录';$('toggleMode').textContent='立即注册';$('loginNickname').style.display='none'}}
-      else alert(res.message||'操作失败')
-    }).catch(()=>alert('网络错误'));
+  fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).then(res=>{
+    if(res.success){if(isLoginMode){localStorage.setItem('chat_token',res.token);currentUser={username:res.user.username,nickname:res.user.nickname,avatar:res.user.avatar,avatarType:res.user.avatarType||'emoji'};localStorage.setItem('chat_user',JSON.stringify(currentUser));enterApp()}else{alert('注册成功！请登录');isLoginMode=true;$('btnLoginSubmit').textContent='登 录';$('toggleMode').textContent='立即注册';$('loginNickname').style.display='none'}}
+    else alert(res.message||'操作失败')
+  }).catch(()=>alert('网络错误'));
 }
 
 function bindGlobalEvents(){
   if(eventsBound)return;eventsBound=true;
   $('btnLogout').addEventListener('click',()=>{localStorage.clear();location.reload()});
   $('btnEditAvatar').addEventListener('click',openAvatarModal);
-  document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',()=>{if(item.dataset.page==='home'){showPage('homePage');loadOnlineUsers()}else{showPage('chatPage');loadHistoryMessages()}})});
+  document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>{if(item.dataset.page==='home'){showPage('homePage');loadOnlineUsers()}else{showPage('chatPage');loadHistoryMessages()}}));
   $('btnSend').addEventListener('click',sendText);
   $('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendText()}});
+  $('msgInput').addEventListener('input',handleMentionInput);
   $('btnImage').addEventListener('click',()=>$('imageFileInput').click());
   $('imageFileInput').addEventListener('change',handleImage);
   $('btnCloseImg').addEventListener('click',()=>$('imgViewer').classList.remove('active'));
   $('imgViewer').addEventListener('click',e=>{if(e.target===$('imgViewer'))$('imgViewer').classList.remove('active')});
+  // 加载更多
+  $('messageList').addEventListener('scroll',()=>{if($('messageList').scrollTop<50&&hasMore&&!loadingMore)loadMoreMessages()});
+  $('loadMore').addEventListener('click',loadMoreMessages);
+  // 语音
   const mic=$('btnMic'),tip=$('recordTip');
   mic.addEventListener('touchstart',e=>{e.preventDefault();recordStartY=e.touches[0].clientY;startRecording()});
   mic.addEventListener('touchmove',e=>{if(!isRecording)return;if(recordStartY-e.touches[0].clientY>60){tip.classList.add('cancel');tip.textContent='松开取消发送'}else{tip.classList.remove('cancel');tip.textContent='手指上滑取消发送'}});
@@ -248,33 +261,17 @@ function bindGlobalEvents(){
 }
 
 function openAvatarModal(){renderEmojiGrid();$('avatarModal').classList.add('active')}
-
 function renderEmojiGrid(){
   const grid=$('emojiGrid');grid.innerHTML='';
-  emojiList.forEach(emoji=>{
-    const div=document.createElement('div');div.className='emoji-item';div.textContent=emoji;
-    if(currentUser.avatarType==='emoji'&&currentUser.avatar===emoji)div.classList.add('selected');
-    div.addEventListener('click',()=>{currentUser.avatar=emoji;currentUser.avatarType='emoji';updateAllAvatars();saveProfile();renderEmojiGrid();localStorage.setItem('chat_user',JSON.stringify(currentUser))});
-    grid.appendChild(div);
-  });
+  emojiList.forEach(emoji=>{const div=document.createElement('div');div.className='emoji-item';div.textContent=emoji;if(currentUser.avatarType==='emoji'&&currentUser.avatar===emoji)div.classList.add('selected');div.addEventListener('click',()=>{currentUser.avatar=emoji;currentUser.avatarType='emoji';updateAllAvatars();saveProfile();renderEmojiGrid();localStorage.setItem('chat_user',JSON.stringify(currentUser))});grid.appendChild(div)});
 }
-
 function saveProfile(){
   if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'update-profile',nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType}));
   if(currentUser.username)fetch('/api/update-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:currentUser.username,nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType})}).catch(()=>{});
 }
-
 function handleAvatarSelect(e){
   const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();reader.onload=ev=>{
-    const img=new Image();img.onload=()=>{
-      const canvas=document.createElement('canvas');let w=img.width,h=img.height;
-      if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}
-      canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);
-      currentUser.avatar=canvas.toDataURL('image/jpeg',0.7);currentUser.avatarType='image';
-      updateAllAvatars();saveProfile();renderEmojiGrid();localStorage.setItem('chat_user',JSON.stringify(currentUser));
-    };img.src=ev.target.result;
-  };reader.readAsDataURL(file);$('avatarFileInput').value='';
+  const reader=new FileReader();reader.onload=ev=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);currentUser.avatar=canvas.toDataURL('image/jpeg',0.7);currentUser.avatarType='image';updateAllAvatars();saveProfile();renderEmojiGrid();localStorage.setItem('chat_user',JSON.stringify(currentUser))};img.src=ev.target.result};reader.readAsDataURL(file);$('avatarFileInput').value='';
 }
 
 function connectWebSocket(){
@@ -293,83 +290,175 @@ function handleWsMessage(data){
     case'message':
       if(data.msgId&&receivedMsgIds.has(data.msgId))return;
       if(data.msgId)receivedMsgIds.add(data.msgId);
-      if(receivedMsgIds.size>1000)receivedMsgIds=new Set([...receivedMsgIds].slice(-500));
-      appendMessage(data,data.clientId===clientId);
+      appendMessage(data,data.clientId===clientId,true);
       break;
     case'system':addSystemMsg(data.text);break;
-    case'userCount':$('onlineCount').textContent=`在线 ${data.count}`;$('homeOnlineBadge').textContent=`在线 ${data.count}`;$('homeOnlineCount').textContent=`${data.count}人`;break;
+    case'onlineUsers':
+      onlineUsers=data.users||[];
+      $('onlineCount').textContent=`在线 ${data.count}`;
+      $('homeOnlineBadge').textContent=`在线 ${data.count}`;
+      $('homeOnlineCount').textContent=`${data.count}人`;
+      renderOnlineUserList();
+      break;
   }
 }
 
-function appendMessage(data,isSelf){
+function appendMessage(data,isSelf,prepend=false){
   const row=document.createElement('div');row.className=`msg-row ${isSelf?'self':'other'}`;
-  // 名字行：名字 + 头像
   const header=document.createElement('div');header.className='msg-header';
   const name=document.createElement('span');name.className='msg-name';name.textContent=isSelf?'我':(data.sender||'匿名');
   const av=document.createElement('div');
   if(data.avatarType==='image'&&data.avatar)av.innerHTML=`<img class="msg-header-avatar" src="${data.avatar}">`;
   else av.innerHTML=`<div class="msg-header-avatar-placeholder">${data.avatar||'😀'}</div>`;
   if(isSelf){header.appendChild(av);header.appendChild(name)}else{header.appendChild(name);header.appendChild(av)}
-  // 气泡
   const bubble=document.createElement('div');bubble.className='msg-bubble';
   if(data.imageUrl){const img=document.createElement('img');img.src=data.imageUrl;img.addEventListener('click',()=>{$('imgViewerImg').src=data.imageUrl;$('imgViewer').classList.add('active')});bubble.appendChild(img)}
   else if(data.audioUrl){const audio=document.createElement('audio');audio.controls=true;audio.src=data.audioUrl;bubble.appendChild(audio)}
-  else bubble.textContent=data.text||'';
-  // 时间
+  else{const text=highlightMentions(data.text||'',data.mentions||[]);bubble.innerHTML=text}
   const time=document.createElement('div');time.className='msg-time';time.textContent=data.timestamp?new Date(data.timestamp).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}):'';
   row.appendChild(header);row.appendChild(bubble);row.appendChild(time);
-  $('messageList').appendChild(row);scrollToBottom();
+  if(prepend){$('messageList').insertBefore(row,$('messageList').children[1]||$('messageList').firstChild)}
+  else{$('messageList').appendChild(row);scrollToBottom()}
+}
+
+function highlightMentions(text,mentions){
+  let html=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  mentions.forEach(m=>{html=html.replace(new RegExp(`@${m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}`,'g'),`<span class="mention">@${m}</span>`)});
+  return html;
 }
 
 function addSystemMsg(text){const div=document.createElement('div');div.className='system-msg';div.textContent=text;$('messageList').appendChild(div);scrollToBottom()}
 function scrollToBottom(){const list=$('messageList');requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight})}
 
 function loadHistoryMessages(){
-  const saved=localStorage.getItem('chat_user');
-  if(saved){try{const u=JSON.parse(saved);if(u.username)currentUser=u}catch(e){}}
-  fetch('/api/messages').then(r=>r.json()).then(res=>{
+  hasMore=true;oldestTimestamp=Date.now();receivedMsgIds.clear();
+  fetch(`/api/messages?before=${oldestTimestamp}&limit=50`).then(r=>r.json()).then(res=>{
     const list=$('messageList');list.innerHTML='';
+    const loadMoreEl=document.createElement('div');loadMoreEl.className='load-more';loadMoreEl.id='loadMore';loadMoreEl.textContent='加载更多消息...';loadMoreEl.style.display='none';
+    list.appendChild(loadMoreEl);
     if(res.success&&res.messages?.length){
+      hasMore=res.hasMore||false;
+      if(hasMore)$('loadMore').style.display='block';
       res.messages.forEach(msg=>{
         if(msg.msgId)receivedMsgIds.add(msg.msgId);
+        if(msg.timestamp<oldestTimestamp)oldestTimestamp=msg.timestamp;
         const isSelf=(msg.senderUsername&&msg.senderUsername===currentUser.username)||(msg.clientId&&msg.clientId===clientId);
         appendMessage(msg,isSelf);
       });
-    }else list.innerHTML='<div class="system-msg">暂无消息</div>';
+    }else{list.appendChild(Object.assign(document.createElement('div'),{className:'system-msg',textContent:'暂无消息'}))}
     scrollToBottom();
-  }).catch(()=>{$('messageList').innerHTML='<div class="system-msg">加载失败</div>'});
+  });
 }
 
-function loadOnlineUsers(){
-  fetch('/api/online-users').then(r=>r.json()).then(res=>{
-    const list=$('onlineUserList');list.innerHTML='';
-    if(res.success&&res.users?.length)res.users.forEach(u=>{const div=document.createElement('div');div.className='user-item';div.innerHTML=`<div class="user-avatar-placeholder">${u.avatarType==='image'?`<img class="user-avatar" src="${u.avatar}">`:u.avatar||'😀'}</div><div class="user-info"><div class="user-name">${u.nickname}</div><div class="user-status">在线</div></div>`;list.appendChild(div)});
-    else list.innerHTML='<div style="text-align:center;color:#999;padding:20px;">暂无在线用户</div>';
+function loadMoreMessages(){
+  if(!hasMore||loadingMore)return;
+  loadingMore=true;$('loadMore').textContent='加载中...';
+  fetch(`/api/messages?before=${oldestTimestamp}&limit=50`).then(r=>r.json()).then(res=>{
+    if(res.success&&res.messages?.length){
+      hasMore=res.hasMore||false;
+      if(!hasMore)$('loadMore').style.display='none';else $('loadMore').textContent='加载更多消息...';
+      const fragment=document.createDocumentFragment();
+      res.messages.forEach(msg=>{
+        if(msg.msgId&&receivedMsgIds.has(msg.msgId))return;
+        if(msg.msgId)receivedMsgIds.add(msg.msgId);
+        if(msg.timestamp<oldestTimestamp)oldestTimestamp=msg.timestamp;
+        const isSelf=(msg.senderUsername&&msg.senderUsername===currentUser.username)||(msg.clientId&&msg.clientId===clientId);
+        const row=createMessageRow(msg,isSelf);
+        fragment.appendChild(row);
+      });
+      $('messageList').insertBefore(fragment,$('loadMore').nextSibling);
+    }else{$('loadMore').style.display='none'}
+    loadingMore=false;
+  }).catch(()=>{loadingMore=false;$('loadMore').textContent='加载失败，点击重试'});
+}
+
+function createMessageRow(data,isSelf){
+  const row=document.createElement('div');row.className=`msg-row ${isSelf?'self':'other'}`;
+  const header=document.createElement('div');header.className='msg-header';
+  const name=document.createElement('span');name.className='msg-name';name.textContent=isSelf?'我':(data.sender||'匿名');
+  const av=document.createElement('div');
+  if(data.avatarType==='image'&&data.avatar)av.innerHTML=`<img class="msg-header-avatar" src="${data.avatar}">`;
+  else av.innerHTML=`<div class="msg-header-avatar-placeholder">${data.avatar||'😀'}</div>`;
+  if(isSelf){header.appendChild(av);header.appendChild(name)}else{header.appendChild(name);header.appendChild(av)}
+  const bubble=document.createElement('div');bubble.className='msg-bubble';
+  if(data.imageUrl){const img=document.createElement('img');img.src=data.imageUrl;img.addEventListener('click',()=>{$('imgViewerImg').src=data.imageUrl;$('imgViewer').classList.add('active')});bubble.appendChild(img)}
+  else if(data.audioUrl){const audio=document.createElement('audio');audio.controls=true;audio.src=data.audioUrl;bubble.appendChild(audio)}
+  else{const text=highlightMentions(data.text||'',data.mentions||[]);bubble.innerHTML=text}
+  const time=document.createElement('div');time.className='msg-time';time.textContent=data.timestamp?new Date(data.timestamp).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}):'';
+  row.appendChild(header);row.appendChild(bubble);row.appendChild(time);
+  return row;
+}
+
+// @ 艾特功能
+function handleMentionInput(){
+  const val=$('msgInput').value;
+  const cursorPos=$('msgInput').selectionStart;
+  const textBeforeCursor=val.substring(0,cursorPos);
+  const atMatch=textBeforeCursor.match(/@([\u4e00-\u9fa5\w]*)$/);
+  if(atMatch){
+    const query=atMatch[1].toLowerCase();
+    const filtered=onlineUsers.filter(u=>u.username!==currentUser.username&&(u.nickname.toLowerCase().includes(query)||u.username.toLowerCase().includes(query)));
+    showMentionPanel(filtered);
+  }else{$('mentionPanel').classList.remove('active')}
+}
+
+function showMentionPanel(users){
+  const panel=$('mentionPanel');
+  if(!users.length){panel.classList.remove('active');return}
+  panel.innerHTML='';
+  users.slice(0,8).forEach(u=>{
+    const div=document.createElement('div');div.className='mention-item';
+    div.innerHTML=`${u.avatarType==='image'?`<img class="mention-item-avatar" src="${u.avatar}">`:`<div class="mention-item-avatar-placeholder">${u.avatar||'😀'}</div>`}<span>${u.nickname}</span><small style="color:#999;margin-left:auto">@${u.username}</small>`;
+    div.addEventListener('click',()=>{insertMention(u.nickname);panel.classList.remove('active')});
+    panel.appendChild(div);
   });
+  panel.classList.add('active');
+}
+
+function insertMention(nickname){
+  const input=$('msgInput');const val=input.value;const cursorPos=input.selectionStart;
+  const beforeAt=val.lastIndexOf('@',cursorPos);
+  const newVal=val.substring(0,beforeAt)+`@${nickname} `+val.substring(cursorPos);
+  input.value=newVal;input.focus();
+  const newPos=beforeAt+nickname.length+2;
+  input.setSelectionRange(newPos,newPos);
 }
 
 function sendText(){
   const text=$('msgInput').value.trim();
   if(!text||socket?.readyState!==WebSocket.OPEN)return;
-  socket.send(JSON.stringify({type:'message',text,nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType}));
-  $('msgInput').value='';$('msgInput').focus();
+  const mentions=[...text.matchAll(/@([\u4e00-\u9fa5\w]+)/g)].map(m=>m[1]).filter((v,i,a)=>a.indexOf(v)===i);
+  socket.send(JSON.stringify({type:'message',text,mentions,nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType}));
+  $('msgInput').value='';$('msgInput').focus();$('mentionPanel').classList.remove('active');
 }
 
 function handleImage(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();reader.onloadend=()=>{
-    if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'image',image:reader.result.split(',')[1],nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType}));
+    const base64=reader.result.split(',')[1];
+    // 本地立即显示
+    const localMsg={type:'message',msgId:'local_'+Date.now(),imageUrl:reader.result,sender:currentUser.nickname,senderUsername:currentUser.username,avatar:currentUser.avatar,avatarType:currentUser.avatarType,timestamp:Date.now(),clientId};
+    appendMessage(localMsg,true);
+    scrollToBottom();
+    if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'image',image:base64,nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType}));
   };reader.readAsDataURL(file);$('imageFileInput').value='';
+}
+
+function loadOnlineUsers(){
+  fetch('/api/online-users').then(r=>r.json()).then(res=>{
+    if(res.success){onlineUsers=res.users||[];$('homeOnlineBadge').textContent=`在线 ${res.count}`;$('homeOnlineCount').textContent=`${res.count}人`;renderOnlineUserList()}
+  });
+}
+
+function renderOnlineUserList(){
+  const list=$('onlineUserList');list.innerHTML='';
+  if(onlineUsers.length)onlineUsers.forEach(u=>{const div=document.createElement('div');div.className='user-item';div.innerHTML=`<div class="user-avatar-placeholder">${u.avatarType==='image'?`<img class="user-avatar" src="${u.avatar}">`:u.avatar||'😀'}</div><div class="user-info"><div class="user-name">${u.nickname}</div><div class="user-status">在线</div></div>`;list.appendChild(div)});
+  else list.innerHTML='<div style="text-align:center;color:#999;padding:20px;">暂无在线用户</div>';
 }
 
 async function startRecording(){
   if(mediaRecorder?.state==='recording')return;
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(stream);audioChunks=[];
-    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
-    mediaRecorder.onstop=()=>{if(!audioChunks.length)return;const blob=new Blob(audioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onloadend=()=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'audio',audio:reader.result.split(',')[1],nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType}))};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop())};
-    mediaRecorder.start();isRecording=true;$('btnMic').classList.add('recording');$('recordTip').classList.add('active');
-  }catch(err){alert('无法访问麦克风')}
+  try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(stream);audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};mediaRecorder.onstop=()=>{if(!audioChunks.length)return;const blob=new Blob(audioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onloadend=()=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'audio',audio:reader.result.split(',')[1],nickname:currentUser.nickname,avatar:currentUser.avatar,avatarType:currentUser.avatarType}))};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop())};mediaRecorder.start();isRecording=true;$('btnMic').classList.add('recording');$('recordTip').classList.add('active')}catch(err){alert('无法访问麦克风')}
 }
 function stopRecording(){if(mediaRecorder&&isRecording&&mediaRecorder.state==='recording')mediaRecorder.stop();isRecording=false;$('btnMic').classList.remove('recording');$('recordTip').classList.remove('active','cancel')}
 function cancelRecording(){if(mediaRecorder&&isRecording&&mediaRecorder.state==='recording'){audioChunks=[];mediaRecorder.onstop=()=>{};mediaRecorder.stop()}isRecording=false;$('btnMic').classList.remove('recording');$('recordTip').classList.remove('active','cancel')}
