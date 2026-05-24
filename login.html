@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>登录 - 聊天室</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      min-height:100vh;min-height:100dvh;
+      display:flex;align-items:center;justify-content:center;
+      padding:24px;
+    }
+    .container{
+      width:100%;max-width:380px;
+      background:#fff;
+      border-radius:24px;
+      padding:36px 28px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.2);
+      animation:fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .logo{
+      text-align:center;
+      font-size:3rem;
+      margin-bottom:8px;
+    }
+    .title{
+      text-align:center;
+      font-size:1.3rem;
+      font-weight:700;
+      color:#1a1a1a;
+      margin-bottom:24px;
+    }
+    .subtitle{
+      text-align:center;
+      font-size:0.85rem;
+      color:#999;
+      margin-bottom:20px;
+    }
+    .input-group{
+      margin-bottom:14px;
+    }
+    .input-group label{
+      display:block;
+      font-size:0.8rem;
+      font-weight:600;
+      color:#555;
+      margin-bottom:6px;
+    }
+    .input-group input{
+      width:100%;
+      padding:14px 16px;
+      border:2px solid #e8e8e8;
+      border-radius:14px;
+      font-size:1rem;
+      outline:none;
+      background:#fafafa;
+      transition:border-color 0.2s;
+    }
+    .input-group input:focus{
+      border-color:#667eea;
+      background:#fff;
+    }
+    .btn{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:14px;
+      font-size:1rem;
+      font-weight:600;
+      cursor:pointer;
+      margin-top:8px;
+      transition:all 0.2s;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      color:#fff;
+      box-shadow:0 4px 15px rgba(102,126,234,0.4);
+    }
+    .btn-primary:active{
+      transform:scale(0.98);
+      box-shadow:0 2px 8px rgba(102,126,234,0.3);
+    }
+    .toggle-text{
+      text-align:center;
+      margin-top:16px;
+      font-size:0.85rem;
+      color:#999;
+    }
+    .toggle-text span{
+      color:#667eea;
+      font-weight:600;
+      cursor:pointer;
+    }
+    .error-msg{
+      color:#ff4d4f;
+      font-size:0.8rem;
+      text-align:center;
+      margin-top:8px;
+      display:none;
+    }
+    .error-msg.show{display:block}
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">💬</div>
+  <div class="title" id="formTitle">欢迎回来</div>
+  <div class="subtitle" id="formSubtitle">登录你的账号继续聊天</div>
+
+  <div class="input-group">
+    <label>用户名</label>
+    <input type="text" id="username" placeholder="请输入用户名" autocomplete="username" maxlength="20">
+  </div>
+  <div class="input-group">
+    <label>密码</label>
+    <input type="password" id="password" placeholder="请输入密码" autocomplete="current-password">
+  </div>
+  <div class="input-group" id="nicknameGroup" style="display:none">
+    <label>昵称</label>
+    <input type="text" id="nickname" placeholder="给自己起个名字" maxlength="15">
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <button class="btn btn-primary" id="submitBtn">登 录</button>
+
+  <div class="toggle-text">
+    <span id="toggleLink">还没有账号？立即注册</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  let isLogin=true;
+
+  // 如果已经有 token，直接跳回聊天室
+  if(localStorage.getItem('chat_token')){
+    window.location.href='/';
+    return;
+  }
+
+  $('toggleLink').addEventListener('click',()=>{
+    isLogin=!isLogin;
+    $('formTitle').textContent=isLogin?'欢迎回来':'创建账号';
+    $('formSubtitle').textContent=isLogin?'登录你的账号继续聊天':'注册一个新账号开始聊天';
+    $('submitBtn').textContent=isLogin?'登 录':'注 册';
+    $('toggleLink').textContent=isLogin?'还没有账号？立即注册':'已有账号？去登录';
+    $('nicknameGroup').style.display=isLogin?'none':'block';
+    $('errorMsg').classList.remove('show');
+  });
+
+  async function submit(){
+    const username=$('username').value.trim();
+    const password=$('password').value.trim();
+    $('errorMsg').classList.remove('show');
+
+    if(!username||!password){
+      $('errorMsg').textContent='请填写用户名和密码';
+      $('errorMsg').classList.add('show');
+      return;
+    }
+
+    const url=isLogin?'/api/login':'/api/register';
+    const body={username,password};
+    if(!isLogin){
+      body.nickname=$('nickname').value.trim()||username;
+    }
+
+    try{
+      const res=await fetch(url,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+      const data=await res.json();
+
+      if(data.success){
+        if(isLogin){
+          localStorage.setItem('chat_token',data.token);
+          localStorage.setItem('chat_user',JSON.stringify(data.user));
+          window.location.href='/';
+        }else{
+          $('errorMsg').textContent='注册成功！请登录';
+          $('errorMsg').style.color='#4caf50';
+          $('errorMsg').classList.add('show');
+          // 自动切换到登录模式
+          setTimeout(()=>{
+            isLogin=false;
+            $('toggleLink').click();
+          },1000);
+        }
+      }else{
+        $('errorMsg').textContent=data.message||'操作失败';
+        $('errorMsg').classList.add('show');
+      }
+    }catch(e){
+      $('errorMsg').textContent='网络错误，请稍后重试';
+      $('errorMsg').classList.add('show');
+    }
+  }
+
+  $('submitBtn').addEventListener('click',submit);
+  $('password').addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
+})();
+</script>
+</body>
+</html>
