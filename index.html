@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>蓝社 · 社区</title>
+  <title>蓝社</title>
   <style>
     :root {
       --primary: #3b82f6;
-      --primary-dark: #2563eb;
       --primary-light: #eff6ff;
       --pink: #ec4899;
-      --pink-light: #fdf2f8;
       --bg: #f8fafc;
       --surface: #ffffff;
       --text: #1e293b;
@@ -18,7 +16,6 @@
       --border: #e8ecf1;
       --radius: 16px;
       --shadow: 0 1px 2px rgba(0,0,0,0.03);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.05);
       --font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -27,9 +24,8 @@
       background: var(--bg);
       height: 100vh; height: 100dvh;
       display: flex; flex-direction: column;
-      overflow: hidden;
+      overflow: hidden; color: var(--text);
       -webkit-tap-highlight-color: transparent;
-      color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
     .loading-screen {
@@ -44,16 +40,23 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .app { display: none; flex-direction: column; height: 100%; }
     .app.show { display: flex; }
-    .page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+
+    /* 页面切换动画 */
+    .page {
+      display: none; flex: 1; flex-direction: column; overflow: hidden;
+      animation: pageIn 0.25s ease;
+    }
     .page.active { display: flex; }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
 
     /* 顶栏 */
     .top-bar {
       background: var(--surface);
-      padding: 10px 16px;
-      display: flex; align-items: center; gap: 12px;
-      border-bottom: 0.5px solid var(--border);
-      flex-shrink: 0; height: 52px;
+      padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 0.5px solid var(--border); flex-shrink: 0; height: 52px;
     }
     .top-bar .back-btn {
       font-size: 1.2rem; cursor: pointer; width: 32px; height: 32px;
@@ -61,44 +64,35 @@
       border-radius: 50%; color: var(--text); flex-shrink: 0;
     }
     .top-bar .title { font-size: 1rem; font-weight: 600; flex: 1; }
-    .avatar-xs {
-      width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
-      cursor: pointer; flex-shrink: 0;
-    }
+    .avatar-xs { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; cursor: pointer; flex-shrink: 0; }
     .avatar-xs-ph {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+      color: #fff; font-weight: 600; font-size: 0.75rem;
     }
-    .avatar-xs-ph span { color: #fff; font-size: 0.75rem; font-weight: 600; }
 
-    /* 双Tab */
-    .tab-row {
-      display: flex; background: var(--surface);
-      border-bottom: 0.5px solid var(--border); flex-shrink: 0;
-    }
+    /* Tab */
+    .tab-row { display: flex; background: var(--surface); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
     .tab-row .tab {
       flex: 1; text-align: center; padding: 11px 0; font-size: 0.88rem;
-      font-weight: 500; color: var(--text-secondary); cursor: pointer;
+      font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: color 0.2s;
     }
     .tab-row .tab.active { color: var(--text); font-weight: 600; }
 
+    /* 滚动区 */
     .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
     /* 动态卡片 */
     .post {
-      background: var(--surface);
-      margin: 8px 12px; border-radius: var(--radius);
-      padding: 14px; box-shadow: var(--shadow);
+      background: var(--surface); margin: 8px 12px; border-radius: var(--radius);
+      padding: 14px; box-shadow: var(--shadow); animation: fadeUp 0.3s ease;
     }
-    .post-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .post-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
     .post-hd .u-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .post-hd .u-avatar-ph {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 600; font-size: 0.85rem;
+      width: 40px; height: 40px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 0.85rem;
     }
     .post-hd .u-info { flex: 1; }
     .post-hd .u-name { font-weight: 600; font-size: 0.9rem; }
@@ -110,82 +104,74 @@
     }
     .post-actions {
       display: flex; gap: 22px; padding-top: 8px;
-      border-top: 0.5px solid var(--border);
-      font-size: 0.82rem; color: var(--text-secondary);
+      border-top: 0.5px solid var(--border); font-size: 0.82rem; color: var(--text-secondary);
     }
     .post-actions span {
-      display: flex; align-items: center; gap: 5px; cursor: pointer;
-      padding: 4px 0;
+      display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 4px 0; transition: color 0.2s;
     }
     .post-actions span.liked { color: var(--pink); }
+    .load-more {
+      text-align: center; padding: 16px; color: var(--text-secondary);
+      font-size: 0.85rem; cursor: pointer;
+    }
 
     /* 搜索 */
     .search-bar {
       flex: 1; display: flex; align-items: center;
-      background: var(--bg); border-radius: 20px;
-      padding: 0 14px; height: 36px; gap: 8px;
+      background: var(--bg); border-radius: 20px; padding: 0 14px; height: 36px; gap: 8px;
     }
-    .search-bar input {
-      flex: 1; border: none; background: transparent;
-      font-size: 0.9rem; outline: none; font-family: inherit;
-    }
-    .search-result { padding: 10px 12px; }
+    .search-bar input { flex: 1; border: none; background: transparent; font-size: 0.9rem; outline: none; font-family: inherit; }
 
     /* 通知 */
     .notif-card {
       background: var(--surface); margin: 6px 12px; border-radius: var(--radius);
-      padding: 14px; display: flex; align-items: center; gap: 10px;
-      box-shadow: var(--shadow);
+      padding: 14px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow);
     }
-
-    /* 我的 */
-    .profile-card {
-      background: var(--surface); margin: 12px; border-radius: var(--radius);
-      padding: 24px; text-align: center; box-shadow: var(--shadow);
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--pink);
+      position: absolute; top: -2px; right: -2px;
     }
-    .menu-card { background: var(--surface); margin: 8px 12px; border-radius: var(--radius); box-shadow: var(--shadow); }
-    .menu-row { padding: 14px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; }
-    .menu-row:not(:last-child) { border-bottom: 0.5px solid var(--border); }
-    .menu-row:active { background: var(--bg); }
-    .menu-row.logout { color: #ef4444; }
 
     /* 发布弹窗 */
     .pub-overlay {
       display: none; position: fixed; top:0; left:0; right:0; bottom:0;
       background: var(--surface); z-index: 200; flex-direction: column;
+      animation: slideUp 0.3s ease;
     }
     .pub-overlay.show { display: flex; }
-    .pub-top {
-      display: flex; align-items: center; padding: 10px 16px;
-      border-bottom: 0.5px solid var(--border); gap: 10px;
-    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .pub-top { display: flex; align-items: center; padding: 10px 16px; border-bottom: 0.5px solid var(--border); gap: 10px; }
     .pub-body { flex: 1; padding: 16px; overflow-y: auto; }
     .pub-body textarea {
       width: 100%; border: none; font-size: 1rem; resize: none;
-      outline: none; font-family: var(--font); line-height: 1.7;
-      min-height: 140px; background: transparent;
+      outline: none; font-family: var(--font); line-height: 1.7; min-height: 140px; background: transparent;
     }
     .pub-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .pub-preview img, .pub-preview video { width: 76px; height: 76px; border-radius: 10px; object-fit: cover; }
     .pub-preview .add-btn {
-      width: 76px; height: 76px; border-radius: 10px;
-      background: var(--bg); display: flex; align-items: center;
-      justify-content: center; font-size: 1.6rem; color: var(--text-secondary);
-      cursor: pointer; border: 2px dashed var(--border);
+      width: 76px; height: 76px; border-radius: 10px; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+      color: var(--text-secondary); cursor: pointer; border: 2px dashed var(--border);
     }
+
+    /* 我的 */
+    .profile-card { background: var(--surface); margin: 12px; border-radius: var(--radius); padding: 24px; text-align: center; box-shadow: var(--shadow); }
+    .menu-card { background: var(--surface); margin: 8px 12px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .menu-row { padding: 14px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; transition: background 0.15s; }
+    .menu-row:not(:last-child) { border-bottom: 0.5px solid var(--border); }
+    .menu-row:active { background: var(--bg); }
+    .menu-row.logout { color: #ef4444; }
 
     /* 底栏 */
     .bottom-nav {
-      background: var(--surface);
-      display: flex; border-top: 0.5px solid var(--border);
-      flex-shrink: 0; height: 52px;
-      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--surface); display: flex; border-top: 0.5px solid var(--border);
+      flex-shrink: 0; height: 52px; padding-bottom: env(safe-area-inset-bottom);
     }
     .bottom-nav .nav-item {
       flex: 1; text-align: center; padding: 4px 0; font-size: 0.56rem;
-      color: var(--text-secondary); cursor: pointer;
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 2px;
+      color: var(--text-secondary); cursor: pointer; display: flex;
+      flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      transition: color 0.2s;
     }
     .bottom-nav .nav-item.active { color: var(--primary); }
     .bottom-nav .nav-item svg { width: 22px; height: 22px; }
@@ -195,7 +181,6 @@
       display: flex; align-items: center; justify-content: center;
       margin-top: -18px; box-shadow: 0 6px 18px rgba(59,130,246,0.35);
     }
-    .bottom-nav .nav-item.pub .pub-circle svg { color: #fff; }
 
     .btn-sm { padding: 6px 16px; border-radius: 16px; border: none; font-size: 0.82rem; cursor: pointer; font-weight: 500; }
     .btn-primary { background: var(--primary); color: #fff; }
@@ -205,61 +190,47 @@
       background: rgba(0,0,0,0.35); z-index: 250; justify-content: center; align-items: center;
     }
     .modal.show { display: flex; }
-    .modal-box {
-      background: var(--surface); border-radius: var(--radius);
-      padding: 18px; width: 90%; max-width: 290px; text-align: center;
-    }
+    .modal-box { background: var(--surface); border-radius: var(--radius); padding: 18px; width: 90%; max-width: 290px; text-align: center; }
     .color-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
-    .color-item {
-      width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
-      border: 3px solid transparent; transition: transform 0.15s;
-    }
+    .color-item { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform 0.15s; }
     .color-item:active { transform: scale(0.9); }
     .color-item.sel { border-color: var(--primary); }
   </style>
 </head>
 <body>
 
-<div class="loading-screen" id="loading">
-  <div class="spinner"></div>
-  <span style="color:var(--text-secondary);font-size:0.9rem">正在进入社区...</span>
-</div>
+<div class="loading-screen" id="loading"><div class="spinner"></div><span style="color:var(--text-secondary)">进入社区...</span></div>
 
 <div class="app" id="app">
 
-  <!-- ======== 首页 ======== -->
+  <!-- 首页 -->
   <div class="page active" id="homePage">
     <div class="top-bar">
       <span class="title" style="font-size:1.15rem;font-weight:700;color:var(--primary)">蓝 社</span>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:0.7rem;color:var(--text-secondary);background:var(--bg);padding:3px 8px;border-radius:8px" id="homeOnline">在线 0</span>
-        <img class="avatar-xs" id="homeAvatarImg" src="" style="display:none">
-        <div class="avatar-xs-ph" id="homeAvatarPH"><span>我</span></div>
-      </div>
+      <span id="homeOnline" style="font-size:0.7rem;color:var(--text-secondary);background:var(--bg);padding:3px 8px;border-radius:8px">在线 0</span>
+      <img class="avatar-xs" id="homeAvatarImg" src="" style="display:none">
+      <div class="avatar-xs-ph" id="homeAvatarPH" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">我</div>
     </div>
     <div class="tab-row">
       <div class="tab active" data-feed="following">关注</div>
       <div class="tab" data-feed="recommend">推荐</div>
     </div>
-    <div class="scroll-area" id="feedList"></div>
+    <div class="scroll-area" id="feedList"><div class="load-more" id="loadMore">加载中...</div></div>
   </div>
 
-  <!-- ======== 搜索 ======== -->
+  <!-- 搜索 -->
   <div class="page" id="searchPage">
-    <div class="top-bar">
-      <span class="back-btn" id="btnBackSearch">←</span>
-      <div class="search-bar"><input type="text" id="searchInput" placeholder="搜索用户或动态..." autocomplete="off"></div>
-    </div>
-    <div class="scroll-area search-result" id="searchResult"></div>
+    <div class="top-bar"><span class="back-btn" id="btnBackSearch">←</span><div class="search-bar"><input type="text" id="searchInput" placeholder="搜索用户或动态..." autocomplete="off"></div></div>
+    <div class="scroll-area" id="searchResult" style="padding:10px 12px"></div>
   </div>
 
-  <!-- ======== 通知 ======== -->
+  <!-- 通知 -->
   <div class="page" id="notifPage">
-    <div class="top-bar"><span class="back-btn" id="btnBackNotif">←</span><span class="title">通知</span></div>
+    <div class="top-bar"><span class="back-btn" id="btnBackNotif">←</span><span class="title">通知</span><span id="notifBadge" style="display:none;background:var(--pink);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:10px">0</span></div>
     <div class="scroll-area" id="notifList" style="padding-top:4px"></div>
   </div>
 
-  <!-- ======== 我的 ======== -->
+  <!-- 我的 -->
   <div class="page" id="profilePage">
     <div class="top-bar"><span class="back-btn" id="btnBackProfile">←</span><span class="title">我的</span></div>
     <div class="scroll-area">
@@ -271,211 +242,356 @@
         <div style="display:flex;gap:24px;justify-content:center;margin-top:14px;font-size:0.88rem"><span>动态 <b id="myPostCount">0</b></span><span>关注 <b>0</b></span><span>粉丝 <b>0</b></span></div>
       </div>
       <div class="menu-card">
-        <div class="menu-row" id="btnMyPosts"><span style="font-size:1.2rem">📝</span> 我的动态</div>
-        <div class="menu-row" id="btnEditAvatar"><span style="font-size:1.2rem">🎨</span> 更换头像</div>
-        <div class="menu-row logout" id="btnLogout"><span style="font-size:1.2rem">🚪</span> 退出登录</div>
+        <div class="menu-row" id="btnMyPosts">📝 我的动态</div>
+        <div class="menu-row" id="btnEditAvatar">🎨 更换头像</div>
+        <div class="menu-row logout" id="btnLogout">🚪 退出登录</div>
       </div>
     </div>
   </div>
 
-  <!-- ======== 详情 ======== -->
+  <!-- 详情 -->
   <div class="page" id="detailPage">
     <div class="top-bar"><span class="back-btn" id="btnBackDetail">←</span><span class="title">动态详情</span></div>
     <div class="scroll-area" id="detailScroll"></div>
   </div>
 
-  <!-- ======== 底栏 ======== -->
+  <!-- 底栏 -->
   <div class="bottom-nav" id="bottomNav">
-    <div class="nav-item active" data-page="home">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-      首页
-    </div>
-    <div class="nav-item" data-page="search">
-      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16.5 16.5l4 4" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-      搜索
-    </div>
-    <div class="nav-item pub" data-page="publish">
-      <div class="pub-circle">
-        <svg viewBox="0 0 24 24" fill="white" width="24" height="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-      </div>
-      发布
-    </div>
-    <div class="nav-item" data-page="notif">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-      通知
-    </div>
-    <div class="nav-item" data-page="profile">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      我的
-    </div>
+    <div class="nav-item active" data-page="home"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>首页</div>
+    <div class="nav-item" data-page="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5l4 4"/></svg>搜索</div>
+    <div class="nav-item pub" data-page="publish"><div class="pub-circle"><svg viewBox="0 0 24 24" fill="white" width="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>发布</div>
+    <div class="nav-item" data-page="notif"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>通知</div>
+    <div class="nav-item" data-page="profile"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>我的</div>
   </div>
 </div>
 
 <!-- 发布弹窗 -->
 <div class="pub-overlay" id="publishOverlay">
-  <div class="pub-top">
-    <span class="back-btn" id="btnCancelPub">←</span>
-    <span style="flex:1;text-align:center;font-weight:600">发布动态</span>
-    <button class="btn-sm btn-primary" id="btnSubmitPub">发布</button>
-  </div>
-  <div class="pub-body">
-    <textarea id="pubText" placeholder="分享你的想法..."></textarea>
-    <div class="pub-preview" id="pubPreview"><div class="add-btn" id="btnAddMedia">+</div></div>
-  </div>
+  <div class="pub-top"><span class="back-btn" id="btnCancelPub">←</span><span style="flex:1;text-align:center;font-weight:600">发布动态</span><button class="btn-sm btn-primary" id="btnSubmitPub">发布</button></div>
+  <div class="pub-body"><textarea id="pubText" placeholder="分享你的想法..."></textarea><div class="pub-preview" id="pubPreview"><div class="add-btn" id="btnAddMedia">+</div></div></div>
 </div>
 
-<!-- 头像弹窗 -->
 <div class="modal" id="avatarModal">
-  <div class="modal-box">
-    <h3 style="margin-bottom:10px;font-weight:600">选择头像颜色</h3>
-    <div class="color-grid" id="colorGrid"></div>
-    <button class="btn-sm btn-primary" id="btnPickPhoto" style="margin-top:8px">📷 从相册选择</button>
-    <button class="btn-sm" style="background:var(--bg);margin-left:4px" id="btnCloseAv">完成</button>
-  </div>
+  <div class="modal-box"><h3 style="margin-bottom:10px">选择头像颜色</h3><div class="color-grid" id="colorGrid"></div><button class="btn-sm btn-primary" id="btnPickPhoto" style="margin-top:8px">📷 从相册选择</button><button class="btn-sm" style="background:var(--bg);margin-left:4px" id="btnCloseAv">完成</button></div>
 </div>
 
 <input type="file" id="mediaInput" accept="image/*,video/*" multiple style="display:none">
 <input type="file" id="avatarInput" accept="image/*" style="display:none">
 
 <script>
-window.onload=async function(){
-  const $=id=>document.getElementById(id);
-  let user={username:null,nickname:'',avatar:'3b82f6',avatarType:'color'};
-  let posts=[],online=0,curPost=null,mediaFiles=[],currentFeed='following';
-  const colors=['3b82f6','6366f1','8b5cf6','ec4899','f43f5e','f97316','10b981','14b8a6'];
+// ============ 模块：工具函数 ============
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const colors = ['3b82f6','6366f1','8b5cf6','ec4899','f43f5e','f97316','10b981','14b8a6'];
 
-  const token=localStorage.getItem('chat_token');
-  if(!token){localStorage.clear();location.href='/login.html';return}
-  try{
-    const r=await fetch('/api/auto-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
-    const d=await r.json();
-    if(!d.success){localStorage.clear();location.href='/login.html';return}
-    user={username:d.user.username,nickname:d.user.nickname,avatar:d.user.avatar||'3b82f6',avatarType:d.user.avatarType||'color'};
-  }catch(e){location.href='/login.html';return}
+// ============ 模块：全局状态 ============
+let user = { username: null, nickname: '', avatar: '3b82f6', avatarType: 'color' };
+let posts = [], online = 0, curPost = null, mediaFiles = [], currentFeed = 'following';
+let page = 1, hasMore = true, loadingMore = false;
+let socket = null, notifications = [];
 
-  $('loading').style.display='none';$('app').classList.add('show');
-  updateAvatars();loadPosts();loadOnline();bindAll();
+// ============ 模块：头像渲染 ============
+function userAvatarEl(p, size = 40) {
+  if (p.avatarType === 'image') return `<img class="u-avatar" src="${p.avatar}" style="width:${size}px;height:${size}px">`;
+  const c = p.avatar || '3b82f6';
+  return `<div class="u-avatar-ph" style="background:linear-gradient(135deg,#${c},#${c}dd);width:${size}px;height:${size}px;font-size:${size*0.4}px">${(p.nickname||'?')[0]}</div>`;
+}
 
-  function updateAvatars(){
-    if(user.avatarType==='image'){
-      $('homeAvatarImg').src=user.avatar;$('homeAvatarImg').style.display='block';$('homeAvatarPH').style.display='none';
-      $('profileAvatarImg').src=user.avatar;$('profileAvatarImg').style.display='block';$('profileAvatarPH').style.display='none';
-    }else{
-      $('homeAvatarImg').style.display='none';$('homeAvatarPH').style.display='flex';
-      $('homeAvatarPH').style.background=`linear-gradient(135deg,#${user.avatar},#${user.avatar}dd)`;
-      $('profileAvatarImg').style.display='none';$('profileAvatarPH').style.display='flex';
-      $('profileAvatarPH').style.background=`linear-gradient(135deg,#${user.avatar},#${user.avatar}dd)`;
+// ============ 模块：页面切换（带动画） ============
+function switchPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  const map = { home: 'homePage', search: 'searchPage', notif: 'notifPage', profile: 'profilePage' };
+  if (map[p]) {
+    const target = $(map[p]);
+    target.classList.add('active');
+    // 重新触发动画
+    target.style.animation = 'none';
+    target.offsetHeight;
+    target.style.animation = 'pageIn 0.25s ease';
+  }
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === p));
+  if (p === 'notif') renderNotif();
+  if (p === 'profile') $('myPostCount').textContent = posts.filter(x => x.username === user.username).length;
+}
+
+// ============ 模块：WebSocket ============
+function connectWS() {
+  if (socket) { socket.onclose = null; socket.close(); }
+  socket = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
+  socket.onopen = () => { if (user.username) socket.send(JSON.stringify({ type: 'login', username: user.username })); };
+  socket.onmessage = e => {
+    try {
+      const d = JSON.parse(e.data);
+      if (d.type === 'onlineCount') { online = d.count; $('homeOnline').textContent = `在线 ${d.count}`; }
+      if (d.type === 'new-post-notify') { addNotification(`${d.nickname} 发布了新动态`); }
+      if (d.type === 'like-notify') { addNotification(`${d.fromUser} 赞了你的动态`); }
+      if (d.type === 'comment-notify') { addNotification(`${d.fromUser} 评论了你的动态`); }
+      if (d.type === 'like-update') { updatePostLikes(d.postId, d.likes); }
+      if (d.type === 'comment-update') { updatePostComments(d.postId, d.commentCount); }
+    } catch(ex) {}
+  };
+  socket.onclose = () => setTimeout(connectWS, 3000);
+}
+
+function addNotification(text) {
+  notifications.unshift({ text, time: Date.now() });
+  const badge = $('notifBadge');
+  badge.textContent = notifications.length;
+  badge.style.display = 'block';
+}
+
+function updatePostLikes(postId, likes) {
+  const p = posts.find(x => x.id === postId);
+  if (p) { p.likes = likes; }
+}
+
+function updatePostComments(postId, count) {
+  const p = posts.find(x => x.id === postId);
+  if (p) { p.comments = p.comments || []; }
+}
+
+// ============ 模块：数据加载（分页） ============
+async function loadPosts(reset = true) {
+  if (reset) { page = 1; hasMore = true; posts = []; $('feedList').innerHTML = '<div class="load-more" id="loadMore">加载中...</div>'; }
+  if (!hasMore || loadingMore) return;
+  loadingMore = true;
+  try {
+    const r = await fetch(`/api/posts?page=${page}&limit=15`);
+    const d = await r.json();
+    if (d.success) {
+      if (reset) posts = d.posts;
+      else posts = [...posts, ...d.posts];
+      hasMore = d.hasMore;
+      page++;
+      renderFeed();
     }
-    $('profileName').textContent=user.nickname;$('profileUsername').textContent='@'+user.username;
+  } catch(e) {}
+  loadingMore = false;
+}
+
+// ============ 模块：渲染动态 ============
+function renderFeed() {
+  const list = $('feedList');
+  list.innerHTML = '';
+  let filtered = [...posts].sort((a, b) => b.timestamp - a.timestamp);
+  if (currentFeed === 'following') filtered = filtered.filter(p => p.username !== user.username);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:50px">暂无动态</div>';
+    return;
   }
 
-  window.switchPage=function(p){
-    document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-    const map={home:'homePage',search:'searchPage',notif:'notifPage',profile:'profilePage'};
-    if(map[p])$(map[p]).classList.add('active');
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===p));
-    if(p==='notif')loadNotif();
-    if(p==='profile')$('myPostCount').textContent=posts.filter(x=>x.username===user.username).length;
+  const fragment = document.createDocumentFragment();
+  filtered.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'post';
+    let media = '';
+    if (p.imageUrl) media = `<img src="${p.imageUrl}" loading="lazy">`;
+    else if (p.videoUrl) media = `<video src="${p.videoUrl}" controls preload="metadata" style="max-width:100%;border-radius:12px;margin-top:8px;max-height:320px"></video>`;
+    card.innerHTML = `
+      <div class="post-hd" onclick="window.openDetail('${p.id}')">${userAvatarEl(p)}<div class="u-info"><div class="u-name">${p.nickname}</div><div class="u-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>
+      <div class="post-body">${esc(p.text || '')}${media}</div>
+      <div class="post-actions">
+        <span class="${p.likedBy?.includes(user.username) ? 'liked' : ''}" data-act="like" data-id="${p.id}">❤️ ${p.likes || 0}</span>
+        <span data-act="comment" data-id="${p.id}">💬 ${(p.comments || []).length}</span>
+        <span class="${p.favoritedBy?.includes(user.username) ? 'liked' : ''}" data-act="fav" data-id="${p.id}">⭐ ${p.favorites || 0}</span>
+      </div>`;
+    card.querySelectorAll('.post-actions span').forEach(el => el.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = el.dataset.id;
+      if (el.dataset.act === 'like') toggleLike(id);
+      if (el.dataset.act === 'fav') toggleFav(id);
+      if (el.dataset.act === 'comment') openDetail(id);
+    }));
+    fragment.appendChild(card);
+  });
+  list.appendChild(fragment);
+
+  // 加载更多
+  if (hasMore) {
+    const loadMore = document.createElement('div');
+    loadMore.className = 'load-more';
+    loadMore.id = 'loadMore';
+    loadMore.textContent = '加载更多...';
+    loadMore.addEventListener('click', () => loadPosts(false));
+    list.appendChild(loadMore);
+  }
+
+  // 虚拟滚动监听
+  setupScrollObserver();
+}
+
+function setupScrollObserver() {
+  const list = $('feedList');
+  list.onscroll = () => {
+    if (list.scrollTop + list.clientHeight > list.scrollHeight - 300 && hasMore && !loadingMore) {
+      loadPosts(false);
+    }
   };
+}
 
-  window.openDetail=function(id){
-    const p=posts.find(x=>x.id===id);if(!p)return;
-    document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-    $('detailPage').classList.add('active');
-    let media='';
-    if(p.imageUrl)media=`<img src="${p.imageUrl}" style="max-width:100%;border-radius:12px;margin-top:8px">`;
-    if(p.videoUrl)media=`<video src="${p.videoUrl}" controls style="max-width:100%;border-radius:12px;margin-top:8px"></video>`;
-    $('detailScroll').innerHTML=`
-      <div class="post"><div class="post-hd">${userAvatarEl(p)}<div class="u-info"><div class="u-name">${p.nickname}</div><div class="u-time">${new Date(p.timestamp).toLocaleString()}</div></div></div><div class="post-body">${esc(p.text||'')}${media}</div></div>
-      <div style="padding:0 12px"><h4 style="margin:8px 0;font-size:0.9rem">评论 (${(p.comments||[]).length})</h4>${(p.comments||[]).map(c=>`<div class="notif-card"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#${c.avatar||'3b82f6'},#${(c.avatar||'3b82f6')}dd);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.7rem;flex-shrink:0">${c.nickname?.[0]||'?'}</div><div style="flex:1"><b>${c.nickname}</b>：${esc(c.text)}<div style="font-size:0.65rem;color:var(--text-secondary)">${new Date(c.timestamp).toLocaleString()}</div></div></div>`).join('')}</div>`;
+// ============ 模块：互动 ============
+function toggleLike(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  if (!p.likedBy) p.likedBy = [];
+  const i = p.likedBy.indexOf(user.username);
+  i > -1 ? (p.likedBy.splice(i, 1), p.likes--) : (p.likedBy.push(user.username), p.likes++);
+  savePosts();
+  // WebSocket 通知
+  if (socket && socket.readyState === WebSocket.OPEN && p.username !== user.username) {
+    socket.send(JSON.stringify({ type: 'like-post', targetUser: p.username, postId: id, likes: p.likes }));
+  }
+  renderFeed();
+}
+
+function toggleFav(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  if (!p.favoritedBy) p.favoritedBy = [];
+  const i = p.favoritedBy.indexOf(user.username);
+  i > -1 ? (p.favoritedBy.splice(i, 1), p.favorites--) : (p.favoritedBy.push(user.username), p.favorites++);
+  savePosts();
+  renderFeed();
+}
+
+function openDetail(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  curPost = id;
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  $('detailPage').classList.add('active');
+  let media = '';
+  if (p.imageUrl) media = `<img src="${p.imageUrl}" style="max-width:100%;border-radius:12px;margin-top:8px">`;
+  if (p.videoUrl) media = `<video src="${p.videoUrl}" controls style="max-width:100%;border-radius:12px;margin-top:8px"></video>`;
+  $('detailScroll').innerHTML = `
+    <div class="post">${p.avatarType==='image'?`<div class="post-hd"><img class="u-avatar" src="${p.avatar}"><div class="u-info"><div class="u-name">${p.nickname}</div><div class="u-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>`:`<div class="post-hd"><div class="u-avatar-ph" style="background:linear-gradient(135deg,#${p.avatar||'3b82f6'},#${(p.avatar||'3b82f6')}dd);width:40px;height:40px;font-size:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600">${(p.nickname||'?')[0]}</div><div class="u-info"><div class="u-name">${p.nickname}</div><div class="u-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>`}<div class="post-body">${esc(p.text||'')}${media}</div></div>
+    <div style="padding:0 12px"><h4 style="margin:8px 0;font-size:0.9rem">评论 (${(p.comments||[]).length})</h4>${(p.comments||[]).map(c=>`<div class="notif-card"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#${c.avatar||'3b82f6'},#${(c.avatar||'3b82f6')}dd);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.65rem;flex-shrink:0">${c.nickname?.[0]||'?'}</div><div style="flex:1"><b>${c.nickname}</b>：${esc(c.text)}<div style="font-size:0.65rem;color:var(--text-secondary)">${new Date(c.timestamp).toLocaleString()}</div></div></div>`).join('')}</div>`;
+}
+
+function addComment() {
+  const t = $('commentInput')?.value?.trim();
+  if (!t || !curPost) return;
+  const p = posts.find(x => x.id === curPost);
+  if (!p) return;
+  p.comments = p.comments || [];
+  p.comments.push({ nickname: user.nickname, username: user.username, avatar: user.avatar, avatarType: user.avatarType, text: t, timestamp: Date.now() });
+  savePosts();
+  // WebSocket 通知
+  if (socket && socket.readyState === WebSocket.OPEN && p.username !== user.username) {
+    socket.send(JSON.stringify({ type: 'comment-post', targetUser: p.username, postId: curPost, text: t, commentCount: p.comments.length }));
+  }
+  openDetail(curPost);
+}
+
+function savePosts() { fetch('/api/save-posts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ posts }) }).catch(() => {}) }
+
+// ============ 模块：通知 ============
+function renderNotif() {
+  $('notifBadge').style.display = 'none';
+  $('notifList').innerHTML = notifications.length
+    ? notifications.map(n => `<div class="notif-card"><div style="font-size:1.2rem">🔔</div><div style="flex:1"><b>${n.text}</b><div style="font-size:0.7rem;color:var(--text-secondary)">${new Date(n.time).toLocaleTimeString()}</div></div></div>`).join('')
+    : `<div class="notif-card"><div style="font-size:1.2rem">🌿</div><div style="flex:1"><b>系统通知</b><div style="font-size:0.8rem;color:var(--text-secondary)">欢迎来到蓝社！在线 <b>${online}</b> 人</div></div></div>`;
+}
+
+// ============ 模块：发布 ============
+function openPub() { $('publishOverlay').classList.add('show'); $('pubText').value = ''; mediaFiles = []; renderPV(); }
+function renderPV() {
+  const pv = $('pubPreview'); pv.innerHTML = '';
+  mediaFiles.forEach(f => { const u = URL.createObjectURL(f); const el = f.type.startsWith('video') ? document.createElement('video') : document.createElement('img'); el.src = u; el.style.cssText = 'width:76px;height:76px;border-radius:10px;object-fit:cover'; pv.appendChild(el); });
+  const a = document.createElement('div'); a.className = 'add-btn'; a.textContent = '+'; a.addEventListener('click', () => $('mediaInput').click()); pv.appendChild(a);
+}
+function submitPub() {
+  const t = $('pubText').value.trim();
+  if (!t && !mediaFiles.length) return;
+  const p = { id: 'p' + Date.now(), text: t, avatar: user.avatar, avatarType: user.avatarType, nickname: user.nickname, username: user.username, timestamp: Date.now(), likes: 0, comments: [], favorites: 0, likedBy: [], favoritedBy: [] };
+  const done = () => {
+    posts.unshift(p); savePosts(); renderFeed();
+    if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'new-post', postId: p.id, text: t }));
   };
+  if (mediaFiles.length) { const f = mediaFiles[0]; const r = new FileReader(); r.onloadend = () => { if (f.type.startsWith('video')) p.videoUrl = r.result; else p.imageUrl = r.result; done(); }; r.readAsDataURL(f); }
+  else { done(); }
+  $('publishOverlay').classList.remove('show');
+}
 
-  function userAvatarEl(p){
-    if(p.avatarType==='image')return `<img class="u-avatar" src="${p.avatar}">`;
-    const c=p.avatar||'3b82f6';
-    return `<div class="u-avatar-ph" style="background:linear-gradient(135deg,#${c},#${c}dd)">${(p.nickname||'?')[0]}</div>`;
+// ============ 模块：搜索 ============
+function search() {
+  const q = $('searchInput').value.trim().toLowerCase();
+  const r = $('searchResult');
+  if (!q) { r.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:30px">输入关键词搜索</div>'; return; }
+  const up = posts.filter(p => p.nickname?.toLowerCase().includes(q) || p.text?.toLowerCase().includes(q));
+  r.innerHTML = up.length ? up.map(p => `<div class="notif-card" style="cursor:pointer" onclick="window.openDetail('${p.id}');switchPage('home')">${userAvatarEl(p,36)}<div style="flex:1"><b>${p.nickname}</b><br><small style="color:var(--text-secondary)">${esc((p.text||'').substring(0,35))}</small></div></div>`).join('') : '<div style="text-align:center;color:var(--text-secondary);padding:30px">未找到相关内容</div>';
+}
+
+// ============ 模块：头像 ============
+function openAvatar() { renderColorGrid(); $('avatarModal').classList.add('show'); }
+function renderColorGrid() {
+  const g = $('colorGrid'); g.innerHTML = '';
+  colors.forEach(c => { const d = document.createElement('div'); d.className = 'color-item'; d.style.background = `linear-gradient(135deg,#${c},#${c}dd)`; if (user.avatarType === 'color' && user.avatar === c) d.classList.add('sel'); d.addEventListener('click', () => { user.avatar = c; user.avatarType = 'color'; updateAvatars(); saveProfile(); renderColorGrid(); }); g.appendChild(d); });
+}
+function handlePhoto(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { const img = new Image(); img.onload = () => { const c = document.createElement('canvas'); let w = img.width, h = img.height; if (w > h) { if (w > 200) { h *= 200 / w; w = 200; } } else { if (h > 200) { w *= 200 / h; h = 200; } } c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); user.avatar = c.toDataURL('image/jpeg', 0.7); user.avatarType = 'image'; updateAvatars(); saveProfile(); }; img.src = ev.target.result; }; r.readAsDataURL(f); $('avatarInput').value = ''; }
+
+function updateAvatars() {
+  if (user.avatarType === 'image') {
+    $('homeAvatarImg').src = user.avatar; $('homeAvatarImg').style.display = 'block'; $('homeAvatarPH').style.display = 'none';
+    $('profileAvatarImg').src = user.avatar; $('profileAvatarImg').style.display = 'block'; $('profileAvatarPH').style.display = 'none';
+  } else {
+    $('homeAvatarImg').style.display = 'none'; $('homeAvatarPH').style.display = 'flex';
+    $('homeAvatarPH').style.background = `linear-gradient(135deg,#${user.avatar},#${user.avatar}dd)`;
+    $('profileAvatarImg').style.display = 'none'; $('profileAvatarPH').style.display = 'flex';
+    $('profileAvatarPH').style.background = `linear-gradient(135deg,#${user.avatar},#${user.avatar}dd)`;
   }
+  $('profileName').textContent = user.nickname; $('profileUsername').textContent = '@' + user.username;
+}
+function saveProfile() {
+  fetch('/api/update-profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user.username, avatar: user.avatar, avatarType: user.avatarType }) }).catch(() => {});
+  if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'update-profile', avatar: user.avatar, avatarType: user.avatarType }));
+}
 
-  function toggleLike(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.likedBy)p.likedBy=[];const i=p.likedBy.indexOf(user.username);i>-1?(p.likedBy.splice(i,1),p.likes--):(p.likedBy.push(user.username),p.likes++);savePosts();renderFeed()}
-  function toggleFav(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.favoritedBy)p.favoritedBy=[];const i=p.favoritedBy.indexOf(user.username);i>-1?(p.favoritedBy.splice(i,1),p.favorites--):(p.favoritedBy.push(user.username),p.favorites++);savePosts();renderFeed()}
-  function addComment(){const t=$('commentInput')?.value?.trim();if(!t||!curPost)return;const p=posts.find(x=>x.id===curPost);if(!p)return;p.comments.push({nickname:user.nickname,username:user.username,avatar:user.avatar,avatarType:user.avatarType,text:t,timestamp:Date.now()});openDetail(curPost);savePosts()}
+// ============ 模块：事件绑定 ============
+function bindAll() {
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(n => n.addEventListener('click', () => { if (n.dataset.page === 'publish') openPub(); else switchPage(n.dataset.page); }));
+  document.querySelectorAll('.tab-row .tab').forEach(t => t.addEventListener('click', () => { document.querySelectorAll('.tab-row .tab').forEach(x => x.classList.remove('active')); t.classList.add('active'); currentFeed = t.dataset.feed; renderFeed(); }));
+  $('btnBackDetail').addEventListener('click', () => switchPage('home'));
+  $('btnBackSearch').addEventListener('click', () => switchPage('home'));
+  $('btnBackNotif').addEventListener('click', () => switchPage('home'));
+  $('btnBackProfile').addEventListener('click', () => switchPage('home'));
+  $('searchInput').addEventListener('input', search);
+  $('btnCancelPub').addEventListener('click', () => $('publishOverlay').classList.remove('show'));
+  $('btnSubmitPub').addEventListener('click', submitPub);
+  $('btnAddMedia').addEventListener('click', () => $('mediaInput').click());
+  $('mediaInput').addEventListener('change', e => { mediaFiles = [...e.target.files]; renderPV(); });
+  $('btnMyPosts').addEventListener('click', () => { switchPage('home'); currentFeed = 'following'; renderFeed(); });
+  $('btnEditAvatar').addEventListener('click', openAvatar);
+  $('btnLogout').addEventListener('click', () => { if (confirm('退出登录？')) { localStorage.clear(); location.href = '/login.html'; } });
+  $('homeAvatarPH').addEventListener('click', openAvatar);
+  $('homeAvatarImg').addEventListener('click', openAvatar);
+  $('btnCloseAv').addEventListener('click', () => $('avatarModal').classList.remove('show'));
+  $('btnPickPhoto').addEventListener('click', () => $('avatarInput').click());
+  $('avatarInput').addEventListener('change', handlePhoto);
+  $('commentInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') addComment(); });
+}
 
-  function savePosts(){fetch('/api/save-posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({posts})}).catch(()=>{})}
-  async function loadPosts(){try{const r=await fetch('/api/posts');const d=await r.json();posts=d.success?d.posts:[];renderFeed()}catch(e){}}
-  async function loadOnline(){try{const r=await fetch('/api/online-users');const d=await r.json();if(d.success){online=d.count;$('homeOnline').textContent=`在线 ${d.count}`}}catch(e){}}
+// ============ 初始化 ============
+window.onload = async function () {
+  const token = localStorage.getItem('chat_token');
+  if (!token) { localStorage.clear(); location.href = '/login.html'; return; }
+  try {
+    const r = await fetch('/api/auto-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+    const d = await r.json();
+    if (!d.success) { localStorage.clear(); location.href = '/login.html'; return; }
+    user = { username: d.user.username, nickname: d.user.nickname, avatar: d.user.avatar || '3b82f6', avatarType: d.user.avatarType || 'color' };
+  } catch (e) { location.href = '/login.html'; return; }
 
-  window.renderFeed=function(){
-    const list=$('feedList');list.innerHTML='';
-    let filtered=[...posts].sort((a,b)=>b.timestamp-a.timestamp);
-    if(currentFeed==='following')filtered=filtered.filter(p=>p.username!==user.username);
-    if(!filtered.length){list.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:50px;font-size:0.9rem">暂无动态</div>';return}
-    filtered.forEach(p=>{
-      const card=document.createElement('div');card.className='post';
-      let media='';
-      if(p.imageUrl)media=`<img src="${p.imageUrl}" loading="lazy">`;
-      else if(p.videoUrl)media=`<video src="${p.videoUrl}" controls preload="metadata" style="max-width:100%;border-radius:12px;margin-top:8px;max-height:320px"></video>`;
-      card.innerHTML=`
-        <div class="post-hd">${userAvatarEl(p)}<div class="u-info"><div class="u-name">${p.nickname}</div><div class="u-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>
-        <div class="post-body">${esc(p.text||'')}${media}</div>
-        <div class="post-actions">
-          <span class="${p.likedBy?.includes(user.username)?'liked':''}" data-act="like" data-id="${p.id}">❤️ ${p.likes||0}</span>
-          <span data-act="comment" data-id="${p.id}">💬 ${(p.comments||[]).length}</span>
-          <span class="${p.favoritedBy?.includes(user.username)?'liked':''}" data-act="fav" data-id="${p.id}">⭐ ${p.favorites||0}</span>
-        </div>`;
-      card.querySelectorAll('.post-actions span').forEach(el=>el.addEventListener('click',e=>{
-        e.stopPropagation();
-        const id=el.dataset.id;
-        if(el.dataset.act==='like')toggleLike(id);
-        if(el.dataset.act==='fav')toggleFav(id);
-        if(el.dataset.act==='comment')openDetail(id);
-        renderFeed();
-      }));
-      card.addEventListener('click',()=>openDetail(p.id));
-      list.appendChild(card);
-    });
-  };
+  $('loading').style.display = 'none';
+  $('app').classList.add('show');
+  updateAvatars();
+  connectWS();
+  loadPosts();
+  bindAll();
 
-  function loadNotif(){$('notifList').innerHTML=`<div class="notif-card"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.9rem;flex-shrink:0">蓝</div><div style="flex:1"><b>系统通知</b><div style="font-size:0.8rem;color:var(--text-secondary)">欢迎来到蓝社！当前在线 <b>${online}</b> 人</div></div><div style="font-size:0.7rem;color:var(--text-secondary)">刚刚</div></div>`}
-
-  function openPub(){$('publishOverlay').classList.add('show');$('pubText').value='';mediaFiles=[];renderPV()}
-  function renderPV(){const pv=$('pubPreview');pv.innerHTML='';mediaFiles.forEach(f=>{const u=URL.createObjectURL(f);const el=f.type.startsWith('video')?document.createElement('video'):document.createElement('img');el.src=u;el.style.cssText='width:76px;height:76px;border-radius:10px;object-fit:cover';pv.appendChild(el)});const a=document.createElement('div');a.className='add-btn';a.textContent='+';a.addEventListener('click',()=>$('mediaInput').click());pv.appendChild(a)}
-  function submitPub(){const t=$('pubText').value.trim();if(!t&&!mediaFiles.length)return;const p={id:'p'+Date.now(),text:t,avatar:user.avatar,avatarType:user.avatarType,nickname:user.nickname,username:user.username,timestamp:Date.now(),likes:0,comments:[],favorites:0,likedBy:[],favoritedBy:[]};if(mediaFiles.length){const f=mediaFiles[0];const r=new FileReader();r.onloadend=()=>{if(f.type.startsWith('video'))p.videoUrl=r.result;else p.imageUrl=r.result;posts.unshift(p);savePosts();renderFeed()};r.readAsDataURL(f)}else{posts.unshift(p);savePosts();renderFeed()}$('publishOverlay').classList.remove('show');switchPage('home')}
-
-  function search(){
-    const q=$('searchInput').value.trim().toLowerCase();
-    const r=$('searchResult');
-    if(!q){r.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:30px">输入关键词搜索</div>';return}
-    const up=posts.filter(p=>p.nickname?.toLowerCase().includes(q)||p.text?.toLowerCase().includes(q));
-    r.innerHTML=up.length?up.map(p=>`<div class="notif-card" style="cursor:pointer" onclick="window.openDetail('${p.id}');window.switchPage('home')">${userAvatarEl(p)}<div style="flex:1"><b>${p.nickname}</b><br><small style="color:var(--text-secondary)">${esc((p.text||'').substring(0,35))}</small></div></div>`).join(''):'<div style="text-align:center;color:var(--text-secondary);padding:30px">未找到相关内容</div>';
-  }
-
-  function bindAll(){
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(n=>n.addEventListener('click',()=>{if(n.dataset.page==='publish')openPub();else switchPage(n.dataset.page)}));
-    document.querySelectorAll('.tab-row .tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab-row .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');currentFeed=t.dataset.feed;renderFeed()}));
-    $('btnBackDetail').addEventListener('click',()=>switchPage('home'));
-    $('btnBackSearch').addEventListener('click',()=>switchPage('home'));
-    $('btnBackNotif').addEventListener('click',()=>switchPage('home'));
-    $('btnBackProfile').addEventListener('click',()=>switchPage('home'));
-    $('searchInput').addEventListener('input',search);
-    $('btnCancelPub').addEventListener('click',()=>$('publishOverlay').classList.remove('show'));
-    $('btnSubmitPub').addEventListener('click',submitPub);
-    $('btnAddMedia').addEventListener('click',()=>$('mediaInput').click());
-    $('mediaInput').addEventListener('change',e=>{mediaFiles=[...e.target.files];renderPV()});
-    $('btnMyPosts').addEventListener('click',()=>{switchPage('home');currentFeed='following';renderFeed()});
-    $('btnEditAvatar').addEventListener('click',openAvatar);
-    $('btnLogout').addEventListener('click',()=>{if(confirm('退出登录？')){localStorage.clear();location.href='/login.html'}});
-    $('homeAvatarPH').addEventListener('click',openAvatar);
-    $('homeAvatarImg').addEventListener('click',openAvatar);
-    $('btnCloseAv').addEventListener('click',()=>$('avatarModal').classList.remove('show'));
-    $('btnPickPhoto').addEventListener('click',()=>$('avatarInput').click());
-    $('avatarInput').addEventListener('change',handlePhoto);
-  }
-
-  function openAvatar(){renderColorGrid();$('avatarModal').classList.add('show')}
-  function renderColorGrid(){const g=$('colorGrid');g.innerHTML='';colors.forEach(c=>{const d=document.createElement('div');d.className='color-item';d.style.background=`linear-gradient(135deg,#${c},#${c}dd)`;if(user.avatarType==='color'&&user.avatar===c)d.classList.add('sel');d.addEventListener('click',()=>{user.avatar=c;user.avatarType='color';updateAvatars();saveProfile();renderColorGrid()});g.appendChild(d)})}
-  function handlePhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);user.avatar=c.toDataURL('image/jpeg',0.7);user.avatarType='image';updateAvatars();saveProfile()};img.src=ev.target.result};r.readAsDataURL(f);$('avatarInput').value=''}
-  function saveProfile(){fetch('/api/update-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user.username,avatar:user.avatar,avatarType:user.avatarType})}).catch(()=>{})}
-  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+  // 在线人数
+  try { const r = await fetch('/api/online-users'); const d = await r.json(); if (d.success) { online = d.count; $('homeOnline').textContent = `在线 ${d.count}`; } } catch (e) { }
 };
 </script>
 </body>
