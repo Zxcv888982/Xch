@@ -3,24 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>BlueFlow</title>
+  <title>蓝社 · 社区</title>
   <style>
     :root {
-      --pink: #fb7299;
-      --pink-dark: #e85d7f;
-      --pink-light: #fff0f4;
-      --blue: #12b7f5;
-      --blue-light: #e8f7fd;
-      --bg: #f6f7f9;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-light: #eff6ff;
+      --pink: #ec4899;
+      --pink-light: #fdf2f8;
+      --bg: #f5f7fb;
       --surface: #ffffff;
-      --text: #1a1a2e;
-      --text-secondary: #9499a0;
-      --border: #e8eaed;
+      --text: #1e293b;
+      --text-secondary: #94a3b8;
+      --border: #e2e8f0;
       --radius: 14px;
-      --radius-sm: 10px;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
-      --shadow: 0 2px 8px rgba(0,0,0,0.04);
-      --shadow-lg: 0 8px 24px rgba(0,0,0,0.06);
+      --shadow: 0 1px 3px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 14px rgba(0,0,0,0.05);
       --font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -35,23 +33,21 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* 加载 */
     .loading-screen {
       display: flex; align-items: center; justify-content: center;
       height: 100%; flex-direction: column; gap: 14px; background: var(--bg);
     }
     .loading-screen .spinner {
       width: 34px; height: 34px; border: 3px solid var(--border);
-      border-top-color: var(--pink); border-radius: 50%;
+      border-top-color: var(--primary); border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* 主容器 */
-    .app-container { display: none; flex-direction: column; height: 100%; }
-    .app-container.show { display: flex; }
-    .page-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-    .page-content.active { display: flex; }
+    .app { display: none; flex-direction: column; height: 100%; }
+    .app.show { display: flex; }
+    .page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .page.active { display: flex; }
 
     /* 顶栏 */
     .top-bar {
@@ -66,180 +62,72 @@
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; color: var(--text); flex-shrink: 0;
     }
-    .top-bar .title-area { flex: 1; display: flex; align-items: center; gap: 8px; }
-    .top-bar .title-area .brand-icon {
-      width: 30px; height: 30px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--pink), #ff6b9d);
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 700; font-size: 0.85rem;
-    }
-    .top-bar .title-area .brand-text {
-      font-size: 1rem; font-weight: 600; letter-spacing: -0.2px;
-    }
-    .top-bar .right-area { display: flex; align-items: center; gap: 8px; }
-    .top-bar .badge {
-      font-size: 0.68rem; color: var(--text-secondary);
-      background: var(--bg); padding: 3px 8px; border-radius: 8px;
-    }
-    .avatar-sm {
-      width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
-      cursor: pointer; border: 2px solid var(--pink-light); flex-shrink: 0;
-    }
-    .avatar-sm-ph {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--pink-light); display: flex; align-items: center;
-      justify-content: center; font-size: 0.85rem; cursor: pointer; flex-shrink: 0;
-    }
+    .top-bar .title { font-size: 1rem; font-weight: 600; flex: 1; }
 
-    /* 内容区 */
-    .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-
-    /* 瀑布流 */
-    .masonry { columns: 2; column-gap: 8px; padding: 8px; }
-    .post-card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      overflow: hidden; margin-bottom: 8px;
-      box-shadow: var(--shadow-sm);
-      break-inside: avoid; cursor: pointer;
-      transition: transform 0.12s, box-shadow 0.12s;
-      border: 0.5px solid var(--border);
+    /* 双Tab */
+    .tab-row {
+      display: flex; background: var(--surface);
+      border-bottom: 0.5px solid var(--border); flex-shrink: 0;
     }
-    .post-card:active { transform: scale(0.98); box-shadow: var(--shadow); }
-    .post-card .cover {
-      position: relative; background: #f0f0f5;
-    }
-    .post-card .cover img, .post-card .cover video {
-      width: 100%; display: block; object-fit: cover;
-      min-height: 110px; max-height: 260px;
-    }
-    .post-card .cover .play-badge {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      width: 32px; height: 32px; border-radius: 50%;
-      background: rgba(0,0,0,0.5); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; pointer-events: none;
-    }
-    .post-card .cover .duration {
-      position: absolute; bottom: 6px; right: 6px;
-      background: rgba(0,0,0,0.65); color: #fff;
-      font-size: 0.6rem; padding: 2px 5px; border-radius: 4px;
-    }
-    .post-card .body { padding: 8px 10px; }
-    .post-card .title {
-      font-size: 0.8rem; font-weight: 500; line-height: 1.5;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      overflow: hidden; margin-bottom: 6px; color: var(--text);
-    }
-    .post-card .footer {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 0.65rem; color: var(--text-secondary);
-    }
-    .post-card .footer .user-img { width: 17px; height: 17px; border-radius: 50%; object-fit: cover; }
-    .post-card .footer .counts { margin-left: auto; display: flex; gap: 6px; }
-
-    /* 详情 */
-    .detail-author { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--surface); }
-    .detail-author img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-    .detail-author .info { flex: 1; }
-    .detail-author .name { font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
-    .detail-author .time { font-size: 0.68rem; color: var(--text-secondary); }
-    .follow-btn {
-      font-size: 0.62rem; padding: 2px 10px; border-radius: 10px;
-      border: 1px solid var(--pink); color: var(--pink);
-      background: transparent; cursor: pointer; font-weight: 500;
-    }
-    .detail-body { padding: 12px 16px; font-size: 0.9rem; line-height: 1.7; background: var(--surface); }
-    .detail-body img, .detail-body video { max-width: 100%; border-radius: var(--radius-sm); margin-top: 8px; }
-    .action-bar {
-      display: flex; justify-content: space-around; padding: 10px 16px;
-      background: var(--surface); border-top: 0.5px solid var(--border);
-      border-bottom: 0.5px solid var(--border);
-    }
-    .action-bar .action {
-      display: flex; align-items: center; gap: 4px; cursor: pointer;
-      padding: 6px 14px; border-radius: 16px; font-size: 0.85rem;
-      transition: background 0.15s;
-    }
-    .action-bar .action:active { background: var(--bg); }
-    .action-bar .action.liked { color: var(--pink); }
-    .action-bar .action.fav { color: #f5a623; }
-    .comment-list { padding: 8px 16px; background: var(--surface); }
-    .comment-item { display: flex; gap: 8px; padding: 10px 0; border-bottom: 0.5px solid var(--bg); }
-    .comment-item .c-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-    .comment-item .c-body { flex: 1; }
-    .comment-item .c-name { font-weight: 600; font-size: 0.78rem; }
-    .comment-item .c-text { font-size: 0.82rem; margin-top: 2px; line-height: 1.5; }
-    .comment-item .c-time { font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px; }
-
-    /* 聊天 */
-    .msg-list { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
-    .msg-row { display: flex; gap: 6px; animation: msgIn 0.08s ease; }
-    .msg-row.self { flex-direction: row-reverse; }
-    .msg-row .avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-    .msg-bubble {
-      padding: 8px 11px; border-radius: 14px; font-size: 0.84rem;
-      line-height: 1.45; word-break: break-word;
-      background: var(--surface); max-width: 68%;
-      box-shadow: var(--shadow-sm);
-    }
-    .msg-row.self .msg-bubble { background: var(--blue); color: #fff; border-bottom-right-radius: 4px; }
-    .msg-bubble img { max-width: 150px; border-radius: 6px; display: block; }
-    .msg-bubble video { max-width: 150px; border-radius: 6px; }
-    .msg-time { font-size: 0.55rem; color: var(--text-secondary); margin-top: 2px; }
-    @keyframes msgIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* 输入栏 */
-    .input-row {
-      display: flex; gap: 6px; padding: 8px 10px;
-      background: var(--surface); border-top: 0.5px solid var(--border);
-      align-items: center; flex-shrink: 0;
-    }
-    .input-row input {
-      flex: 1; border: none; background: var(--bg);
-      border-radius: 18px; padding: 8px 14px; font-size: 0.84rem;
-      outline: none; height: 34px; font-family: var(--font);
-    }
-    .btn-circle {
-      width: 32px; height: 32px; border-radius: 50%; border: none;
-      font-size: 1rem; cursor: pointer; background: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .btn-sm {
-      padding: 6px 14px; border-radius: 16px; border: none;
-      font-size: 0.8rem; cursor: pointer; font-weight: 500;
-    }
-    .btn-pink { background: var(--pink); color: #fff; }
-    .btn-blue { background: var(--blue); color: #fff; }
-
-    /* 底部导航 - 所有页面固定 */
-    .bottom-nav {
-      background: var(--surface);
-      display: flex; border-top: 0.5px solid var(--border);
-      flex-shrink: 0; height: 50px;
-      padding-bottom: env(safe-area-inset-bottom);
-      z-index: 100;
-    }
-    .bottom-nav .nav-item {
-      flex: 1; text-align: center; padding: 5px 0; font-size: 0.58rem;
-      color: var(--text-secondary); cursor: pointer;
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 2px; transition: color 0.2s;
-    }
-    .bottom-nav .nav-item.active { color: var(--pink); }
-    .bottom-nav .nav-item svg { width: 22px; height: 22px; }
-    .bottom-nav .nav-item.publish-btn {
+    .tab-row .tab {
+      flex: 1; text-align: center; padding: 10px 0; font-size: 0.9rem;
+      font-weight: 500; color: var(--text-secondary); cursor: pointer;
       position: relative;
     }
-    .bottom-nav .nav-item.publish-btn .pub-circle {
-      width: 44px; height: 44px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--pink), #ff6b9d);
-      display: flex; align-items: center; justify-content: center;
-      margin-top: -20px; box-shadow: 0 4px 16px rgba(251,114,153,0.35);
+    .tab-row .tab.active { color: var(--text); font-weight: 600; }
+    .tab-row .tab.active::after {
+      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 24px; height: 3px; background: var(--primary); border-radius: 2px;
     }
-    .bottom-nav .nav-item.publish-btn .pub-circle svg { width: 24px; height: 24px; color: #fff; }
 
-    /* 发布弹窗 */
+    .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    /* 动态卡片 */
+    .feed-card {
+      background: var(--surface);
+      margin: 8px 12px; border-radius: var(--radius);
+      padding: 14px; box-shadow: var(--shadow);
+    }
+    .feed-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .feed-header .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
+    }
+    .feed-header .user-info { flex: 1; }
+    .feed-header .user-name { font-weight: 600; font-size: 0.88rem; }
+    .feed-header .post-time { font-size: 0.7rem; color: var(--text-secondary); }
+    .feed-body { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; }
+    .feed-body img, .feed-body video {
+      max-width: 100%; border-radius: 10px; margin-top: 8px; max-height: 400px;
+      object-fit: cover;
+    }
+    .feed-actions {
+      display: flex; gap: 24px; padding-top: 8px;
+      border-top: 0.5px solid var(--border);
+      font-size: 0.82rem; color: var(--text-secondary);
+    }
+    .feed-actions span {
+      display: flex; align-items: center; gap: 4px; cursor: pointer;
+    }
+    .feed-actions span.liked { color: var(--pink); }
+
+    /* 搜索 */
+    .search-input {
+      flex: 1; border: none; background: var(--bg);
+      border-radius: 20px; padding: 8px 16px; font-size: 0.9rem;
+      outline: none; height: 36px; font-family: var(--font);
+    }
+    .search-result { padding: 12px; }
+    .search-result .user-row {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      background: var(--surface); border-radius: var(--radius); margin-bottom: 8px;
+    }
+    .search-result .user-row img {
+      width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+    }
+
+    /* 发布 */
     .publish-overlay {
       display: none; position: fixed; top:0; left:0; right:0; bottom:0;
       background: var(--surface); z-index: 200; flex-direction: column;
@@ -253,20 +141,79 @@
     .publish-body textarea {
       width: 100%; border: none; font-size: 1rem; resize: none;
       outline: none; font-family: var(--font); line-height: 1.7;
-      min-height: 130px; background: transparent;
+      min-height: 140px; background: transparent;
     }
-    .publish-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .publish-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .publish-preview img, .publish-preview video {
-      width: 76px; height: 76px; border-radius: 8px; object-fit: cover;
+      width: 80px; height: 80px; border-radius: 10px; object-fit: cover;
     }
     .publish-preview .add-btn {
-      width: 76px; height: 76px; border-radius: 8px;
+      width: 80px; height: 80px; border-radius: 10px;
       background: var(--bg); display: flex; align-items: center;
-      justify-content: center; font-size: 1.6rem; color: var(--text-secondary);
+      justify-content: center; font-size: 1.8rem; color: var(--text-secondary);
       cursor: pointer; border: 2px dashed var(--border);
     }
 
-    /* 头像弹窗 */
+    /* 通知 */
+    .notif-item {
+      background: var(--surface); margin: 6px 12px; border-radius: var(--radius);
+      padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+      box-shadow: var(--shadow);
+    }
+    .notif-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .notif-item .info { flex: 1; font-size: 0.85rem; }
+    .notif-item .time { font-size: 0.68rem; color: var(--text-secondary); }
+
+    /* 我的 */
+    .profile-card {
+      background: var(--surface); margin: 12px; border-radius: var(--radius);
+      padding: 20px; text-align: center; box-shadow: var(--shadow);
+    }
+    .profile-card img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+    .profile-card .name { font-weight: 600; font-size: 1.1rem; margin-top: 8px; }
+    .profile-card .sig { color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px; }
+    .profile-stats {
+      display: flex; justify-content: space-around; margin-top: 14px;
+      font-size: 0.85rem;
+    }
+    .profile-stats b { display: block; font-size: 1.1rem; }
+    .menu-list { margin: 8px 12px; }
+    .menu-item {
+      background: var(--surface); padding: 14px; border-radius: var(--radius);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+      cursor: pointer; box-shadow: var(--shadow); font-size: 0.9rem;
+    }
+    .menu-item:active { background: var(--bg); }
+
+    /* 底栏 */
+    .bottom-nav {
+      background: var(--surface);
+      display: flex; border-top: 0.5px solid var(--border);
+      flex-shrink: 0; height: 50px;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .bottom-nav .nav-item {
+      flex: 1; text-align: center; padding: 5px 0; font-size: 0.55rem;
+      color: var(--text-secondary); cursor: pointer;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 2px;
+    }
+    .bottom-nav .nav-item.active { color: var(--primary); }
+    .bottom-nav .nav-item svg { width: 22px; height: 22px; }
+    .bottom-nav .nav-item.publish-btn .pub-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      margin-top: -18px; box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+    }
+
+    .btn-sm {
+      padding: 6px 16px; border-radius: 16px; border: none;
+      font-size: 0.82rem; cursor: pointer; font-weight: 500;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+
     .modal {
       display: none; position: fixed; top:0; left:0; right:0; bottom:0;
       background: rgba(0,0,0,0.35); z-index: 250; justify-content: center; align-items: center;
@@ -282,127 +229,118 @@
       align-items: center; justify-content: center; font-size: 1.1rem;
       background: var(--bg); cursor: pointer; border: 2px solid transparent;
     }
-    .emoji-item.selected { border-color: var(--pink); background: var(--pink-light); }
+    .emoji-item.sel { border-color: var(--primary); background: var(--primary-light); }
   </style>
 </head>
 <body>
 
-<div class="loading-screen" id="loadingScreen">
+<div class="loading-screen" id="loading">
   <div class="spinner"></div>
-  <span style="color:var(--text-secondary);font-size:0.9rem">正在进入社区...</span>
+  <span style="color:var(--text-secondary)">正在进入社区...</span>
 </div>
 
-<div class="app-container" id="appContainer">
+<div class="app" id="app">
 
-  <!-- ==================== 首页 ==================== -->
-  <div class="page-content active" id="homePage">
+  <!-- ======== 首页 ======== -->
+  <div class="page active" id="homePage">
     <div class="top-bar">
-      <div class="title-area">
-        <div class="brand-icon">B</div>
-        <div class="brand-text">BlueFlow</div>
-      </div>
-      <div class="right-area">
-        <div class="badge" id="homeBadge">在线 0</div>
-        <img class="avatar-sm" id="homeAvatarImg" src="" style="display:none">
-        <div class="avatar-sm-ph" id="homeAvatarPH">😀</div>
-      </div>
+      <span class="title" style="font-size:1.1rem;font-weight:700">🌿 蓝社</span>
+      <img class="avatar-sm" id="homeAvatarImg" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;display:none">
+      <div id="homeAvatarPH" style="width:30px;height:30px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:0.85rem;cursor:pointer">😀</div>
     </div>
-    <div class="scroll-area"><div class="masonry" id="masonryGrid"></div></div>
+    <div class="tab-row">
+      <div class="tab active" data-feed="following">关注</div>
+      <div class="tab" data-feed="recommend">推荐</div>
+    </div>
+    <div class="scroll-area" id="feedList"></div>
   </div>
 
-  <!-- ==================== 详情 ==================== -->
-  <div class="page-content" id="detailPage">
+  <!-- ======== 搜索 ======== -->
+  <div class="page" id="searchPage">
     <div class="top-bar">
-      <div class="back-btn" id="btnBackDetail">←</div>
-      <div class="title-area"><span style="font-weight:600">帖子详情</span></div>
+      <span class="back-btn" id="btnBackSearch">←</span>
+      <input class="search-input" id="searchInput" placeholder="搜索用户或动态..." autocomplete="off">
+    </div>
+    <div class="scroll-area search-result" id="searchResult"></div>
+  </div>
+
+  <!-- ======== 通知 ======== -->
+  <div class="page" id="notifPage">
+    <div class="top-bar">
+      <span class="back-btn" id="btnBackNotif">←</span>
+      <span class="title">通知</span>
+    </div>
+    <div class="scroll-area" id="notifList" style="padding-top:4px"></div>
+  </div>
+
+  <!-- ======== 我的 ======== -->
+  <div class="page" id="profilePage">
+    <div class="top-bar">
+      <span class="back-btn" id="btnBackProfile">←</span>
+      <span class="title">我的</span>
     </div>
     <div class="scroll-area">
-      <div class="detail-author" id="detailAuthor"></div>
-      <div class="detail-body" id="detailContent"></div>
-      <div class="action-bar" id="actionBar"></div>
-      <div class="comment-list" id="commentList"></div>
-    </div>
-    <div class="input-row">
-      <input type="text" id="commentInput" placeholder="写评论...">
-      <button class="btn-sm btn-blue" id="btnComment">发送</button>
-    </div>
-  </div>
-
-  <!-- ==================== 聊天 ==================== -->
-  <div class="page-content" id="chatPage">
-    <div class="top-bar">
-      <div class="back-btn" id="btnBackChat">←</div>
-      <div class="title-area"><span style="font-weight:600">聊天室</span></div>
-      <div class="right-area"><div class="badge" id="chatBadge">在线 0</div></div>
-    </div>
-    <div class="msg-list" id="chatList"></div>
-    <div class="input-row">
-      <button class="btn-circle" id="btnImage">🖼</button>
-      <input type="text" id="msgInput" placeholder="输入消息...">
-      <button class="btn-sm btn-blue" id="btnSend">发送</button>
-    </div>
-  </div>
-
-  <!-- ==================== 通知 ==================== -->
-  <div class="page-content" id="notifPage">
-    <div class="top-bar">
-      <div class="back-btn" id="btnBackNotif">←</div>
-      <div class="title-area"><span style="font-weight:600">动态通知</span></div>
-    </div>
-    <div class="scroll-area" style="padding:16px" id="notifList"></div>
-  </div>
-
-  <!-- ==================== 我的 ==================== -->
-  <div class="page-content" id="profilePage">
-    <div class="top-bar">
-      <div class="back-btn" id="btnBackProfile">←</div>
-      <div class="title-area"><span style="font-weight:600">我的主页</span></div>
-    </div>
-    <div class="scroll-area" style="padding:16px">
-      <div style="text-align:center;margin-bottom:16px">
-        <img style="width:60px;height:60px;border-radius:50%;object-fit:cover" id="profileAvatarImg" src="" style="display:none">
-        <div style="width:60px;height:60px;border-radius:50%;background:var(--pink-light);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto" id="profileAvatarPH">😀</div>
-        <div style="font-weight:600;font-size:1rem;margin-top:8px" id="profileName"></div>
-        <div style="color:var(--text-secondary);font-size:0.78rem" id="profileUsername"></div>
+      <div class="profile-card">
+        <img id="profileAvatarImg" src="" style="display:none">
+        <div id="profileAvatarPH" style="width:64px;height:64px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto">😀</div>
+        <div class="name" id="profileName"></div>
+        <div class="sig" id="profileUsername"></div>
+        <div class="profile-stats">
+          <span><b id="myPostCount">0</b>动态</span>
+          <span><b>0</b>关注</span>
+          <span><b>0</b>粉丝</span>
+        </div>
       </div>
-      <div class="masonry" id="profileMasonry"></div>
+      <div class="menu-list">
+        <div class="menu-item" id="btnMyPosts">📝 我的动态</div>
+        <div class="menu-item" id="btnEditAvatar">🎨 更换头像</div>
+        <div class="menu-item" id="btnLogout" style="color:#ef4444">🚪 退出登录</div>
+      </div>
     </div>
   </div>
 
-  <!-- ==================== 底部导航（全局固定） ==================== -->
+  <!-- ======== 详情 ======== -->
+  <div class="page" id="detailPage">
+    <div class="top-bar">
+      <span class="back-btn" id="btnBackDetail">←</span>
+      <span class="title">动态详情</span>
+    </div>
+    <div class="scroll-area" id="detailScroll"></div>
+  </div>
+
+  <!-- ======== 底栏 ======== -->
   <div class="bottom-nav" id="bottomNav">
     <div class="nav-item active" data-page="home">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
       首页
     </div>
-    <div class="nav-item" data-page="chat">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-      聊天
+    <div class="nav-item" data-page="search">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      搜索
     </div>
     <div class="nav-item publish-btn" data-page="publish">
       <div class="pub-circle">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
       </div>
       发布
     </div>
     <div class="nav-item" data-page="notif">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-      动态
+      通知
     </div>
     <div class="nav-item" data-page="profile">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       我的
     </div>
   </div>
-
 </div>
 
 <!-- 发布弹窗 -->
 <div class="publish-overlay" id="publishOverlay">
   <div class="publish-top">
-    <div class="back-btn" id="btnCancelPub">←</div>
+    <span class="back-btn" id="btnCancelPub">←</span>
     <span style="flex:1;text-align:center;font-weight:600">发布动态</span>
-    <button class="btn-sm btn-pink" id="btnSubmitPub">发布</button>
+    <button class="btn-sm btn-primary" id="btnSubmitPub">发布</button>
   </div>
   <div class="publish-body">
     <textarea id="pubText" placeholder="分享你的想法..."></textarea>
@@ -415,14 +353,13 @@
 <!-- 头像弹窗 -->
 <div class="modal" id="avatarModal">
   <div class="modal-box">
-    <h3 style="margin-bottom:8px;font-weight:600">选择头像</h3>
+    <h3 style="margin-bottom:8px">选择头像</h3>
     <div class="emoji-grid" id="emojiGrid"></div>
-    <button class="btn-sm btn-pink" id="btnPickPhoto">📷 从相册选择</button>
-    <button class="btn-sm" style="background:var(--bg);margin-left:4px" id="btnCloseAv">完成</button>
+    <button class="btn-sm btn-primary" id="btnPickPhoto">📷 从相册选择</button>
+    <button class="btn-sm btn-outline" id="btnCloseAv" style="margin-left:4px">完成</button>
   </div>
 </div>
 
-<input type="file" id="imgInput" accept="image/*" style="display:none">
 <input type="file" id="mediaInput" accept="image/*,video/*" multiple style="display:none">
 <input type="file" id="avatarInput" accept="image/*" style="display:none">
 
@@ -430,8 +367,7 @@
 (async function(){
   const $=id=>document.getElementById(id);
   let user={username:null,nickname:'',avatar:'😀',avatarType:'emoji'};
-  let socket,clientId,posts=[],received=new Set(),online=0,curPost=null,lastSend=0,mediaFiles=[];
-  const emojis=['😀','😎','🤖','👽','🐱','🦊','🐼','🐨','🦁','🐸','🐵','🦄','🐶','🐰','🦋','🌸'];
+  let posts=[],online=0,curPost=null,mediaFiles=[],currentFeed='following';
 
   const token=localStorage.getItem('chat_token');
   if(!token){localStorage.clear();location.href='/login.html';return}
@@ -442,17 +378,14 @@
     user={username:d.user.username,nickname:d.user.nickname,avatar:d.user.avatar,avatarType:d.user.avatarType||'emoji'};
   }catch(e){location.href='/login.html';return}
 
-  $('loadingScreen').style.display='none';
-  $('appContainer').classList.add('show');
-  updateAvatars();
-  loadPosts();
-  connectWS();
-  bindAll();
+  $('loading').style.display='none';$('app').classList.add('show');
+  updateAvatars();loadPosts();loadOnline();bindAll();
 
   function updateAvatars(){
     const isImg=user.avatarType==='image'&&user.avatar;
     ['home','profile'].forEach(p=>{
       const img=$(p+'AvatarImg'),ph=$(p+'AvatarPH');
+      if(p==='home'){img=$('homeAvatarImg');ph=$('homeAvatarPH')}
       if(isImg){img.src=user.avatar;img.style.display='block';ph.style.display='none'}
       else{ph.textContent=user.avatar||'😀';img.style.display='none';ph.style.display='flex'}
     });
@@ -461,106 +394,111 @@
   }
 
   function switchPage(p){
-    document.querySelectorAll('.page-content').forEach(el=>el.classList.remove('active'));
-    const map={home:'homePage',chat:'chatPage',notif:'notifPage',profile:'profilePage'};
+    document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+    const map={home:'homePage',search:'searchPage',notif:'notifPage',profile:'profilePage'};
     if(map[p])$(map[p]).classList.add('active');
     document.querySelectorAll('.bottom-nav .nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===p));
-    if(p==='chat')loadChatHistory();
-    if(p==='profile')loadMyPosts();
     if(p==='notif')loadNotif();
+    if(p==='profile'){const mp=posts.filter(x=>x.username===user.username);$('myPostCount').textContent=mp.length}
   }
 
-  async function loadPosts(){try{const r=await fetch('/api/posts');const d=await r.json();posts=d.success?d.posts:[];renderMasonry()}catch(e){}}
+  async function loadPosts(){try{const r=await fetch('/api/posts');const d=await r.json();posts=d.success?d.posts:[];renderFeed()}catch(e){}}
+  async function loadOnline(){try{const r=await fetch('/api/online-users');const d=await r.json();if(d.success)online=d.count}catch(e){}}
 
-  function renderMasonry(){
-    const g=$('masonryGrid');g.innerHTML='';
-    if(!posts.length){g.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:50px;grid-column:1/-1;font-size:0.9rem">还没有动态，点击 + 发布第一条</div>';return}
-    [...posts].sort((a,b)=>b.timestamp-a.timestamp).forEach(p=>{
-      const c=document.createElement('div');c.className='post-card';
-      let m='';
-      if(p.imageUrl)m=`<div class="cover"><img src="${p.imageUrl}" loading="lazy"></div>`;
-      else if(p.videoUrl)m=`<div class="cover"><video src="${p.videoUrl}" preload="metadata"></video><div class="play-badge">▶</div></div>`;
-      const av=p.avatarType==='image'?`<img class="user-img" src="${p.avatar}">`:`<span>${p.avatar||'😀'}</span>`;
-      c.innerHTML=`${m}<div class="body"><div class="title">${esc(p.text||'')}</div><div class="footer">${av} ${p.nickname||'匿名'}<span class="counts">❤${p.likes||0} 💬${(p.comments||[]).length}</span></div></div>`;
-      c.addEventListener('click',()=>openPost(p.id));
-      g.appendChild(c);
+  function renderFeed(){
+    const list=$('feedList');list.innerHTML='';
+    let filtered=[...posts].sort((a,b)=>b.timestamp-a.timestamp);
+    if(currentFeed==='following')filtered=filtered.filter(p=>p.username!==user.username);
+    if(!filtered.length){list.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:40px;font-size:0.9rem">暂无动态</div>';return}
+    filtered.forEach(p=>{
+      const card=document.createElement('div');card.className='feed-card';
+      const av=p.avatarType==='image'?`<img class="user-avatar" src="${p.avatar}">`:`<div style="width:38px;height:38px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1rem">${p.avatar||'😀'}</div>`;
+      let media='';
+      if(p.imageUrl)media=`<img src="${p.imageUrl}" loading="lazy">`;
+      else if(p.videoUrl)media=`<video src="${p.videoUrl}" controls preload="metadata" style="max-width:100%;border-radius:10px;margin-top:8px;max-height:300px"></video>`;
+      card.innerHTML=`
+        <div class="feed-header">${av}<div class="user-info"><div class="user-name">${p.nickname}</div><div class="post-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>
+        <div class="feed-body">${esc(p.text||'')}${media}</div>
+        <div class="feed-actions">
+          <span class="${p.likedBy?.includes(user.username)?'liked':''}" data-act="like" data-id="${p.id}">❤️ ${p.likes||0}</span>
+          <span data-act="comment" data-id="${p.id}">💬 ${(p.comments||[]).length}</span>
+          <span class="${p.favoritedBy?.includes(user.username)?'liked':''}" data-act="fav" data-id="${p.id}">⭐ ${p.favorites||0}</span>
+        </div>`;
+      card.querySelectorAll('.feed-actions span').forEach(el=>el.addEventListener('click',e=>{
+        e.stopPropagation();
+        const id=el.dataset.id;
+        if(el.dataset.act==='like')toggleLike(id);
+        if(el.dataset.act==='fav')toggleFav(id);
+        if(el.dataset.act==='comment')openDetail(id);
+        renderFeed();
+      }));
+      card.addEventListener('click',()=>openDetail(p.id));
+      list.appendChild(card);
     });
   }
 
-  function openPost(id){
-    const p=posts.find(x=>x.id===id);if(!p)return;
-    curPost=id;
-    document.querySelectorAll('.page-content').forEach(el=>el.classList.remove('active'));
-    $('detailPage').classList.add('active');
-    $('detailAuthor').innerHTML=`
-      ${p.avatarType==='image'?`<img src="${p.avatar}">`:`<div style="width:38px;height:38px;border-radius:50%;background:var(--pink-light);display:flex;align-items:center;justify-content:center;font-size:1rem">${p.avatar||'😀'}</div>`}
-      <div class="info"><div class="name">${p.nickname}<button class="follow-btn">+关注</button></div><div class="time">${new Date(p.timestamp).toLocaleString()}</div></div>`;
-    let body=`<p>${esc(p.text||'')}</p>`;
-    if(p.imageUrl)body+=`<img src="${p.imageUrl}">`;
-    if(p.videoUrl)body+=`<video src="${p.videoUrl}" controls style="max-width:100%;border-radius:10px;margin-top:8px"></video>`;
-    $('detailContent').innerHTML=body;
-    $('actionBar').innerHTML=`
-      <div class="action ${p.likedBy?.includes(user.username)?'liked':''}" data-act="like">❤️ ${p.likes||0}</div>
-      <div class="action ${p.favoritedBy?.includes(user.username)?'fav':''}" data-act="fav">⭐ ${p.favorites||0}</div>
-      <div class="action">💬 ${(p.comments||[]).length}</div>`;
-    $('actionBar').querySelectorAll('.action').forEach(el=>el.addEventListener('click',()=>{
-      if(el.dataset.act==='like')toggleLike(id);
-      if(el.dataset.act==='fav')toggleFav(id);
-    }));
-    renderComments();
-  }
-
-  function renderComments(){
-    const p=posts.find(x=>x.id===curPost);if(!p)return;
-    const l=$('commentList');l.innerHTML='';
-    (p.comments||[]).forEach(c=>{
-      l.innerHTML+=`<div class="comment-item">
-        ${c.avatarType==='image'?`<img class="c-avatar" src="${c.avatar}">`:`<div class="c-avatar" style="background:var(--pink-light);display:flex;align-items:center;justify-content:center;font-size:0.7rem">${c.avatar||'😀'}</div>`}
-        <div class="c-body"><div class="c-name">${c.nickname}</div><div class="c-text">${esc(c.text)}</div><div class="c-time">${new Date(c.timestamp).toLocaleString()}</div></div></div>`;
-    });
-  }
-
-  function toggleLike(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.likedBy)p.likedBy=[];const i=p.likedBy.indexOf(user.username);i>-1?(p.likedBy.splice(i,1),p.likes--):(p.likedBy.push(user.username),p.likes++);openPost(id);savePosts()}
-  function toggleFav(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.favoritedBy)p.favoritedBy=[];const i=p.favoritedBy.indexOf(user.username);i>-1?(p.favoritedBy.splice(i,1),p.favorites--):(p.favoritedBy.push(user.username),p.favorites++);openPost(id);savePosts()}
-  function addComment(){const t=$('commentInput').value.trim();if(!t||!curPost)return;const p=posts.find(x=>x.id===curPost);if(!p)return;p.comments.push({nickname:user.nickname,username:user.username,avatar:user.avatar,avatarType:user.avatarType,text:t,timestamp:Date.now()});renderComments();$('commentInput').value='';savePosts()}
+  function toggleLike(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.likedBy)p.likedBy=[];const i=p.likedBy.indexOf(user.username);i>-1?(p.likedBy.splice(i,1),p.likes--):(p.likedBy.push(user.username),p.likes++);savePosts()}
+  function toggleFav(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.favoritedBy)p.favoritedBy=[];const i=p.favoritedBy.indexOf(user.username);i>-1?(p.favoritedBy.splice(i,1),p.favorites--):(p.favoritedBy.push(user.username),p.favorites++);savePosts()}
   function savePosts(){fetch('/api/save-posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({posts})}).catch(()=>{})}
 
-  function openPub(){$('publishOverlay').classList.add('show');$('pubText').value='';mediaFiles=[];renderPubPreview()}
-  function renderPubPreview(){const pv=$('pubPreview');pv.innerHTML='';mediaFiles.forEach(f=>{const u=URL.createObjectURL(f);const el=f.type.startsWith('video')?document.createElement('video'):document.createElement('img');el.src=u;el.style.cssText='width:76px;height:76px;border-radius:8px;object-fit:cover';pv.appendChild(el)});const a=document.createElement('div');a.className='add-btn';a.textContent='+';a.addEventListener('click',()=>$('mediaInput').click());pv.appendChild(a)}
-  function submitPub(){const t=$('pubText').value.trim();if(!t&&!mediaFiles.length)return;const p={id:'p'+Date.now(),text:t,avatar:user.avatar,avatarType:user.avatarType,nickname:user.nickname,username:user.username,timestamp:Date.now(),likes:0,comments:[],favorites:0,likedBy:[],favoritedBy:[]};if(mediaFiles.length){const f=mediaFiles[0];const r=new FileReader();r.onloadend=()=>{if(f.type.startsWith('video'))p.videoUrl=r.result;else p.imageUrl=r.result;posts.unshift(p);savePosts();renderMasonry()};r.readAsDataURL(f)}else{posts.unshift(p);savePosts();renderMasonry()}$('publishOverlay').classList.remove('show')}
+  function openDetail(id){
+    const p=posts.find(x=>x.id===id);if(!p)return;
+    document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+    $('detailPage').classList.add('active');
+    let media='';
+    if(p.imageUrl)media=`<img src="${p.imageUrl}" style="max-width:100%;border-radius:10px;margin-top:8px">`;
+    if(p.videoUrl)media=`<video src="${p.videoUrl}" controls style="max-width:100%;border-radius:10px;margin-top:8px"></video>`;
+    $('detailScroll').innerHTML=`
+      <div class="feed-card">
+        <div class="feed-header">${p.avatarType==='image'?`<img class="user-avatar" src="${p.avatar}">`:`<div style="width:38px;height:38px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1rem">${p.avatar||'😀'}</div>`}<div class="user-info"><div class="user-name">${p.nickname}</div><div class="post-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>
+        <div class="feed-body">${esc(p.text||'')}${media}</div>
+      </div>
+      <div style="padding:0 12px"><h4 style="margin:8px 0;font-size:0.9rem">评论 (${(p.comments||[]).length})</h4>
+      ${(p.comments||[]).map(c=>`<div class="notif-item"><div style="width:30px;height:30px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0">${c.avatar||'😀'}</div><div class="info"><b>${c.nickname}</b>：${esc(c.text)}<div class="time">${new Date(c.timestamp).toLocaleString()}</div></div></div>`).join('')}
+      </div>`;
+  }
 
-  function loadChatHistory(){fetch('/api/messages').then(r=>r.json()).then(d=>{$('chatList').innerHTML='';if(d.success&&d.messages?.length)d.messages.forEach(m=>{received.add(m.msgId);addChatMsg(m,m.clientId===clientId||m.senderUsername===user.username)})})}
-  function connectWS(){socket=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}`);socket.onopen=()=>{if(user.username)socket.send(JSON.stringify({type:'login',username:user.username}))};socket.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='message'){if(d.msgId&&received.has(d.msgId))return;received.add(d.msgId);addChatMsg(d,d.clientId===clientId||d.senderUsername===user.username)}else if(d.type==='userCount'){online=d.count;$('chatBadge').textContent=`在线 ${d.count}`;$('homeBadge').textContent=`在线 ${d.count}`}}catch(ex){}};socket.onclose=()=>setTimeout(connectWS,2000)}
-  function addChatMsg(d,isSelf){const row=document.createElement('div');row.className=`msg-row ${isSelf?'self':''}`;const av=document.createElement('div');av.className='avatar';if(d.avatarType==='image'){const i=document.createElement('img');i.src=d.avatar;i.style.cssText='width:28px;height:28px;border-radius:50%;object-fit:cover';av.appendChild(i)}else{av.style.cssText='width:28px;height:28px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:0.7rem';av.textContent=d.avatar||'😀'}const b=document.createElement('div');b.className='msg-bubble';if(d.imageUrl){const i=document.createElement('img');i.src=d.imageUrl;b.appendChild(i)}else if(d.videoUrl){const v=document.createElement('video');v.src=d.videoUrl;v.controls=true;b.appendChild(v)}else b.textContent=d.text||'';const t=document.createElement('div');t.className='msg-time';t.textContent=new Date(d.timestamp).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;max-width:68%';w.appendChild(b);w.appendChild(t);if(isSelf){row.appendChild(w);row.appendChild(av)}else{row.appendChild(av);row.appendChild(w)}$('chatList').appendChild(row);$('chatList').scrollTop=$('chatList').scrollHeight}
-  function sendChat(){const t=$('msgInput').value.trim();if(!t||!socket||Date.now()-lastSend<300)return;lastSend=Date.now();socket.send(JSON.stringify({type:'message',text:t}));$('msgInput').value=''}
+  function loadNotif(){
+    $('notifList').innerHTML=`
+      <div class="notif-item"><div style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🌿</div><div class="info"><b>系统通知</b><br>欢迎来到蓝社社区！当前在线 <b>${online}</b> 人</div><div class="time">刚刚</div></div>`;
+  }
 
-  function loadNotif(){$('notifList').innerHTML=`<div style="background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)"><div style="font-weight:600;color:var(--pink)">🟢 当前在线：${online} 人</div><div style="color:var(--text-secondary);font-size:0.85rem;margin-top:4px">欢迎来到 BlueFlow 社区</div></div>`}
-  function loadMyPosts(){const mp=posts.filter(p=>p.username===user.username);const g=$('profileMasonry');g.innerHTML='';mp.forEach(p=>{const c=document.createElement('div');c.className='post-card';let m='';if(p.imageUrl)m=`<img src="${p.imageUrl}" loading="lazy">`;else if(p.videoUrl)m=`<video src="${p.videoUrl}" preload="metadata"></video>`;c.innerHTML=`${m?`<div class="cover">${m}</div>`:''}<div class="body"><div class="title">${esc(p.text||'')}</div><div class="footer"><span class="counts">❤${p.likes||0} 💬${(p.comments||[]).length}</span></div></div>`;c.addEventListener('click',()=>openPost(p.id));g.appendChild(c)})}
+  function openPub(){$('publishOverlay').classList.add('show');$('pubText').value='';mediaFiles=[];renderPV()}
+  function renderPV(){const pv=$('pubPreview');pv.innerHTML='';mediaFiles.forEach(f=>{const u=URL.createObjectURL(f);const el=f.type.startsWith('video')?document.createElement('video'):document.createElement('img');el.src=u;el.style.cssText='width:80px;height:80px;border-radius:10px;object-fit:cover';pv.appendChild(el)});const a=document.createElement('div');a.className='add-btn';a.textContent='+';a.addEventListener('click',()=>$('mediaInput').click());pv.appendChild(a)}
+  function submitPub(){const t=$('pubText').value.trim();if(!t&&!mediaFiles.length)return;const p={id:'p'+Date.now(),text:t,avatar:user.avatar,avatarType:user.avatarType,nickname:user.nickname,username:user.username,timestamp:Date.now(),likes:0,comments:[],favorites:0,likedBy:[],favoritedBy:[]};if(mediaFiles.length){const f=mediaFiles[0];const r=new FileReader();r.onloadend=()=>{if(f.type.startsWith('video'))p.videoUrl=r.result;else p.imageUrl=r.result;posts.unshift(p);savePosts();renderFeed()};r.readAsDataURL(f)}else{posts.unshift(p);savePosts();renderFeed()}$('publishOverlay').classList.remove('show');switchPage('home')}
+
+  function search(){
+    const q=$('searchInput').value.trim().toLowerCase();
+    const r=$('searchResult');
+    if(!q){r.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:30px">输入关键词搜索</div>';return}
+    const up=posts.filter(p=>p.nickname?.toLowerCase().includes(q)||p.text?.toLowerCase().includes(q));
+    r.innerHTML=up.length?up.map(p=>`<div class="user-row" onclick="document.getElementById('searchResult').innerHTML='';switchPage('home');openDetail('${p.id}')"><img src="${p.avatarType==='image'?p.avatar:''}" style="${p.avatarType!=='image'?'display:none':''}"><div style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:0.9rem;${p.avatarType==='image'?'display:none':''}">${p.avatar||'😀'}</div><div><b>${p.nickname}</b><br><small style="color:var(--text-secondary)">${esc((p.text||'').substring(0,30))}</small></div></div>`).join(''):'<div style="text-align:center;color:var(--text-secondary);padding:30px">未找到相关内容</div>';
+  }
 
   function bindAll(){
     document.querySelectorAll('.bottom-nav .nav-item').forEach(n=>n.addEventListener('click',()=>{if(n.dataset.page==='publish')openPub();else switchPage(n.dataset.page)}));
+    document.querySelectorAll('.tab-row .tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab-row .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');currentFeed=t.dataset.feed;renderFeed()}));
     $('btnBackDetail').addEventListener('click',()=>switchPage('home'));
-    $('btnBackChat').addEventListener('click',()=>switchPage('home'));
+    $('btnBackSearch').addEventListener('click',()=>switchPage('home'));
     $('btnBackNotif').addEventListener('click',()=>switchPage('home'));
     $('btnBackProfile').addEventListener('click',()=>switchPage('home'));
+    $('searchInput').addEventListener('input',search);
     $('btnCancelPub').addEventListener('click',()=>$('publishOverlay').classList.remove('show'));
     $('btnSubmitPub').addEventListener('click',submitPub);
     $('btnAddMedia').addEventListener('click',()=>$('mediaInput').click());
-    $('mediaInput').addEventListener('change',e=>{mediaFiles=[...e.target.files];renderPubPreview()});
-    $('btnComment').addEventListener('click',addComment);
-    $('commentInput').addEventListener('keydown',e=>{if(e.key==='Enter')addComment()});
-    $('btnSend').addEventListener('click',sendChat);
-    $('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
-    $('btnImage').addEventListener('click',()=>$('imgInput').click());
-    $('imgInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onloadend=()=>socket?.send(JSON.stringify({type:'image',image:r.result.split(',')[1]}));r.readAsDataURL(f);$('imgInput').value=''});
-    $('homeAvatarPH').addEventListener('click',openAvatar);$('homeAvatarImg').addEventListener('click',openAvatar);
+    $('mediaInput').addEventListener('change',e=>{mediaFiles=[...e.target.files];renderPV()});
+    $('btnMyPosts').addEventListener('click',()=>{switchPage('home');currentFeed='following';renderFeed()});
+    $('btnEditAvatar').addEventListener('click',openAvatar);
+    $('btnLogout').addEventListener('click',()=>{if(confirm('退出登录？')){localStorage.clear();location.href='/login.html'}});
+    $('homeAvatarPH').addEventListener('click',openAvatar);
+    $('homeAvatarImg').addEventListener('click',openAvatar);
     $('btnCloseAv').addEventListener('click',()=>$('avatarModal').classList.remove('show'));
     $('btnPickPhoto').addEventListener('click',()=>$('avatarInput').click());
     $('avatarInput').addEventListener('change',handleAvatar);
   }
 
   function openAvatar(){renderEmoji();$('avatarModal').classList.add('show')}
-  function renderEmoji(){const g=$('emojiGrid');g.innerHTML='';emojis.forEach(e=>{const d=document.createElement('div');d.className='emoji-item';d.textContent=e;if(user.avatarType==='emoji'&&user.avatar===e)d.classList.add('selected');d.addEventListener('click',()=>{user.avatar=e;user.avatarType='emoji';updateAvatars();saveProfile();renderEmoji()});g.appendChild(d)})}
+  function renderEmoji(){const g=$('emojiGrid');g.innerHTML='';const emojis=['😀','😎','🤖','👽','🐱','🦊','🐼','🐨','🦁','🐸','🐵','🦄','🐶','🐰','🦋','🌸'];emojis.forEach(e=>{const d=document.createElement('div');d.className='emoji-item';d.textContent=e;if(user.avatarType==='emoji'&&user.avatar===e)d.classList.add('sel');d.addEventListener('click',()=>{user.avatar=e;user.avatarType='emoji';updateAvatars();saveProfile();renderEmoji()});g.appendChild(d)})}
   function handleAvatar(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);user.avatar=c.toDataURL('image/jpeg',0.7);user.avatarType='image';updateAvatars();saveProfile()};img.src=ev.target.result};r.readAsDataURL(f);$('avatarInput').value=''}
   function saveProfile(){fetch('/api/update-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user.username,avatar:user.avatar,avatarType:user.avatarType})}).catch(()=>{})}
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
