@@ -3,132 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>登录 - 聊天室</title>
+  <title>登录 · BlueFlow</title>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{
-      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      min-height:100vh;min-height:100dvh;
-      display:flex;align-items:center;justify-content:center;
-      padding:24px;
+    :root {
+      --bg-start: #667eea;
+      --bg-mid: #764ba2;
+      --bg-end: #f093fb;
+      --white: rgba(255,255,255,0.95);
+      --glass: rgba(255,255,255,0.18);
+      --glass-border: rgba(255,255,255,0.3);
+      --text: #1a1a2e;
+      --text-light: #6b7280;
+      --primary: #6366f1;
+      --accent: #10b981;
+      --shadow: 0 8px 32px rgba(0,0,0,0.12);
     }
-    .container{
-      width:100%;max-width:380px;
-      background:#fff;
-      border-radius:24px;
-      padding:36px 28px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.2);
-      animation:fadeIn 0.4s ease;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--bg-start), var(--bg-mid), var(--bg-end));
+      background-size: 400% 400%;
+      animation: gradientShift 12s ease infinite;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
     }
-    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .logo{
-      text-align:center;
-      font-size:3rem;
-      margin-bottom:8px;
+
+    /* 动态光效背景 */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 60%, rgba(16,185,129,0.08) 0%, transparent 50%);
+      animation: floatLight 8s ease-in-out infinite;
+      pointer-events: none;
     }
-    .title{
-      text-align:center;
-      font-size:1.3rem;
-      font-weight:700;
-      color:#1a1a1a;
-      margin-bottom:24px;
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
     }
-    .subtitle{
-      text-align:center;
-      font-size:0.85rem;
-      color:#999;
-      margin-bottom:20px;
+    @keyframes floatLight {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -20px) rotate(2deg); }
+      66% { transform: translate(-20px, 10px) rotate(-1deg); }
     }
-    .input-group{
-      margin-bottom:14px;
+
+    /* 卡片容器 */
+    .container {
+      background: var(--glass);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 40px 28px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: var(--shadow), 0 0 80px rgba(99,102,241,0.15);
+      position: relative;
+      z-index: 1;
+      animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .input-group label{
-      display:block;
-      font-size:0.8rem;
-      font-weight:600;
-      color:#555;
-      margin-bottom:6px;
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .input-group input{
-      width:100%;
-      padding:14px 16px;
-      border:2px solid #e8e8e8;
-      border-radius:14px;
-      font-size:1rem;
-      outline:none;
-      background:#fafafa;
-      transition:border-color 0.2s;
+
+    /* Logo */
+    .logo-area {
+      text-align: center; margin-bottom: 32px;
     }
-    .input-group input:focus{
-      border-color:#667eea;
-      background:#fff;
+    .logo-icon {
+      width: 64px; height: 64px; margin: 0 auto 12px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 20px; display: flex; align-items: center;
+      justify-content: center; font-size: 2rem;
+      box-shadow: 0 8px 24px rgba(99,102,241,0.3);
     }
-    .btn{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:14px;
-      font-size:1rem;
-      font-weight:600;
-      cursor:pointer;
-      margin-top:8px;
-      transition:all 0.2s;
+    .logo-text {
+      font-size: 1.6rem; font-weight: 700;
+      background: linear-gradient(135deg, #6366f1, #10b981);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
-    .btn-primary{
-      background:linear-gradient(135deg,#667eea,#764ba2);
-      color:#fff;
-      box-shadow:0 4px 15px rgba(102,126,234,0.4);
+    .logo-sub {
+      font-size: 0.8rem; color: var(--text-light); margin-top: 4px;
+      font-weight: 400;
     }
-    .btn-primary:active{
-      transform:scale(0.98);
-      box-shadow:0 2px 8px rgba(102,126,234,0.3);
+
+    /* 输入框 */
+    .input-group { margin-bottom: 16px; }
+    .input-group label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--text); margin-bottom: 6px; letter-spacing: 0.3px;
     }
-    .toggle-text{
-      text-align:center;
-      margin-top:16px;
-      font-size:0.85rem;
-      color:#999;
+    .input-group input {
+      width: 100%; padding: 14px 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 16px; font-size: 0.95rem;
+      outline: none; background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(10px); transition: all 0.25s;
+      color: var(--text);
     }
-    .toggle-text span{
-      color:#667eea;
-      font-weight:600;
-      cursor:pointer;
+    .input-group input:focus {
+      border-color: #6366f1;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
     }
-    .error-msg{
-      color:#ff4d4f;
-      font-size:0.8rem;
-      text-align:center;
-      margin-top:8px;
-      display:none;
+    .input-group input::placeholder { color: #b0b7c3; }
+
+    /* 按钮 */
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 16px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; margin-top: 8px;
+      box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+      transition: all 0.25s; letter-spacing: 0.5px;
     }
-    .error-msg.show{display:block}
+    .btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 10px rgba(99,102,241,0.25);
+    }
+
+    /* 切换 */
+    .toggle-text {
+      text-align: center; margin-top: 20px;
+      font-size: 0.85rem; color: rgba(255,255,255,0.8);
+    }
+    .toggle-text span {
+      color: #fff; font-weight: 600; cursor: pointer;
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+
+    /* 错误 */
+    .error {
+      color: #ef4444; font-size: 0.8rem; text-align: center;
+      margin-top: 8px; display: none; background: rgba(239,68,68,0.1);
+      padding: 8px; border-radius: 10px;
+    }
+    .error.show { display: block; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="logo">💬</div>
-  <div class="title" id="formTitle">欢迎回来</div>
-  <div class="subtitle" id="formSubtitle">登录你的账号继续聊天</div>
+  <div class="logo-area">
+    <div class="logo-icon">🌿</div>
+    <div class="logo-text">BlueFlow</div>
+    <div class="logo-sub">连接有趣的灵魂</div>
+  </div>
 
   <div class="input-group">
     <label>用户名</label>
-    <input type="text" id="username" placeholder="请输入用户名" autocomplete="username" maxlength="20">
+    <input type="text" id="username" placeholder="输入用户名" autocomplete="username" maxlength="20">
   </div>
   <div class="input-group">
     <label>密码</label>
-    <input type="password" id="password" placeholder="请输入密码" autocomplete="current-password">
+    <input type="password" id="password" placeholder="输入密码" autocomplete="current-password">
   </div>
-  <div class="input-group" id="nicknameGroup" style="display:none">
+  <div class="input-group" id="nickGroup" style="display:none">
     <label>昵称</label>
     <input type="text" id="nickname" placeholder="给自己起个名字" maxlength="15">
   </div>
 
-  <div class="error-msg" id="errorMsg"></div>
-
-  <button class="btn btn-primary" id="submitBtn">登 录</button>
-
+  <div class="error" id="error"></div>
+  <button class="btn" id="submitBtn">登 录</button>
   <div class="toggle-text">
     <span id="toggleLink">还没有账号？立即注册</span>
   </div>
@@ -139,70 +184,32 @@
   const $=id=>document.getElementById(id);
   let isLogin=true;
 
-  // 如果已经有 token，直接跳回聊天室
-  if(localStorage.getItem('chat_token')){
-    window.location.href='/';
-    return;
-  }
+  if(localStorage.getItem('chat_token')){location.href='/';return}
 
   $('toggleLink').addEventListener('click',()=>{
     isLogin=!isLogin;
-    $('formTitle').textContent=isLogin?'欢迎回来':'创建账号';
-    $('formSubtitle').textContent=isLogin?'登录你的账号继续聊天':'注册一个新账号开始聊天';
     $('submitBtn').textContent=isLogin?'登 录':'注 册';
     $('toggleLink').textContent=isLogin?'还没有账号？立即注册':'已有账号？去登录';
-    $('nicknameGroup').style.display=isLogin?'none':'block';
-    $('errorMsg').classList.remove('show');
+    $('nickGroup').style.display=isLogin?'none':'block';
+    $('error').classList.remove('show');
   });
 
   async function submit(){
     const username=$('username').value.trim();
     const password=$('password').value.trim();
-    $('errorMsg').classList.remove('show');
-
-    if(!username||!password){
-      $('errorMsg').textContent='请填写用户名和密码';
-      $('errorMsg').classList.add('show');
-      return;
-    }
-
+    $('error').classList.remove('show');
+    if(!username||!password){$('error').textContent='请填写用户名和密码';$('error').classList.add('show');return}
     const url=isLogin?'/api/login':'/api/register';
     const body={username,password};
-    if(!isLogin){
-      body.nickname=$('nickname').value.trim()||username;
-    }
-
+    if(!isLogin)body.nickname=$('nickname').value.trim()||username;
     try{
-      const res=await fetch(url,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(body)
-      });
-      const data=await res.json();
-
-      if(data.success){
-        if(isLogin){
-          localStorage.setItem('chat_token',data.token);
-          localStorage.setItem('chat_user',JSON.stringify(data.user));
-          window.location.href='/';
-        }else{
-          $('errorMsg').textContent='注册成功！请登录';
-          $('errorMsg').style.color='#4caf50';
-          $('errorMsg').classList.add('show');
-          // 自动切换到登录模式
-          setTimeout(()=>{
-            isLogin=false;
-            $('toggleLink').click();
-          },1000);
-        }
-      }else{
-        $('errorMsg').textContent=data.message||'操作失败';
-        $('errorMsg').classList.add('show');
-      }
-    }catch(e){
-      $('errorMsg').textContent='网络错误，请稍后重试';
-      $('errorMsg').classList.add('show');
-    }
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const d=await r.json();
+      if(d.success){
+        if(isLogin){localStorage.setItem('chat_token',d.token);localStorage.setItem('chat_user',JSON.stringify(d.user));location.href='/'}
+        else{$('error').textContent='注册成功！请登录';$('error').style.color='#10b981';$('error').style.background='rgba(16,185,129,0.1)';$('error').classList.add('show');setTimeout(()=>{$('toggleLink').click()},1000)}
+      }else{$('error').textContent=d.message||'操作失败';$('error').classList.add('show')}
+    }catch(e){$('error').textContent='网络错误';$('error').classList.add('show')}
   }
 
   $('submitBtn').addEventListener('click',submit);
