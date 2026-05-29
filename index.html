@@ -11,14 +11,14 @@
       --primary-light: #eff6ff;
       --pink: #ec4899;
       --pink-light: #fdf2f8;
-      --bg: #f5f7fb;
+      --bg: #f8fafc;
       --surface: #ffffff;
       --text: #1e293b;
       --text-secondary: #94a3b8;
-      --border: #e2e8f0;
-      --radius: 14px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.03);
-      --shadow-md: 0 4px 14px rgba(0,0,0,0.05);
+      --border: #e8ecf1;
+      --radius: 16px;
+      --shadow: 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.05);
       --font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -32,18 +32,16 @@
       color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
-
     .loading-screen {
       display: flex; align-items: center; justify-content: center;
       height: 100%; flex-direction: column; gap: 14px; background: var(--bg);
     }
-    .loading-screen .spinner {
+    .spinner {
       width: 34px; height: 34px; border: 3px solid var(--border);
       border-top-color: var(--primary); border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .app { display: none; flex-direction: column; height: 100%; }
     .app.show { display: flex; }
     .page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
@@ -53,16 +51,27 @@
     .top-bar {
       background: var(--surface);
       padding: 10px 16px;
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 12px;
       border-bottom: 0.5px solid var(--border);
-      flex-shrink: 0; height: 50px;
+      flex-shrink: 0; height: 52px;
     }
     .top-bar .back-btn {
-      font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px;
+      font-size: 1.2rem; cursor: pointer; width: 32px; height: 32px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; color: var(--text); flex-shrink: 0;
     }
     .top-bar .title { font-size: 1rem; font-weight: 600; flex: 1; }
+    .avatar-xs {
+      width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .avatar-xs-ph {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .avatar-xs-ph span { color: #fff; font-size: 0.75rem; font-weight: 600; }
 
     /* 双Tab */
     .tab-row {
@@ -70,149 +79,126 @@
       border-bottom: 0.5px solid var(--border); flex-shrink: 0;
     }
     .tab-row .tab {
-      flex: 1; text-align: center; padding: 10px 0; font-size: 0.9rem;
+      flex: 1; text-align: center; padding: 11px 0; font-size: 0.88rem;
       font-weight: 500; color: var(--text-secondary); cursor: pointer;
-      position: relative;
     }
     .tab-row .tab.active { color: var(--text); font-weight: 600; }
-    .tab-row .tab.active::after {
-      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 24px; height: 3px; background: var(--primary); border-radius: 2px;
-    }
 
     .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
     /* 动态卡片 */
-    .feed-card {
+    .post {
       background: var(--surface);
       margin: 8px 12px; border-radius: var(--radius);
       padding: 14px; box-shadow: var(--shadow);
     }
-    .feed-header {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    .post-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .post-hd .u-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .post-hd .u-avatar-ph {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 600; font-size: 0.85rem;
     }
-    .feed-header .user-avatar {
-      width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
+    .post-hd .u-info { flex: 1; }
+    .post-hd .u-name { font-weight: 600; font-size: 0.9rem; }
+    .post-hd .u-time { font-size: 0.7rem; color: var(--text-secondary); }
+    .post-body { font-size: 0.9rem; line-height: 1.65; margin-bottom: 10px; }
+    .post-body img, .post-body video {
+      max-width: 100%; border-radius: 12px; margin-top: 8px;
+      max-height: 380px; object-fit: cover;
     }
-    .feed-header .user-info { flex: 1; }
-    .feed-header .user-name { font-weight: 600; font-size: 0.88rem; }
-    .feed-header .post-time { font-size: 0.7rem; color: var(--text-secondary); }
-    .feed-body { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; }
-    .feed-body img, .feed-body video {
-      max-width: 100%; border-radius: 10px; margin-top: 8px; max-height: 400px;
-      object-fit: cover;
-    }
-    .feed-actions {
-      display: flex; gap: 24px; padding-top: 8px;
+    .post-actions {
+      display: flex; gap: 22px; padding-top: 8px;
       border-top: 0.5px solid var(--border);
       font-size: 0.82rem; color: var(--text-secondary);
     }
-    .feed-actions span {
-      display: flex; align-items: center; gap: 4px; cursor: pointer;
+    .post-actions span {
+      display: flex; align-items: center; gap: 5px; cursor: pointer;
+      padding: 4px 0;
     }
-    .feed-actions span.liked { color: var(--pink); }
+    .post-actions span.liked { color: var(--pink); }
 
     /* 搜索 */
-    .search-input {
-      flex: 1; border: none; background: var(--bg);
-      border-radius: 20px; padding: 8px 16px; font-size: 0.9rem;
-      outline: none; height: 36px; font-family: var(--font);
+    .search-bar {
+      flex: 1; display: flex; align-items: center;
+      background: var(--bg); border-radius: 20px;
+      padding: 0 14px; height: 36px; gap: 8px;
     }
-    .search-result { padding: 12px; }
-    .search-result .user-row {
-      display: flex; align-items: center; gap: 10px; padding: 10px;
-      background: var(--surface); border-radius: var(--radius); margin-bottom: 8px;
+    .search-bar input {
+      flex: 1; border: none; background: transparent;
+      font-size: 0.9rem; outline: none; font-family: inherit;
     }
-    .search-result .user-row img {
-      width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
-    }
-
-    /* 发布 */
-    .publish-overlay {
-      display: none; position: fixed; top:0; left:0; right:0; bottom:0;
-      background: var(--surface); z-index: 200; flex-direction: column;
-    }
-    .publish-overlay.show { display: flex; }
-    .publish-top {
-      display: flex; align-items: center; padding: 10px 16px;
-      border-bottom: 0.5px solid var(--border); gap: 10px;
-    }
-    .publish-body { flex: 1; padding: 16px; overflow-y: auto; }
-    .publish-body textarea {
-      width: 100%; border: none; font-size: 1rem; resize: none;
-      outline: none; font-family: var(--font); line-height: 1.7;
-      min-height: 140px; background: transparent;
-    }
-    .publish-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .publish-preview img, .publish-preview video {
-      width: 80px; height: 80px; border-radius: 10px; object-fit: cover;
-    }
-    .publish-preview .add-btn {
-      width: 80px; height: 80px; border-radius: 10px;
-      background: var(--bg); display: flex; align-items: center;
-      justify-content: center; font-size: 1.8rem; color: var(--text-secondary);
-      cursor: pointer; border: 2px dashed var(--border);
-    }
+    .search-result { padding: 10px 12px; }
 
     /* 通知 */
-    .notif-item {
+    .notif-card {
       background: var(--surface); margin: 6px 12px; border-radius: var(--radius);
-      padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+      padding: 14px; display: flex; align-items: center; gap: 10px;
       box-shadow: var(--shadow);
     }
-    .notif-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-    .notif-item .info { flex: 1; font-size: 0.85rem; }
-    .notif-item .time { font-size: 0.68rem; color: var(--text-secondary); }
 
     /* 我的 */
     .profile-card {
       background: var(--surface); margin: 12px; border-radius: var(--radius);
-      padding: 20px; text-align: center; box-shadow: var(--shadow);
+      padding: 24px; text-align: center; box-shadow: var(--shadow);
     }
-    .profile-card img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
-    .profile-card .name { font-weight: 600; font-size: 1.1rem; margin-top: 8px; }
-    .profile-card .sig { color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px; }
-    .profile-stats {
-      display: flex; justify-content: space-around; margin-top: 14px;
-      font-size: 0.85rem;
+    .menu-card { background: var(--surface); margin: 8px 12px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .menu-row { padding: 14px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; }
+    .menu-row:not(:last-child) { border-bottom: 0.5px solid var(--border); }
+    .menu-row:active { background: var(--bg); }
+    .menu-row.logout { color: #ef4444; }
+
+    /* 发布弹窗 */
+    .pub-overlay {
+      display: none; position: fixed; top:0; left:0; right:0; bottom:0;
+      background: var(--surface); z-index: 200; flex-direction: column;
     }
-    .profile-stats b { display: block; font-size: 1.1rem; }
-    .menu-list { margin: 8px 12px; }
-    .menu-item {
-      background: var(--surface); padding: 14px; border-radius: var(--radius);
-      margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
-      cursor: pointer; box-shadow: var(--shadow); font-size: 0.9rem;
+    .pub-overlay.show { display: flex; }
+    .pub-top {
+      display: flex; align-items: center; padding: 10px 16px;
+      border-bottom: 0.5px solid var(--border); gap: 10px;
     }
-    .menu-item:active { background: var(--bg); }
+    .pub-body { flex: 1; padding: 16px; overflow-y: auto; }
+    .pub-body textarea {
+      width: 100%; border: none; font-size: 1rem; resize: none;
+      outline: none; font-family: var(--font); line-height: 1.7;
+      min-height: 140px; background: transparent;
+    }
+    .pub-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pub-preview img, .pub-preview video { width: 76px; height: 76px; border-radius: 10px; object-fit: cover; }
+    .pub-preview .add-btn {
+      width: 76px; height: 76px; border-radius: 10px;
+      background: var(--bg); display: flex; align-items: center;
+      justify-content: center; font-size: 1.6rem; color: var(--text-secondary);
+      cursor: pointer; border: 2px dashed var(--border);
+    }
 
     /* 底栏 */
     .bottom-nav {
       background: var(--surface);
       display: flex; border-top: 0.5px solid var(--border);
-      flex-shrink: 0; height: 50px;
+      flex-shrink: 0; height: 52px;
       padding-bottom: env(safe-area-inset-bottom);
     }
     .bottom-nav .nav-item {
-      flex: 1; text-align: center; padding: 5px 0; font-size: 0.55rem;
+      flex: 1; text-align: center; padding: 4px 0; font-size: 0.56rem;
       color: var(--text-secondary); cursor: pointer;
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; gap: 2px;
     }
     .bottom-nav .nav-item.active { color: var(--primary); }
     .bottom-nav .nav-item svg { width: 22px; height: 22px; }
-    .bottom-nav .nav-item.publish-btn .pub-circle {
+    .bottom-nav .nav-item.pub .pub-circle {
       width: 42px; height: 42px; border-radius: 50%;
       background: linear-gradient(135deg, var(--primary), #6366f1);
       display: flex; align-items: center; justify-content: center;
-      margin-top: -18px; box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+      margin-top: -18px; box-shadow: 0 6px 18px rgba(59,130,246,0.35);
     }
+    .bottom-nav .nav-item.pub .pub-circle svg { color: #fff; }
 
-    .btn-sm {
-      padding: 6px 16px; border-radius: 16px; border: none;
-      font-size: 0.82rem; cursor: pointer; font-weight: 500;
-    }
+    .btn-sm { padding: 6px 16px; border-radius: 16px; border: none; font-size: 0.82rem; cursor: pointer; font-weight: 500; }
     .btn-primary { background: var(--primary); color: #fff; }
-    .btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
 
     .modal {
       display: none; position: fixed; top:0; left:0; right:0; bottom:0;
@@ -223,20 +209,20 @@
       background: var(--surface); border-radius: var(--radius);
       padding: 18px; width: 90%; max-width: 290px; text-align: center;
     }
-    .emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 10px 0; }
-    .emoji-item {
-      width: 34px; height: 34px; border-radius: 50%; display: flex;
-      align-items: center; justify-content: center; font-size: 1.1rem;
-      background: var(--bg); cursor: pointer; border: 2px solid transparent;
+    .color-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+    .color-item {
+      width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+      border: 3px solid transparent; transition: transform 0.15s;
     }
-    .emoji-item.sel { border-color: var(--primary); background: var(--primary-light); }
+    .color-item:active { transform: scale(0.9); }
+    .color-item.sel { border-color: var(--primary); }
   </style>
 </head>
 <body>
 
 <div class="loading-screen" id="loading">
   <div class="spinner"></div>
-  <span style="color:var(--text-secondary)">正在进入社区...</span>
+  <span style="color:var(--text-secondary);font-size:0.9rem">正在进入社区...</span>
 </div>
 
 <div class="app" id="app">
@@ -244,9 +230,12 @@
   <!-- ======== 首页 ======== -->
   <div class="page active" id="homePage">
     <div class="top-bar">
-      <span class="title" style="font-size:1.1rem;font-weight:700">🌿 蓝社</span>
-      <img class="avatar-sm" id="homeAvatarImg" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;display:none">
-      <div id="homeAvatarPH" style="width:30px;height:30px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:0.85rem;cursor:pointer">😀</div>
+      <span class="title" style="font-size:1.15rem;font-weight:700;color:var(--primary)">蓝 社</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:0.7rem;color:var(--text-secondary);background:var(--bg);padding:3px 8px;border-radius:8px" id="homeOnline">在线 0</span>
+        <img class="avatar-xs" id="homeAvatarImg" src="" style="display:none">
+        <div class="avatar-xs-ph" id="homeAvatarPH"><span>我</span></div>
+      </div>
     </div>
     <div class="tab-row">
       <div class="tab active" data-feed="following">关注</div>
@@ -259,52 +248,39 @@
   <div class="page" id="searchPage">
     <div class="top-bar">
       <span class="back-btn" id="btnBackSearch">←</span>
-      <input class="search-input" id="searchInput" placeholder="搜索用户或动态..." autocomplete="off">
+      <div class="search-bar"><input type="text" id="searchInput" placeholder="搜索用户或动态..." autocomplete="off"></div>
     </div>
     <div class="scroll-area search-result" id="searchResult"></div>
   </div>
 
   <!-- ======== 通知 ======== -->
   <div class="page" id="notifPage">
-    <div class="top-bar">
-      <span class="back-btn" id="btnBackNotif">←</span>
-      <span class="title">通知</span>
-    </div>
+    <div class="top-bar"><span class="back-btn" id="btnBackNotif">←</span><span class="title">通知</span></div>
     <div class="scroll-area" id="notifList" style="padding-top:4px"></div>
   </div>
 
   <!-- ======== 我的 ======== -->
   <div class="page" id="profilePage">
-    <div class="top-bar">
-      <span class="back-btn" id="btnBackProfile">←</span>
-      <span class="title">我的</span>
-    </div>
+    <div class="top-bar"><span class="back-btn" id="btnBackProfile">←</span><span class="title">我的</span></div>
     <div class="scroll-area">
       <div class="profile-card">
-        <img id="profileAvatarImg" src="" style="display:none">
-        <div id="profileAvatarPH" style="width:64px;height:64px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto">😀</div>
-        <div class="name" id="profileName"></div>
-        <div class="sig" id="profileUsername"></div>
-        <div class="profile-stats">
-          <span><b id="myPostCount">0</b>动态</span>
-          <span><b>0</b>关注</span>
-          <span><b>0</b>粉丝</span>
-        </div>
+        <img id="profileAvatarImg" src="" style="display:none;width:68px;height:68px;border-radius:50%;object-fit:cover;margin:0 auto">
+        <div id="profileAvatarPH" style="width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;margin:0 auto;color:#fff;font-weight:600;font-size:1.2rem">我</div>
+        <div style="font-weight:600;font-size:1.05rem;margin-top:10px" id="profileName"></div>
+        <div style="color:var(--text-secondary);font-size:0.8rem" id="profileUsername"></div>
+        <div style="display:flex;gap:24px;justify-content:center;margin-top:14px;font-size:0.88rem"><span>动态 <b id="myPostCount">0</b></span><span>关注 <b>0</b></span><span>粉丝 <b>0</b></span></div>
       </div>
-      <div class="menu-list">
-        <div class="menu-item" id="btnMyPosts">📝 我的动态</div>
-        <div class="menu-item" id="btnEditAvatar">🎨 更换头像</div>
-        <div class="menu-item" id="btnLogout" style="color:#ef4444">🚪 退出登录</div>
+      <div class="menu-card">
+        <div class="menu-row" id="btnMyPosts"><span style="font-size:1.2rem">📝</span> 我的动态</div>
+        <div class="menu-row" id="btnEditAvatar"><span style="font-size:1.2rem">🎨</span> 更换头像</div>
+        <div class="menu-row logout" id="btnLogout"><span style="font-size:1.2rem">🚪</span> 退出登录</div>
       </div>
     </div>
   </div>
 
   <!-- ======== 详情 ======== -->
   <div class="page" id="detailPage">
-    <div class="top-bar">
-      <span class="back-btn" id="btnBackDetail">←</span>
-      <span class="title">动态详情</span>
-    </div>
+    <div class="top-bar"><span class="back-btn" id="btnBackDetail">←</span><span class="title">动态详情</span></div>
     <div class="scroll-area" id="detailScroll"></div>
   </div>
 
@@ -315,12 +291,12 @@
       首页
     </div>
     <div class="nav-item" data-page="search">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16.5 16.5l4 4" stroke="currentColor" stroke-width="2" fill="none"/></svg>
       搜索
     </div>
-    <div class="nav-item publish-btn" data-page="publish">
+    <div class="nav-item pub" data-page="publish">
       <div class="pub-circle">
-        <svg viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="white" width="24" height="24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
       </div>
       发布
     </div>
@@ -336,27 +312,25 @@
 </div>
 
 <!-- 发布弹窗 -->
-<div class="publish-overlay" id="publishOverlay">
-  <div class="publish-top">
+<div class="pub-overlay" id="publishOverlay">
+  <div class="pub-top">
     <span class="back-btn" id="btnCancelPub">←</span>
     <span style="flex:1;text-align:center;font-weight:600">发布动态</span>
     <button class="btn-sm btn-primary" id="btnSubmitPub">发布</button>
   </div>
-  <div class="publish-body">
+  <div class="pub-body">
     <textarea id="pubText" placeholder="分享你的想法..."></textarea>
-    <div class="publish-preview" id="pubPreview">
-      <div class="add-btn" id="btnAddMedia">+</div>
-    </div>
+    <div class="pub-preview" id="pubPreview"><div class="add-btn" id="btnAddMedia">+</div></div>
   </div>
 </div>
 
 <!-- 头像弹窗 -->
 <div class="modal" id="avatarModal">
   <div class="modal-box">
-    <h3 style="margin-bottom:8px">选择头像</h3>
-    <div class="emoji-grid" id="emojiGrid"></div>
-    <button class="btn-sm btn-primary" id="btnPickPhoto">📷 从相册选择</button>
-    <button class="btn-sm btn-outline" id="btnCloseAv" style="margin-left:4px">完成</button>
+    <h3 style="margin-bottom:10px;font-weight:600">选择头像颜色</h3>
+    <div class="color-grid" id="colorGrid"></div>
+    <button class="btn-sm btn-primary" id="btnPickPhoto" style="margin-top:8px">📷 从相册选择</button>
+    <button class="btn-sm" style="background:var(--bg);margin-left:4px" id="btnCloseAv">完成</button>
   </div>
 </div>
 
@@ -364,10 +338,11 @@
 <input type="file" id="avatarInput" accept="image/*" style="display:none">
 
 <script>
-(async function(){
+window.onload=async function(){
   const $=id=>document.getElementById(id);
-  let user={username:null,nickname:'',avatar:'😀',avatarType:'emoji'};
+  let user={username:null,nickname:'',avatar:'3b82f6',avatarType:'color'};
   let posts=[],online=0,curPost=null,mediaFiles=[],currentFeed='following';
+  const colors=['3b82f6','6366f1','8b5cf6','ec4899','f43f5e','f97316','10b981','14b8a6'];
 
   const token=localStorage.getItem('chat_token');
   if(!token){localStorage.clear();location.href='/login.html';return}
@@ -375,56 +350,79 @@
     const r=await fetch('/api/auto-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
     const d=await r.json();
     if(!d.success){localStorage.clear();location.href='/login.html';return}
-    user={username:d.user.username,nickname:d.user.nickname,avatar:d.user.avatar,avatarType:d.user.avatarType||'emoji'};
+    user={username:d.user.username,nickname:d.user.nickname,avatar:d.user.avatar||'3b82f6',avatarType:d.user.avatarType||'color'};
   }catch(e){location.href='/login.html';return}
 
   $('loading').style.display='none';$('app').classList.add('show');
   updateAvatars();loadPosts();loadOnline();bindAll();
 
   function updateAvatars(){
-    const isImg=user.avatarType==='image'&&user.avatar;
-    ['home','profile'].forEach(p=>{
-      const img=$(p+'AvatarImg'),ph=$(p+'AvatarPH');
-      if(p==='home'){img=$('homeAvatarImg');ph=$('homeAvatarPH')}
-      if(isImg){img.src=user.avatar;img.style.display='block';ph.style.display='none'}
-      else{ph.textContent=user.avatar||'😀';img.style.display='none';ph.style.display='flex'}
-    });
-    $('profileName').textContent=user.nickname;
-    $('profileUsername').textContent='@'+user.username;
+    if(user.avatarType==='image'){
+      $('homeAvatarImg').src=user.avatar;$('homeAvatarImg').style.display='block';$('homeAvatarPH').style.display='none';
+      $('profileAvatarImg').src=user.avatar;$('profileAvatarImg').style.display='block';$('profileAvatarPH').style.display='none';
+    }else{
+      $('homeAvatarImg').style.display='none';$('homeAvatarPH').style.display='flex';
+      $('homeAvatarPH').style.background=`linear-gradient(135deg,#${user.avatar},#${user.avatar}dd)`;
+      $('profileAvatarImg').style.display='none';$('profileAvatarPH').style.display='flex';
+      $('profileAvatarPH').style.background=`linear-gradient(135deg,#${user.avatar},#${user.avatar}dd)`;
+    }
+    $('profileName').textContent=user.nickname;$('profileUsername').textContent='@'+user.username;
   }
 
-  function switchPage(p){
+  window.switchPage=function(p){
     document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
     const map={home:'homePage',search:'searchPage',notif:'notifPage',profile:'profilePage'};
     if(map[p])$(map[p]).classList.add('active');
     document.querySelectorAll('.bottom-nav .nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===p));
     if(p==='notif')loadNotif();
-    if(p==='profile'){const mp=posts.filter(x=>x.username===user.username);$('myPostCount').textContent=mp.length}
+    if(p==='profile')$('myPostCount').textContent=posts.filter(x=>x.username===user.username).length;
+  };
+
+  window.openDetail=function(id){
+    const p=posts.find(x=>x.id===id);if(!p)return;
+    document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+    $('detailPage').classList.add('active');
+    let media='';
+    if(p.imageUrl)media=`<img src="${p.imageUrl}" style="max-width:100%;border-radius:12px;margin-top:8px">`;
+    if(p.videoUrl)media=`<video src="${p.videoUrl}" controls style="max-width:100%;border-radius:12px;margin-top:8px"></video>`;
+    $('detailScroll').innerHTML=`
+      <div class="post"><div class="post-hd">${userAvatarEl(p)}<div class="u-info"><div class="u-name">${p.nickname}</div><div class="u-time">${new Date(p.timestamp).toLocaleString()}</div></div></div><div class="post-body">${esc(p.text||'')}${media}</div></div>
+      <div style="padding:0 12px"><h4 style="margin:8px 0;font-size:0.9rem">评论 (${(p.comments||[]).length})</h4>${(p.comments||[]).map(c=>`<div class="notif-card"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#${c.avatar||'3b82f6'},#${(c.avatar||'3b82f6')}dd);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.7rem;flex-shrink:0">${c.nickname?.[0]||'?'}</div><div style="flex:1"><b>${c.nickname}</b>：${esc(c.text)}<div style="font-size:0.65rem;color:var(--text-secondary)">${new Date(c.timestamp).toLocaleString()}</div></div></div>`).join('')}</div>`;
+  };
+
+  function userAvatarEl(p){
+    if(p.avatarType==='image')return `<img class="u-avatar" src="${p.avatar}">`;
+    const c=p.avatar||'3b82f6';
+    return `<div class="u-avatar-ph" style="background:linear-gradient(135deg,#${c},#${c}dd)">${(p.nickname||'?')[0]}</div>`;
   }
 
-  async function loadPosts(){try{const r=await fetch('/api/posts');const d=await r.json();posts=d.success?d.posts:[];renderFeed()}catch(e){}}
-  async function loadOnline(){try{const r=await fetch('/api/online-users');const d=await r.json();if(d.success)online=d.count}catch(e){}}
+  function toggleLike(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.likedBy)p.likedBy=[];const i=p.likedBy.indexOf(user.username);i>-1?(p.likedBy.splice(i,1),p.likes--):(p.likedBy.push(user.username),p.likes++);savePosts();renderFeed()}
+  function toggleFav(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.favoritedBy)p.favoritedBy=[];const i=p.favoritedBy.indexOf(user.username);i>-1?(p.favoritedBy.splice(i,1),p.favorites--):(p.favoritedBy.push(user.username),p.favorites++);savePosts();renderFeed()}
+  function addComment(){const t=$('commentInput')?.value?.trim();if(!t||!curPost)return;const p=posts.find(x=>x.id===curPost);if(!p)return;p.comments.push({nickname:user.nickname,username:user.username,avatar:user.avatar,avatarType:user.avatarType,text:t,timestamp:Date.now()});openDetail(curPost);savePosts()}
 
-  function renderFeed(){
+  function savePosts(){fetch('/api/save-posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({posts})}).catch(()=>{})}
+  async function loadPosts(){try{const r=await fetch('/api/posts');const d=await r.json();posts=d.success?d.posts:[];renderFeed()}catch(e){}}
+  async function loadOnline(){try{const r=await fetch('/api/online-users');const d=await r.json();if(d.success){online=d.count;$('homeOnline').textContent=`在线 ${d.count}`}}catch(e){}}
+
+  window.renderFeed=function(){
     const list=$('feedList');list.innerHTML='';
     let filtered=[...posts].sort((a,b)=>b.timestamp-a.timestamp);
     if(currentFeed==='following')filtered=filtered.filter(p=>p.username!==user.username);
-    if(!filtered.length){list.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:40px;font-size:0.9rem">暂无动态</div>';return}
+    if(!filtered.length){list.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:50px;font-size:0.9rem">暂无动态</div>';return}
     filtered.forEach(p=>{
-      const card=document.createElement('div');card.className='feed-card';
-      const av=p.avatarType==='image'?`<img class="user-avatar" src="${p.avatar}">`:`<div style="width:38px;height:38px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1rem">${p.avatar||'😀'}</div>`;
+      const card=document.createElement('div');card.className='post';
       let media='';
       if(p.imageUrl)media=`<img src="${p.imageUrl}" loading="lazy">`;
-      else if(p.videoUrl)media=`<video src="${p.videoUrl}" controls preload="metadata" style="max-width:100%;border-radius:10px;margin-top:8px;max-height:300px"></video>`;
+      else if(p.videoUrl)media=`<video src="${p.videoUrl}" controls preload="metadata" style="max-width:100%;border-radius:12px;margin-top:8px;max-height:320px"></video>`;
       card.innerHTML=`
-        <div class="feed-header">${av}<div class="user-info"><div class="user-name">${p.nickname}</div><div class="post-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>
-        <div class="feed-body">${esc(p.text||'')}${media}</div>
-        <div class="feed-actions">
+        <div class="post-hd">${userAvatarEl(p)}<div class="u-info"><div class="u-name">${p.nickname}</div><div class="u-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>
+        <div class="post-body">${esc(p.text||'')}${media}</div>
+        <div class="post-actions">
           <span class="${p.likedBy?.includes(user.username)?'liked':''}" data-act="like" data-id="${p.id}">❤️ ${p.likes||0}</span>
           <span data-act="comment" data-id="${p.id}">💬 ${(p.comments||[]).length}</span>
           <span class="${p.favoritedBy?.includes(user.username)?'liked':''}" data-act="fav" data-id="${p.id}">⭐ ${p.favorites||0}</span>
         </div>`;
-      card.querySelectorAll('.feed-actions span').forEach(el=>el.addEventListener('click',e=>{
+      card.querySelectorAll('.post-actions span').forEach(el=>el.addEventListener('click',e=>{
         e.stopPropagation();
         const id=el.dataset.id;
         if(el.dataset.act==='like')toggleLike(id);
@@ -435,36 +433,12 @@
       card.addEventListener('click',()=>openDetail(p.id));
       list.appendChild(card);
     });
-  }
+  };
 
-  function toggleLike(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.likedBy)p.likedBy=[];const i=p.likedBy.indexOf(user.username);i>-1?(p.likedBy.splice(i,1),p.likes--):(p.likedBy.push(user.username),p.likes++);savePosts()}
-  function toggleFav(id){const p=posts.find(x=>x.id===id);if(!p)return;if(!p.favoritedBy)p.favoritedBy=[];const i=p.favoritedBy.indexOf(user.username);i>-1?(p.favoritedBy.splice(i,1),p.favorites--):(p.favoritedBy.push(user.username),p.favorites++);savePosts()}
-  function savePosts(){fetch('/api/save-posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({posts})}).catch(()=>{})}
-
-  function openDetail(id){
-    const p=posts.find(x=>x.id===id);if(!p)return;
-    document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-    $('detailPage').classList.add('active');
-    let media='';
-    if(p.imageUrl)media=`<img src="${p.imageUrl}" style="max-width:100%;border-radius:10px;margin-top:8px">`;
-    if(p.videoUrl)media=`<video src="${p.videoUrl}" controls style="max-width:100%;border-radius:10px;margin-top:8px"></video>`;
-    $('detailScroll').innerHTML=`
-      <div class="feed-card">
-        <div class="feed-header">${p.avatarType==='image'?`<img class="user-avatar" src="${p.avatar}">`:`<div style="width:38px;height:38px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1rem">${p.avatar||'😀'}</div>`}<div class="user-info"><div class="user-name">${p.nickname}</div><div class="post-time">${new Date(p.timestamp).toLocaleString()}</div></div></div>
-        <div class="feed-body">${esc(p.text||'')}${media}</div>
-      </div>
-      <div style="padding:0 12px"><h4 style="margin:8px 0;font-size:0.9rem">评论 (${(p.comments||[]).length})</h4>
-      ${(p.comments||[]).map(c=>`<div class="notif-item"><div style="width:30px;height:30px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0">${c.avatar||'😀'}</div><div class="info"><b>${c.nickname}</b>：${esc(c.text)}<div class="time">${new Date(c.timestamp).toLocaleString()}</div></div></div>`).join('')}
-      </div>`;
-  }
-
-  function loadNotif(){
-    $('notifList').innerHTML=`
-      <div class="notif-item"><div style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🌿</div><div class="info"><b>系统通知</b><br>欢迎来到蓝社社区！当前在线 <b>${online}</b> 人</div><div class="time">刚刚</div></div>`;
-  }
+  function loadNotif(){$('notifList').innerHTML=`<div class="notif-card"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.9rem;flex-shrink:0">蓝</div><div style="flex:1"><b>系统通知</b><div style="font-size:0.8rem;color:var(--text-secondary)">欢迎来到蓝社！当前在线 <b>${online}</b> 人</div></div><div style="font-size:0.7rem;color:var(--text-secondary)">刚刚</div></div>`}
 
   function openPub(){$('publishOverlay').classList.add('show');$('pubText').value='';mediaFiles=[];renderPV()}
-  function renderPV(){const pv=$('pubPreview');pv.innerHTML='';mediaFiles.forEach(f=>{const u=URL.createObjectURL(f);const el=f.type.startsWith('video')?document.createElement('video'):document.createElement('img');el.src=u;el.style.cssText='width:80px;height:80px;border-radius:10px;object-fit:cover';pv.appendChild(el)});const a=document.createElement('div');a.className='add-btn';a.textContent='+';a.addEventListener('click',()=>$('mediaInput').click());pv.appendChild(a)}
+  function renderPV(){const pv=$('pubPreview');pv.innerHTML='';mediaFiles.forEach(f=>{const u=URL.createObjectURL(f);const el=f.type.startsWith('video')?document.createElement('video'):document.createElement('img');el.src=u;el.style.cssText='width:76px;height:76px;border-radius:10px;object-fit:cover';pv.appendChild(el)});const a=document.createElement('div');a.className='add-btn';a.textContent='+';a.addEventListener('click',()=>$('mediaInput').click());pv.appendChild(a)}
   function submitPub(){const t=$('pubText').value.trim();if(!t&&!mediaFiles.length)return;const p={id:'p'+Date.now(),text:t,avatar:user.avatar,avatarType:user.avatarType,nickname:user.nickname,username:user.username,timestamp:Date.now(),likes:0,comments:[],favorites:0,likedBy:[],favoritedBy:[]};if(mediaFiles.length){const f=mediaFiles[0];const r=new FileReader();r.onloadend=()=>{if(f.type.startsWith('video'))p.videoUrl=r.result;else p.imageUrl=r.result;posts.unshift(p);savePosts();renderFeed()};r.readAsDataURL(f)}else{posts.unshift(p);savePosts();renderFeed()}$('publishOverlay').classList.remove('show');switchPage('home')}
 
   function search(){
@@ -472,7 +446,7 @@
     const r=$('searchResult');
     if(!q){r.innerHTML='<div style="text-align:center;color:var(--text-secondary);padding:30px">输入关键词搜索</div>';return}
     const up=posts.filter(p=>p.nickname?.toLowerCase().includes(q)||p.text?.toLowerCase().includes(q));
-    r.innerHTML=up.length?up.map(p=>`<div class="user-row" onclick="document.getElementById('searchResult').innerHTML='';switchPage('home');openDetail('${p.id}')"><img src="${p.avatarType==='image'?p.avatar:''}" style="${p.avatarType!=='image'?'display:none':''}"><div style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:0.9rem;${p.avatarType==='image'?'display:none':''}">${p.avatar||'😀'}</div><div><b>${p.nickname}</b><br><small style="color:var(--text-secondary)">${esc((p.text||'').substring(0,30))}</small></div></div>`).join(''):'<div style="text-align:center;color:var(--text-secondary);padding:30px">未找到相关内容</div>';
+    r.innerHTML=up.length?up.map(p=>`<div class="notif-card" style="cursor:pointer" onclick="window.openDetail('${p.id}');window.switchPage('home')">${userAvatarEl(p)}<div style="flex:1"><b>${p.nickname}</b><br><small style="color:var(--text-secondary)">${esc((p.text||'').substring(0,35))}</small></div></div>`).join(''):'<div style="text-align:center;color:var(--text-secondary);padding:30px">未找到相关内容</div>';
   }
 
   function bindAll(){
@@ -494,15 +468,15 @@
     $('homeAvatarImg').addEventListener('click',openAvatar);
     $('btnCloseAv').addEventListener('click',()=>$('avatarModal').classList.remove('show'));
     $('btnPickPhoto').addEventListener('click',()=>$('avatarInput').click());
-    $('avatarInput').addEventListener('change',handleAvatar);
+    $('avatarInput').addEventListener('change',handlePhoto);
   }
 
-  function openAvatar(){renderEmoji();$('avatarModal').classList.add('show')}
-  function renderEmoji(){const g=$('emojiGrid');g.innerHTML='';const emojis=['😀','😎','🤖','👽','🐱','🦊','🐼','🐨','🦁','🐸','🐵','🦄','🐶','🐰','🦋','🌸'];emojis.forEach(e=>{const d=document.createElement('div');d.className='emoji-item';d.textContent=e;if(user.avatarType==='emoji'&&user.avatar===e)d.classList.add('sel');d.addEventListener('click',()=>{user.avatar=e;user.avatarType='emoji';updateAvatars();saveProfile();renderEmoji()});g.appendChild(d)})}
-  function handleAvatar(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);user.avatar=c.toDataURL('image/jpeg',0.7);user.avatarType='image';updateAvatars();saveProfile()};img.src=ev.target.result};r.readAsDataURL(f);$('avatarInput').value=''}
+  function openAvatar(){renderColorGrid();$('avatarModal').classList.add('show')}
+  function renderColorGrid(){const g=$('colorGrid');g.innerHTML='';colors.forEach(c=>{const d=document.createElement('div');d.className='color-item';d.style.background=`linear-gradient(135deg,#${c},#${c}dd)`;if(user.avatarType==='color'&&user.avatar===c)d.classList.add('sel');d.addEventListener('click',()=>{user.avatar=c;user.avatarType='color';updateAvatars();saveProfile();renderColorGrid()});g.appendChild(d)})}
+  function handlePhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>200){h*=200/w;w=200}}else{if(h>200){w*=200/h;h=200}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);user.avatar=c.toDataURL('image/jpeg',0.7);user.avatarType='image';updateAvatars();saveProfile()};img.src=ev.target.result};r.readAsDataURL(f);$('avatarInput').value=''}
   function saveProfile(){fetch('/api/update-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user.username,avatar:user.avatar,avatarType:user.avatarType})}).catch(()=>{})}
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-})();
+};
 </script>
 </body>
 </html>
