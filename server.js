@@ -7,18 +7,20 @@ const url = require('url');
 const PORT = process.env.PORT || 3000;
 
 // 数据目录
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = './data';
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
 const FAVORITES_FILE = path.join(DATA_DIR, 'favorites.json');
+const POSTS_FILE = path.join(DATA_DIR, 'posts.json');
 
-// ==================== 数据加载 ====================
 let users = {};
 let messages = [];
 let favorites = {};
+let posts = [];
 
+// ==================== 数据加载 ====================
 function loadJSON(file, fallback) {
   try {
     if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -29,6 +31,7 @@ function loadJSON(file, fallback) {
 users = loadJSON(USERS_FILE, {});
 messages = loadJSON(MESSAGES_FILE, []);
 favorites = loadJSON(FAVORITES_FILE, {});
+posts = loadJSON(POSTS_FILE, []);
 
 function saveJSON(file, data) {
   try { fs.writeFileSync(file, JSON.stringify(data, null, 2)); } catch(e) {}
@@ -117,7 +120,7 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'OPTIONS') { setHeaders(); res.writeHead(200); res.end(); return; }
 
-  // ======== API ========
+  // ======== 注册 ========
   if (pathname === '/api/register' && req.method === 'POST') {
     let body = '';
     req.on('data', c => body += c);
@@ -135,6 +138,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 登录 ========
   if (pathname === '/api/login' && req.method === 'POST') {
     let body = '';
     req.on('data', c => body += c);
@@ -152,6 +156,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 自动登录 ========
   if (pathname === '/api/auto-login' && req.method === 'POST') {
     let body = '';
     req.on('data', c => body += c);
@@ -168,6 +173,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 更新资料 ========
   if (pathname === '/api/update-profile' && req.method === 'POST') {
     let body = '';
     req.on('data', c => body += c);
@@ -188,6 +194,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 用户主页 ========
   if (pathname === '/api/user-profile' && req.method === 'GET') {
     setHeaders();
     const target = parsed.query.username;
@@ -203,6 +210,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 在线用户 ========
   if (pathname === '/api/online-users' && req.method === 'GET') {
     setHeaders();
     const list = [];
@@ -213,6 +221,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 消息列表 ========
   if (pathname === '/api/messages' && req.method === 'GET') {
     setHeaders();
     const all = messages.slice(-1000);
@@ -220,6 +229,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 收藏 ========
   if (pathname === '/api/favorites' && req.method === 'GET') {
     setHeaders();
     const username = parsed.query.username;
@@ -246,6 +256,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 撤回 ========
   if (pathname === '/api/recall-message' && req.method === 'POST') {
     let body = '';
     req.on('data', c => body += c);
@@ -266,10 +277,46 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ======== 帖子列表 ========
+  if (pathname === '/api/posts' && req.method === 'GET') {
+    setHeaders();
+    res.writeHead(200);
+    res.end(JSON.stringify({ success: true, posts }));
+    return;
+  }
+
+  // ======== 保存帖子 ========
+  if (pathname === '/api/save-posts' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      setHeaders();
+      try {
+        const data = JSON.parse(body);
+        if (data.posts) posts = data.posts;
+        saveJSON(POSTS_FILE, posts);
+        res.writeHead(200);
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) { res.writeHead(500); res.end(JSON.stringify({ success: false })); }
+    });
+    return;
+  }
+
   // ======== 静态文件 ========
   let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
   const ext = path.extname(filePath).toLowerCase();
-  const mimes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
+  const mimes = {
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'text/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon'
+  };
   const contentType = mimes[ext] || 'application/octet-stream';
 
   fs.readFile(filePath, (err, content) => {
@@ -365,6 +412,7 @@ wss.on('connection', (ws) => {
     onlineClients.delete(id);
     broadcastOnlineUsers();
     saveJSON(MESSAGES_FILE, messages);
+    saveJSON(POSTS_FILE, posts);
   });
 
   ws.on('error', () => {
@@ -373,11 +421,13 @@ wss.on('connection', (ws) => {
   });
 });
 
-setInterval(() => saveJSON(MESSAGES_FILE, messages), 15000);
+setInterval(() => {
+  saveJSON(MESSAGES_FILE, messages);
+  saveJSON(POSTS_FILE, posts);
+}, 15000);
 
 server.listen(PORT, () => {
-  console.log(`\n🌐 聊天室服务已启动`);
-  console.log(`📍 地址: http://localhost:${PORT}`);
-  console.log(`👥 用户数: ${Object.keys(users).length}`);
-  console.log(`💬 消息数: ${messages.length}\n`);
+  console.log(`\n🌿 青蓝社区已启动`);
+  console.log(`📍 http://localhost:${PORT}`);
+  console.log(`👥 ${Object.keys(users).length} 用户 | 💬 ${messages.length} 消息 | 📝 ${posts.length} 帖子\n`);
 });
