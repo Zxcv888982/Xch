@@ -6,15 +6,14 @@
   <title>登录 · 蓝社</title>
   <style>
     :root {
-      --blue: #3b82f6;
-      --blue-dark: #2563eb;
-      --blue-light: #eff6ff;
-      --bg: #f5f7fb;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-light: #eff6ff;
+      --bg: #f8fafc;
       --surface: #ffffff;
       --text: #1e293b;
-      --text-gray: #94a3b8;
+      --text-secondary: #94a3b8;
       --border: #e2e8f0;
-      --radius: 16px;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -27,91 +26,106 @@
     .container {
       width: 100%; max-width: 380px;
       background: var(--surface);
-      border-radius: 24px;
-      padding: 44px 28px 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
-      animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 28px;
+      padding: 44px 28px 36px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 8px 32px rgba(0,0,0,0.06);
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px); }
+      from { opacity: 0; transform: translateY(48px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .logo-area { text-align: center; margin-bottom: 36px; }
-    .logo-circle {
-      width: 68px; height: 68px; margin: 0 auto 16px;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
-      border-radius: 50%;
+    .brand-area { text-align: center; margin-bottom: 40px; }
+    .brand-icon {
+      width: 72px; height: 72px; margin: 0 auto 18px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+      border-radius: 22px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; color: #fff;
-      box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+      box-shadow: 0 12px 32px rgba(59,130,246,0.28);
+      position: relative;
+      overflow: hidden;
     }
-    .logo-title { font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
-    .logo-sub { font-size: 0.82rem; color: var(--text-gray); margin-top: 4px; }
-    .input-wrap { margin-bottom: 16px; position: relative; }
-    .input-wrap .icon {
+    .brand-icon::after {
+      content: ''; position: absolute;
+      width: 20px; height: 20px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%;
+      top: 12px; right: 10px;
+    }
+    .brand-icon svg { width: 36px; height: 36px; z-index: 1; }
+    .brand-name {
+      font-size: 1.6rem; font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.4px;
+    }
+    .brand-desc { font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px; font-weight: 400; }
+    .field { margin-bottom: 18px; position: relative; }
+    .field .field-icon {
       position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 1rem; z-index: 1;
+      z-index: 1; opacity: 0.5;
     }
-    .input-wrap input {
-      width: 100%; padding: 14px 14px 14px 40px;
+    .field input {
+      width: 100%; padding: 14px 14px 14px 44px;
       border: 1.5px solid var(--border);
       border-radius: 14px; font-size: 0.95rem;
       outline: none; background: var(--bg);
       transition: all 0.25s; color: var(--text);
+      font-family: inherit;
     }
-    .input-wrap input:focus {
-      border-color: var(--blue);
+    .field input:focus {
+      border-color: var(--primary);
       background: var(--surface);
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.06);
     }
-    .input-wrap input::placeholder { color: #b0b7c3; }
-    .btn-login {
+    .field input::placeholder { color: #bcc4d0; }
+    .submit-btn {
       width: 100%; padding: 14px; border: none; border-radius: 14px;
       font-size: 1rem; font-weight: 600; cursor: pointer;
       background: linear-gradient(135deg, #3b82f6, #6366f1);
-      color: #fff; margin-top: 6px;
-      box-shadow: 0 4px 14px rgba(59,130,246,0.3);
-      transition: all 0.25s; letter-spacing: 1px;
+      color: #fff; margin-top: 8px;
+      box-shadow: 0 6px 20px rgba(59,130,246,0.3);
+      transition: all 0.25s; letter-spacing: 0.5px; font-family: inherit;
     }
-    .btn-login:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(59,130,246,0.2); }
-    .toggle-row { text-align: center; margin-top: 18px; font-size: 0.84rem; color: var(--text-gray); }
-    .toggle-row span { color: var(--blue); font-weight: 600; cursor: pointer; }
-    .error-msg {
+    .submit-btn:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(59,130,246,0.18); }
+    .footer-text { text-align: center; margin-top: 22px; font-size: 0.84rem; color: var(--text-secondary); }
+    .footer-text span { color: var(--primary); font-weight: 600; cursor: pointer; }
+    .tip {
       color: #ef4444; font-size: 0.8rem; text-align: center;
       margin-top: 10px; display: none;
-      background: #fef2f2; padding: 8px 12px; border-radius: 10px;
+      background: #fef2f2; padding: 10px 14px; border-radius: 12px;
     }
-    .error-msg.show { display: block; }
-    .error-msg.success { color: #10b981; background: #f0fdf4; }
+    .tip.show { display: block; }
+    .tip.success { color: #10b981; background: #f0fdf4; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="logo-area">
-    <div class="logo-circle">🌿</div>
-    <div class="logo-title">蓝 社</div>
-    <div class="logo-sub">记录美好生活</div>
+  <div class="brand-area">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+    </div>
+    <div class="brand-name">蓝 社</div>
+    <div class="brand-desc">发现精彩 记录生活</div>
   </div>
 
-  <div class="input-wrap">
-    <span class="icon">👤</span>
+  <div class="field">
+    <svg class="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <input type="text" id="username" placeholder="用户名" autocomplete="username" maxlength="20">
   </div>
-  <div class="input-wrap">
-    <span class="icon">🔒</span>
+  <div class="field">
+    <svg class="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     <input type="password" id="password" placeholder="密码" autocomplete="current-password">
   </div>
-  <div class="input-wrap" id="nickWrap" style="display:none">
-    <span class="icon">✏️</span>
+  <div class="field" id="nickField" style="display:none">
+    <svg class="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
     <input type="text" id="nickname" placeholder="给自己起个昵称" maxlength="15">
   </div>
 
-  <div class="error-msg" id="errorMsg"></div>
-  <button class="btn-login" id="submitBtn">登 录</button>
-  <div class="toggle-row">
-    <span id="toggleLink">还没有账号？立即注册</span>
-  </div>
+  <div class="tip" id="tipMsg"></div>
+  <button class="submit-btn" id="submitBtn">登 录</button>
+  <div class="footer-text"><span id="toggleLink">还没有账号？立即注册</span></div>
 </div>
 
 <script>
@@ -123,13 +137,13 @@
     isLogin=!isLogin;
     $('submitBtn').textContent=isLogin?'登 录':'注 册';
     $('toggleLink').textContent=isLogin?'还没有账号？立即注册':'已有账号？去登录';
-    $('nickWrap').style.display=isLogin?'none':'block';
-    $('errorMsg').classList.remove('show','success');
+    $('nickField').style.display=isLogin?'none':'block';
+    $('tipMsg').classList.remove('show','success');
   });
   async function submit(){
     const u=$('username').value.trim(),p=$('password').value.trim();
-    $('errorMsg').classList.remove('show','success');
-    if(!u||!p){$('errorMsg').textContent='请填写用户名和密码';$('errorMsg').classList.add('show');return}
+    $('tipMsg').classList.remove('show','success');
+    if(!u||!p){$('tipMsg').textContent='请填写用户名和密码';$('tipMsg').classList.add('show');return}
     const url=isLogin?'/api/login':'/api/register';
     const body={username:u,password:p};
     if(!isLogin)body.nickname=$('nickname').value.trim()||u;
@@ -138,9 +152,9 @@
       const d=await r.json();
       if(d.success){
         if(isLogin){localStorage.setItem('chat_token',d.token);localStorage.setItem('chat_user',JSON.stringify(d.user));location.href='/'}
-        else{$('errorMsg').textContent='注册成功！请登录';$('errorMsg').classList.add('show','success');setTimeout(()=>$('toggleLink').click(),1000)}
-      }else{$('errorMsg').textContent=d.message||'操作失败';$('errorMsg').classList.add('show')}
-    }catch(e){$('errorMsg').textContent='网络错误';$('errorMsg').classList.add('show')}
+        else{$('tipMsg').textContent='注册成功！请登录';$('tipMsg').classList.add('show','success');setTimeout(()=>$('toggleLink').click(),1000)}
+      }else{$('tipMsg').textContent=d.message||'操作失败';$('tipMsg').classList.add('show')}
+    }catch(e){$('tipMsg').textContent='网络错误';$('tipMsg').classList.add('show')}
   }
   $('submitBtn').addEventListener('click',submit);
   $('password').addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
