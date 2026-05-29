@@ -3,19 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>登录 · BlueFlow</title>
+  <title>登录 · 蓝社</title>
   <style>
     :root {
-      --blue: #12b7f5;
-      --blue-dark: #0d9ed9;
-      --blue-light: #e8f7fd;
-      --bg: #f5f7fa;
-      --white: #ffffff;
-      --text: #1a1a2e;
-      --text-gray: #8e8e93;
-      --border: #e8ecf1;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --blue-light: #eff6ff;
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-gray: #94a3b8;
+      --border: #e2e8f0;
       --radius: 16px;
-      --shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -27,44 +26,34 @@
     }
     .container {
       width: 100%; max-width: 380px;
-      background: var(--white);
+      background: var(--surface);
       border-radius: 24px;
       padding: 44px 28px 32px;
-      box-shadow: var(--shadow);
-      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+      animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes slideUp {
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .logo-area {
-      text-align: center; margin-bottom: 36px;
-    }
+    .logo-area { text-align: center; margin-bottom: 36px; }
     .logo-circle {
-      width: 72px; height: 72px; margin: 0 auto 16px;
-      background: linear-gradient(135deg, #12b7f5, #0d9ed9);
+      width: 68px; height: 68px; margin: 0 auto 16px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.2rem;
-      box-shadow: 0 8px 24px rgba(18,183,245,0.25);
+      font-size: 2rem; color: #fff;
+      box-shadow: 0 8px 24px rgba(59,130,246,0.3);
     }
-    .logo-title {
-      font-size: 1.5rem; font-weight: 700; color: var(--text);
-      letter-spacing: -0.3px;
-    }
-    .logo-sub {
-      font-size: 0.82rem; color: var(--text-gray); margin-top: 4px;
-    }
-    .input-wrap {
-      margin-bottom: 18px;
-      position: relative;
-    }
+    .logo-title { font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+    .logo-sub { font-size: 0.82rem; color: var(--text-gray); margin-top: 4px; }
+    .input-wrap { margin-bottom: 16px; position: relative; }
     .input-wrap .icon {
       position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 1.1rem; z-index: 1;
+      font-size: 1rem; z-index: 1;
     }
     .input-wrap input {
-      width: 100%; padding: 14px 14px 14px 42px;
+      width: 100%; padding: 14px 14px 14px 40px;
       border: 1.5px solid var(--border);
       border-radius: 14px; font-size: 0.95rem;
       outline: none; background: var(--bg);
@@ -72,44 +61,37 @@
     }
     .input-wrap input:focus {
       border-color: var(--blue);
-      background: var(--white);
-      box-shadow: 0 0 0 3px rgba(18,183,245,0.08);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
     }
     .input-wrap input::placeholder { color: #b0b7c3; }
     .btn-login {
       width: 100%; padding: 14px; border: none; border-radius: 14px;
       font-size: 1rem; font-weight: 600; cursor: pointer;
-      background: linear-gradient(135deg, #12b7f5, #0d9ed9);
-      color: #fff; margin-top: 8px;
-      box-shadow: 0 4px 16px rgba(18,183,245,0.3);
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff; margin-top: 6px;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.3);
       transition: all 0.25s; letter-spacing: 1px;
     }
-    .btn-login:active {
-      transform: scale(0.97);
-      box-shadow: 0 2px 8px rgba(18,183,245,0.2);
-    }
-    .toggle-row {
-      text-align: center; margin-top: 20px;
-      font-size: 0.85rem; color: var(--text-gray);
-    }
-    .toggle-row span {
-      color: var(--blue); font-weight: 600; cursor: pointer;
-    }
+    .btn-login:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(59,130,246,0.2); }
+    .toggle-row { text-align: center; margin-top: 18px; font-size: 0.84rem; color: var(--text-gray); }
+    .toggle-row span { color: var(--blue); font-weight: 600; cursor: pointer; }
     .error-msg {
-      color: #ff3b30; font-size: 0.8rem; text-align: center;
+      color: #ef4444; font-size: 0.8rem; text-align: center;
       margin-top: 10px; display: none;
-      background: #fff0f0; padding: 8px 12px; border-radius: 10px;
+      background: #fef2f2; padding: 8px 12px; border-radius: 10px;
     }
     .error-msg.show { display: block; }
+    .error-msg.success { color: #10b981; background: #f0fdf4; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="logo-area">
-    <div class="logo-circle">💬</div>
-    <div class="logo-title">BlueFlow</div>
-    <div class="logo-sub">登录你的账号</div>
+    <div class="logo-circle">🌿</div>
+    <div class="logo-title">蓝 社</div>
+    <div class="logo-sub">记录美好生活</div>
   </div>
 
   <div class="input-wrap">
@@ -142,11 +124,11 @@
     $('submitBtn').textContent=isLogin?'登 录':'注 册';
     $('toggleLink').textContent=isLogin?'还没有账号？立即注册':'已有账号？去登录';
     $('nickWrap').style.display=isLogin?'none':'block';
-    $('errorMsg').classList.remove('show');
+    $('errorMsg').classList.remove('show','success');
   });
   async function submit(){
     const u=$('username').value.trim(),p=$('password').value.trim();
-    $('errorMsg').classList.remove('show');
+    $('errorMsg').classList.remove('show','success');
     if(!u||!p){$('errorMsg').textContent='请填写用户名和密码';$('errorMsg').classList.add('show');return}
     const url=isLogin?'/api/login':'/api/register';
     const body={username:u,password:p};
@@ -156,7 +138,7 @@
       const d=await r.json();
       if(d.success){
         if(isLogin){localStorage.setItem('chat_token',d.token);localStorage.setItem('chat_user',JSON.stringify(d.user));location.href='/'}
-        else{$('errorMsg').textContent='✅ 注册成功！请登录';$('errorMsg').style.color='#34c759';$('errorMsg').style.background='#f0fff4';$('errorMsg').classList.add('show');setTimeout(()=>$('toggleLink').click(),1000)}
+        else{$('errorMsg').textContent='注册成功！请登录';$('errorMsg').classList.add('show','success');setTimeout(()=>$('toggleLink').click(),1000)}
       }else{$('errorMsg').textContent=d.message||'操作失败';$('errorMsg').classList.add('show')}
     }catch(e){$('errorMsg').textContent='网络错误';$('errorMsg').classList.add('show')}
   }
